@@ -54,7 +54,6 @@ export default function AiAdvisorPage() {
     <div className="flex flex-col gap-8 flex-1">
       <ProgressIndicator
         currentStep={2}
-        totalSteps={6}
         label="AI Advisor"
       />
 

@@ -18,6 +18,9 @@ export function QuoteResults() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const source = searchParams.get('source') ?? 'pre-configured';
   const employeeBand = searchParams.get('employees') ?? '2-5';
+  const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const revenue = searchParams.get('revenue') ?? '';
+  const coverageArea = searchParams.get('coverageArea') ?? '';
 
   // Resolve business type
   const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
@@ -81,14 +84,16 @@ export function QuoteResults() {
       limits: JSON.stringify(coverageLimits),
       source: source,
       employees: employeeBand,
+      emirate,
     });
-    // Route to company details step first, then checkout
+    if (revenue) params.set('revenue', revenue);
+    if (coverageArea) params.set('coverageArea', coverageArea);
     router.push(`/quote/company-details?${params.toString()}`);
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={4} totalSteps={6} label="Your quotes" />
+      <ProgressIndicator currentStep={3} label="Your quotes" />
 
       {/* Header */}
       <div className="max-w-3xl mx-auto px-4 w-full">
@@ -98,7 +103,7 @@ export function QuoteResults() {
               Your quotes
             </h1>
             <p className="mt-1 text-sm text-text-muted">
-              {businessType.title} · Dubai
+              {businessType.title} · {emirate}
             </p>
           </div>
           <div className="text-right shrink-0">

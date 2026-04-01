@@ -31,7 +31,7 @@ export function Confirmation() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={7} totalSteps={7} label="Confirmed" />
+      <ProgressIndicator currentStep={6} label="Confirmed" />
 
       <div className="max-w-3xl mx-auto px-4 w-full text-center">
         {/* Success icon */}

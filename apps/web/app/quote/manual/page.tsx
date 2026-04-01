@@ -80,7 +80,6 @@ export default function ManualInputPage() {
     <div className="flex flex-col gap-8">
       <ProgressIndicator
         currentStep={2}
-        totalSteps={6}
         label="Business details"
       />
 

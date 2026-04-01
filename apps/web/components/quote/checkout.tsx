@@ -103,7 +103,7 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={6} totalSteps={7} label="Checkout" />
+      <ProgressIndicator currentStep={5} label="Checkout" />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">

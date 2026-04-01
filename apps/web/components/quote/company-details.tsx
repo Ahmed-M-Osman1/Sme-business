@@ -172,8 +172,7 @@ export function CompanyDetails() {
   return (
     <div className="flex flex-col gap-6">
       <ProgressIndicator
-        currentStep={5}
-        totalSteps={7}
+        currentStep={4}
         label="Company details"
       />
 

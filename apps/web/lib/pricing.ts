@@ -9,11 +9,10 @@ const COVERAGE_MULTIPLIERS: Record<string, number> = {
 };
 
 const SIZE_FACTORS: Record<string, number> = {
-  '1': 1.0,
+  solo: 1.0,
   '2-5': 1.1,
-  '6-10': 1.2,
-  '11-25': 1.3,
-  '26-50': 1.4,
+  '6-20': 1.2,
+  '21-50': 1.3,
   '51-100': 1.5,
   '100+': 1.6,
 };
