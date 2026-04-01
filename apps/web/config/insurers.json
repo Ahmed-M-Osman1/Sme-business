@@ -1,0 +1,34 @@
+[
+  {
+    "id": "salama",
+    "name": "Salama Insurance",
+    "rating": 4.3,
+    "reviewCount": 512,
+    "shariahCompliant": true,
+    "priceMultiplier": 1.0
+  },
+  {
+    "id": "watania",
+    "name": "Watania Takaful",
+    "rating": 4.4,
+    "reviewCount": 634,
+    "shariahCompliant": true,
+    "priceMultiplier": 1.023
+  },
+  {
+    "id": "sukoon",
+    "name": "Sukoon Insurance",
+    "rating": 4.5,
+    "reviewCount": 781,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.057
+  },
+  {
+    "id": "orient",
+    "name": "Orient Insurance",
+    "rating": 4.7,
+    "reviewCount": 1105,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.218
+  }
+]
