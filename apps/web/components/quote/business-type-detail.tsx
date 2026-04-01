@@ -118,7 +118,6 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
   }
 
   function handleGetQuotes() {
-    // Validate asset values are filled for selected assets
     const missingValues = new Set<string>();
     selectedAssets.forEach((id) => {
       const val = assetValues[id]?.trim();
@@ -153,66 +152,66 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
   }
 
   return (
-    <Card className="rounded-2xl border-2 border-primary bg-white shadow-md overflow-hidden">
-      <CardContent className="flex flex-col gap-5 p-5">
-        {/* Card Header — expanded state */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center text-2xl shrink-0">
-            {businessType.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-text text-sm sm:text-base">
-                {businessType.title}
-              </span>
-              <Badge
-                className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${
-                  RISK_BADGE_STYLES[businessType.riskLevel]
-                }`}
-              >
-                {businessType.riskLevel} risk
-              </Badge>
-            </div>
-            <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-              {businessType.description}
-            </p>
-          </div>
-          <button
-            onClick={onCollapse}
-            className="w-8 h-8 rounded-full bg-surface flex items-center justify-center shrink-0 hover:bg-border transition-colors"
-            aria-label="Collapse"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              className="text-text-muted"
-            >
-              <path
-                d="M3.5 8.75L7 5.25L10.5 8.75"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+    <Card className="rounded-2xl border-2 border-primary bg-white shadow-lg overflow-hidden">
+      {/* Header bar */}
+      <div className="bg-linear-to-r from-primary/5 to-transparent px-5 py-4 flex items-center gap-3 border-b border-primary/10">
+        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl shrink-0">
+          {businessType.icon}
         </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-text text-base sm:text-lg">
+              {businessType.title}
+            </span>
+            <Badge
+              className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${
+                RISK_BADGE_STYLES[businessType.riskLevel]
+              }`}
+            >
+              {businessType.riskLevel} risk
+            </Badge>
+          </div>
+          <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+            {businessType.description}
+          </p>
+        </div>
+        <button
+          onClick={onCollapse}
+          className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center shrink-0 hover:bg-surface transition-colors"
+          aria-label="Collapse"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            className="text-text-muted"
+          >
+            <path
+              d="M10.5 8.75L7 5.25L3.5 8.75"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
 
+      <CardContent className="flex flex-col gap-5 p-5">
         {/* Recommended Covers */}
         <div>
-          <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2">
             Recommended Covers
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {businessType.products.map((productId) => {
               const product = products[productId as ProductId];
               if (!product) return null;
               return (
                 <span
                   key={productId}
-                  className="inline-flex items-center gap-1 text-xs bg-surface text-text-muted rounded-full px-2.5 py-1"
+                  className="inline-flex items-center gap-1.5 text-xs bg-primary/5 text-primary border border-primary/15 rounded-full px-3 py-1.5 font-medium"
                 >
                   <span>{product.icon}</span>
                   <span>{product.shortName}</span>
@@ -222,11 +221,11 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
           </div>
         </div>
 
-        <div className="border-t border-border" />
+        <div className="h-px bg-border" />
 
         {/* Employees */}
         <div>
-          <p className="text-sm font-medium text-text mb-2">Employees</p>
+          <p className="text-sm font-medium text-text mb-2.5">Employees</p>
           <div className="grid grid-cols-3 gap-2">
             {EMPLOYEE_OPTIONS.map((opt) => (
               <button
@@ -235,7 +234,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                 className={`rounded-xl py-2.5 text-sm font-medium transition-all duration-200 ${
                   employees === opt.value
                     ? 'bg-primary text-white shadow-sm'
-                    : 'bg-surface text-text border border-border hover:border-primary'
+                    : 'bg-white text-text border border-border hover:border-primary/40'
                 }`}
               >
                 {opt.label}
@@ -246,7 +245,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
 
         {/* Estimated Annual Revenue */}
         <div>
-          <p className="text-sm font-medium text-text mb-2">
+          <p className="text-sm font-medium text-text mb-2.5">
             Estimated annual revenue
           </p>
           <div className="flex flex-col gap-2">
@@ -257,12 +256,27 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                 className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
                   revenue === opt.value
                     ? 'border-2 border-primary bg-primary/5 text-text font-medium'
-                    : 'border border-border bg-white text-text hover:border-primary'
+                    : 'border border-border bg-white text-text hover:border-primary/40'
                 }`}
               >
                 <span>{opt.label}</span>
                 {revenue === opt.value && (
-                  <span className="text-primary font-bold">✓</span>
+                  <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 5.5L4 7.5L8 3"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
                 )}
               </button>
             ))}
@@ -276,7 +290,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             <select
               value={emirate}
               onChange={(e) => setEmirate(e.target.value)}
-              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
               {EMIRATES.map((e) => (
                 <option key={e} value={e}>
@@ -292,7 +306,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             <select
               value={coverageArea}
               onChange={(e) => setCoverageArea(e.target.value)}
-              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
               {COVERAGE_AREAS.map((ca) => (
                 <option key={ca} value={ca}>
@@ -307,74 +321,84 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         <div>
           <p className="text-sm font-medium text-text mb-0.5">
             High-value assets{' '}
-            <span className="text-text-muted font-normal">
+            <span className="text-text-muted font-normal text-xs">
               — tick any over AED 5,000
             </span>
           </p>
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2.5">
             {ASSET_TYPES.map((asset) => {
               const isSelected = selectedAssets.has(asset.id);
               return (
-                <div key={asset.id}>
-                  <button
-                    onClick={() => toggleAsset(asset.id)}
-                    className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all duration-200 ${
-                      isSelected
-                        ? 'border-2 border-primary bg-primary/5'
-                        : 'border border-border bg-white hover:border-primary'
-                    }`}
-                  >
-                    <span className="text-lg shrink-0">{asset.icon}</span>
+                <div
+                  key={asset.id}
+                  onClick={() => toggleAsset(asset.id)}
+                  className={`rounded-2xl p-3.5 cursor-pointer transition-all duration-200 flex flex-col gap-2.5 ${
+                    isSelected
+                      ? 'border-2 border-primary bg-primary/5 shadow-sm'
+                      : 'border border-border bg-white hover:border-primary/40 hover:shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-2xl shrink-0">{asset.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text">
+                      <p className="text-xs font-semibold text-text leading-tight">
                         {asset.name}
                       </p>
-                      <p className="text-xs text-text-muted">
+                      <p className="text-[10px] text-text-muted mt-0.5">
                         {asset.description}
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                      className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
                         isSelected
                           ? 'bg-primary text-white'
                           : 'bg-surface text-text-muted'
                       }`}
                     >
-                      {isSelected ? '✓' : '+'}
-                    </span>
-                  </button>
-                  {isSelected && (
-                    <div className="mt-1.5 ml-10">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-text-muted">AED</span>
-                        <input
-                          type="number"
-                          value={assetValues[asset.id] ?? ''}
-                          onChange={(e) => {
-                            setAssetValues((prev) => ({
-                              ...prev,
-                              [asset.id]: e.target.value,
-                            }));
-                            setAssetErrors((prev) => {
-                              const next = new Set(prev);
-                              next.delete(asset.id);
-                              return next;
-                            });
-                          }}
-                          placeholder="e.g. 150000"
-                          className={`flex-1 rounded-lg border px-3 py-2 text-sm bg-white text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary ${
-                            assetErrors.has(asset.id)
-                              ? 'border-red-500'
-                              : 'border-border'
-                          }`}
-                        />
-                      </div>
-                      {assetErrors.has(asset.id) && (
-                        <p className="mt-1 text-xs text-red-500">
-                          Please enter the estimated value
-                        </p>
+                      {isSelected && (
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                          <path d="M2 5.5L4 7.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       )}
-                    </div>
+                    </span>
+                  </div>
+                  {/* AED input — typing auto-selects */}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 ${
+                      isSelected
+                        ? 'bg-white border border-primary/20'
+                        : 'bg-surface border border-transparent'
+                    }`}
+                  >
+                    <span className="text-[11px] font-medium text-text-muted shrink-0">
+                      AED
+                    </span>
+                    <input
+                      type="number"
+                      value={assetValues[asset.id] ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setAssetValues((prev) => ({...prev, [asset.id]: val}));
+                        if (val.trim() && !selectedAssets.has(asset.id)) {
+                          setSelectedAssets((prev) => new Set(prev).add(asset.id));
+                        }
+                        setAssetErrors((prev) => {
+                          const next = new Set(prev);
+                          next.delete(asset.id);
+                          return next;
+                        });
+                      }}
+                      placeholder="0"
+                      className={`flex-1 bg-transparent text-xs text-text placeholder:text-text-muted/40 focus:outline-none min-w-0 ${
+                        assetErrors.has(asset.id) ? 'text-red-500' : ''
+                      }`}
+                    />
+                  </div>
+                  {assetErrors.has(asset.id) && (
+                    <p className="text-[10px] text-red-500 -mt-1">
+                      Enter a value
+                    </p>
                   )}
                 </div>
               );
@@ -385,9 +409,24 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         {/* CTA */}
         <Button
           onClick={handleGetQuotes}
-          className="w-full rounded-xl bg-primary text-white py-3 text-base font-medium hover:bg-primary/90 transition-all duration-200 sticky bottom-0"
+          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
         >
-          Get my quotes →
+          Get my quotes
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            className="ml-2 inline"
+          >
+            <path
+              d="M6.75 3.75L12 9L6.75 14.25"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Button>
       </CardContent>
     </Card>

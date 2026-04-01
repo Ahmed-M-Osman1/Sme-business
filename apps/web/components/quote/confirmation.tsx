@@ -17,7 +17,9 @@ export function Confirmation() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
   const total = Number(searchParams.get('total') ?? '0');
-  const productIds = (searchParams.get('products') ?? '').split(',') as ProductId[];
+  const productIds = (searchParams.get('products') ?? '').split(
+    ',',
+  ) as ProductId[];
   const limits: Record<string, string> = JSON.parse(
     searchParams.get('limits') ?? '{}',
   );
@@ -26,32 +28,48 @@ export function Confirmation() {
   const businessName = searchParams.get('businessName') ?? '';
   const emirate = searchParams.get('emirate') ?? 'Dubai';
 
-  const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
+  const businessType =
+    businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
   return (
     <div className="flex flex-col gap-6">
       <ProgressIndicator currentStep={6} label="Confirmed" />
 
+      {/* Success hero */}
       <div className="max-w-3xl mx-auto px-4 w-full text-center">
-        {/* Success icon */}
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center text-4xl mx-auto">
-          ✓
+        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path
+              d="M9 19.5L15 25.5L27 12"
+              stroke="#22c55e"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
-        <h1 className="mt-6 text-2xl sm:text-3xl font-bold text-text">
+        <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-text">
           Your policy is confirmed!
         </h1>
         <p className="mt-2 text-text-muted">
-          A confirmation has been sent to {email}
+          A confirmation has been sent to{' '}
+          <span className="font-medium text-text">{email}</span>
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-6">
+      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">
         {/* Policy Summary */}
-        <Card className="rounded-2xl border border-border bg-white">
-          <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-border">
-              <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-lg font-bold text-text">
+        <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
+          <div className="bg-surface px-5 py-2.5">
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+              Policy summary
+            </p>
+          </div>
+          <CardContent className="flex flex-col gap-4 p-5">
+            {/* Insurer */}
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary/80 flex items-center justify-center text-lg font-bold text-white">
                 {insurer.name.charAt(0)}
               </div>
               <div>
@@ -64,19 +82,27 @@ export function Confirmation() {
               </div>
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span className="text-text-muted">Policy holder</span>
-              <span className="text-text font-medium">{name}</span>
+            {/* Details grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-surface rounded-lg px-3 py-2">
+                <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                  Policy holder
+                </p>
+                <p className="text-sm font-medium text-text mt-0.5">{name}</p>
+              </div>
+              {businessName && (
+                <div className="bg-surface rounded-lg px-3 py-2">
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                    Business
+                  </p>
+                  <p className="text-sm font-medium text-text mt-0.5">
+                    {businessName}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {businessName && (
-              <div className="flex justify-between text-sm">
-                <span className="text-text-muted">Business</span>
-                <span className="text-text font-medium">{businessName}</span>
-              </div>
-            )}
-
-            <div className="border-t border-border" />
+            <div className="h-px bg-border" />
 
             {/* Product lines */}
             {productIds
@@ -93,37 +119,72 @@ export function Confirmation() {
                       <span>{product.icon}</span>
                       <span className="text-text">{product.name}</span>
                     </div>
-                    <span className="text-xs text-text-muted">
+                    <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
                       AED {limit}
                     </span>
                   </div>
                 );
               })}
 
-            <div className="border-t border-border pt-4 flex items-center justify-between">
+            <div className="h-px bg-border" />
+
+            <div className="flex items-center justify-between">
               <span className="font-bold text-text">Total Premium</span>
-              <span className="font-bold text-primary text-lg">
-                AED {formatPrice(total)}/yr
+              <span className="font-bold text-primary text-xl">
+                AED {formatPrice(total)}
+                <span className="text-xs font-normal text-text-muted">
+                  /yr
+                </span>
               </span>
             </div>
           </CardContent>
         </Card>
 
         {/* Actions */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             asChild
-            className="w-full rounded-xl bg-primary text-white py-3 font-medium"
+            className="flex-1 rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm"
           >
-            <Link href="/">Back to Home</Link>
+            <Link href="/">
+              Back to Home
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="ml-2 inline"
+              >
+                <path
+                  d="M6 3.333L10.667 8L6 12.667"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
           </Button>
           <Button
             variant="outline"
-            className="w-full rounded-xl border-border py-3 font-medium text-text"
-            onClick={() =>
-              alert('Download feature coming soon')
-            }
+            className="flex-1 rounded-xl border-2 border-border py-3.5 font-semibold text-text hover:bg-surface transition-colors"
+            onClick={() => alert('Download feature coming soon')}
           >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="mr-2 inline"
+            >
+              <path
+                d="M8 2v8m0 0l-3-3m3 3l3-3M3 12h10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             Download Summary
           </Button>
         </div>

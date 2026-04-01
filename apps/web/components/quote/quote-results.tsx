@@ -22,10 +22,8 @@ export function QuoteResults() {
   const revenue = searchParams.get('revenue') ?? '';
   const coverageArea = searchParams.get('coverageArea') ?? '';
 
-  // Resolve business type
-  const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
-
-  // Resolve products from business type or from manual toggles
+  const businessType =
+    businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const initialProducts = resolveProducts(searchParams, businessType);
 
   const [activeProducts, setActiveProducts] = useState<Set<ProductId>>(
@@ -40,11 +38,9 @@ export function QuoteResults() {
       return limits;
     },
   );
-  const [takafulOpen, setTakafulOpen] = useState(false);
 
   const sizeFactor = getSizeFactor(employeeBand);
 
-  // Calculate prices for each insurer
   const insurerQuotes = useMemo(() => {
     return insurers
       .map((insurer) => {
@@ -66,7 +62,7 @@ export function QuoteResults() {
     setActiveProducts((prev) => {
       const next = new Set(prev);
       if (next.has(productId)) {
-        if (next.size <= 1) return prev; // Can't remove last product
+        if (next.size <= 1) return prev;
         next.delete(productId);
       } else {
         next.add(productId);
@@ -95,29 +91,36 @@ export function QuoteResults() {
     <div className="flex flex-col gap-6">
       <ProgressIndicator currentStep={3} label="Your quotes" />
 
-      {/* Header */}
+      {/* Header with price highlight */}
       <div className="max-w-3xl mx-auto px-4 w-full">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-text">
-              Your quotes
-            </h1>
-            <p className="mt-1 text-sm text-text-muted">
-              {businessType.title} · {emirate}
-            </p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-xs text-text-muted">From</p>
-            <p className="text-xl sm:text-2xl font-bold text-primary">
-              AED {formatPrice(lowestPrice)}
-              <span className="text-xs font-normal text-text-muted">/yr</span>
-            </p>
-          </div>
-        </div>
+        <Card className="rounded-2xl border-2 border-primary bg-linear-to-r from-primary/5 to-white overflow-hidden">
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-text">
+                Your quotes
+              </h1>
+              <p className="mt-0.5 text-sm text-text-muted">
+                {businessType.title} · {emirate}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-[11px] text-text-muted uppercase tracking-wider">
+                From
+              </p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary leading-tight">
+                AED {formatPrice(lowestPrice)}
+              </p>
+              <p className="text-[11px] text-text-muted">/year incl. tax</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Product Toggle Chips */}
       <div className="max-w-3xl mx-auto px-4 w-full">
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+          Included covers
+        </p>
         <div className="flex flex-wrap gap-2">
           {initialProducts.map((productId) => {
             const product = productsConfig[productId];
@@ -126,21 +129,34 @@ export function QuoteResults() {
               <button
                 key={productId}
                 onClick={() => toggleProduct(productId)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-text text-white'
-                    : 'bg-white text-text-muted border border-border'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-white text-text-muted border border-border hover:border-primary/40'
                 }`}
               >
                 <span>{product.icon}</span>
                 <span>{product.shortName}</span>
-                {isActive && <span>✓</span>}
+                {isActive && (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="ml-0.5"
+                  >
+                    <path
+                      d="M2.5 6.5L5 9L9.5 3.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
               </button>
             );
           })}
-          <span className="text-xs text-text-muted self-center ml-1">
-            Tap to toggle
-          </span>
         </div>
       </div>
 
@@ -151,33 +167,40 @@ export function QuoteResults() {
           return (
             <Card
               key={insurer.id}
-              className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden"
+              className={`rounded-2xl bg-white overflow-hidden transition-all duration-200 ${
+                isBestPrice
+                  ? 'border-2 border-green-500 shadow-md'
+                  : 'border border-border shadow-sm hover:shadow-md'
+              }`}
             >
-              {/* Compliance Badges */}
+              {/* Badge bar */}
               {(isBestPrice || insurer.shariahCompliant) && (
                 <div
-                  className={`px-4 py-2 flex items-center justify-between text-xs font-medium ${
+                  className={`px-5 py-2 flex items-center gap-2 text-xs font-medium ${
                     isBestPrice
                       ? 'bg-green-50 text-green-700'
                       : 'bg-amber-50 text-amber-700'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    {isBestPrice && <span>🏷️ Best price</span>}
-                    {isBestPrice && insurer.shariahCompliant && (
-                      <span>·</span>
-                    )}
-                    {insurer.shariahCompliant && (
-                      <span>☪ Shariah-compliant</span>
-                    )}
-                  </div>
+                  {isBestPrice && (
+                    <span className="inline-flex items-center gap-1">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                      >
+                        <path
+                          d="M7 1.75L8.64 5.09L12.25 5.61L9.625 8.16L10.28 11.75L7 10.01L3.72 11.75L4.375 8.16L1.75 5.61L5.36 5.09L7 1.75Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Best price
+                    </span>
+                  )}
+                  {isBestPrice && insurer.shariahCompliant && <span>·</span>}
                   {insurer.shariahCompliant && (
-                    <button
-                      onClick={() => setTakafulOpen(true)}
-                      className="underline opacity-75 hover:opacity-100"
-                    >
-                      What is Takaful?
-                    </button>
+                    <span>☪ Shariah-compliant</span>
                   )}
                 </div>
               )}
@@ -185,55 +208,48 @@ export function QuoteResults() {
               <CardContent className="p-5 flex flex-col gap-4">
                 {/* Insurer Info */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-lg font-bold text-text">
+                  <div
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold text-white ${
+                      isBestPrice ? 'bg-green-500' : 'bg-primary/80'
+                    }`}
+                  >
                     {insurer.name.charAt(0)}
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-text text-sm">
                       {insurer.name}
                     </p>
-                    <div className="flex items-center gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs mt-0.5">
                       <span className="text-yellow-400">
                         {'★'.repeat(Math.round(insurer.rating))}
                       </span>
                       <span className="text-text-muted">
-                        {insurer.rating} · {insurer.reviewCount.toLocaleString()}
+                        {insurer.rating} ·{' '}
+                        {insurer.reviewCount.toLocaleString()} reviews
                       </span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-text">
+                    <p className="text-xl font-bold text-text">
                       AED {formatPrice(insurer.total)}
                     </p>
-                    <p className="text-[10px] text-text-muted">
-                      /year incl. tax
-                    </p>
+                    <p className="text-[10px] text-text-muted">/year incl. tax</p>
                   </div>
                 </div>
 
-                {/* Product Chips */}
-                <div className="flex flex-wrap gap-1.5">
+                {/* Coverage Limit Selectors */}
+                <div className="flex flex-wrap gap-2 bg-surface rounded-xl p-3">
                   {Array.from(activeProducts).map((productId) => {
                     const product = productsConfig[productId];
                     return (
-                      <span
+                      <div
                         key={productId}
-                        className="inline-flex items-center gap-1 text-[10px] bg-surface text-text-muted rounded-full px-2 py-0.5"
+                        className="flex items-center gap-1.5 text-xs"
                       >
                         <span>{product.icon}</span>
-                        <span>{product.shortName}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-
-                {/* Coverage Limit Selectors */}
-                <div className="flex flex-wrap gap-2">
-                  {Array.from(activeProducts).map((productId) => {
-                    const product = productsConfig[productId];
-                    return (
-                      <div key={productId} className="flex items-center gap-1.5 text-xs">
-                        <span className="text-text-muted">{product.shortName}:</span>
+                        <span className="text-text-muted">
+                          {product.shortName}:
+                        </span>
                         <select
                           value={coverageLimits[productId] ?? '1M'}
                           onChange={(e) =>
@@ -242,7 +258,7 @@ export function QuoteResults() {
                               [productId]: e.target.value,
                             }))
                           }
-                          className="rounded-lg border border-border bg-white px-2 py-1 text-xs text-text focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="rounded-lg border border-border bg-white px-2 py-1 text-xs text-text focus:outline-none focus:ring-1 focus:ring-primary appearance-none"
                         >
                           <option value="1M">AED 1M</option>
                           <option value="2M">AED 2M</option>
@@ -255,55 +271,37 @@ export function QuoteResults() {
 
                 {/* CTA */}
                 <Button
-                  onClick={() => handleSelectInsurer(insurer.id, insurer.total)}
-                  className="w-full rounded-xl bg-text text-white py-3 font-medium hover:bg-text/90 transition-all duration-200"
+                  onClick={() =>
+                    handleSelectInsurer(insurer.id, insurer.total)
+                  }
+                  className={`w-full rounded-xl py-3 font-semibold transition-all duration-200 ${
+                    isBestPrice
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-text text-white hover:bg-text/90'
+                  }`}
                 >
-                  Select & Buy →
+                  Select & Continue
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className="ml-2 inline"
+                  >
+                    <path
+                      d="M6 3.333L10.667 8L6 12.667"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </Button>
               </CardContent>
             </Card>
           );
         })}
       </div>
-
-      {/* Takaful Bottom Sheet */}
-      {takafulOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center"
-          onClick={() => setTakafulOpen(false)}
-        >
-          <div
-            className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-6 max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold text-text mb-4">
-              What is Takaful?
-            </h2>
-            <div className="flex flex-col gap-3 text-sm text-text-muted leading-relaxed">
-              <p>
-                Takaful is an Islamic insurance concept based on mutual
-                cooperation. Participants contribute to a shared fund that is
-                used to support members in times of need.
-              </p>
-              <p>
-                Unlike conventional insurance, Takaful operates on the
-                principles of shared responsibility, mutual assistance, and the
-                avoidance of uncertainty (gharar) and interest (riba).
-              </p>
-              <p>
-                The funds are managed in compliance with Shariah law, ensuring
-                investments are ethical and socially responsible.
-              </p>
-            </div>
-            <Button
-              onClick={() => setTakafulOpen(false)}
-              className="w-full mt-6 rounded-xl bg-primary text-white py-3 font-medium"
-            >
-              Got it
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -328,13 +326,11 @@ function resolveProducts(
     if (params.get('businessVehicles') === 'true') {
       products.push('fleet');
     }
-    // Default: at least public liability
     if (products.length === 1) {
       products.push('public-liability');
     }
     return products;
   }
 
-  // Pre-configured, upload, or AI path
   return businessType.products as unknown as ProductId[];
 }

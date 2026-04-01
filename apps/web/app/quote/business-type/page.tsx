@@ -16,13 +16,18 @@ const RISK_BADGE_STYLES: Record<string, string> = {
 
 type ProductId = keyof typeof products;
 
+// Top 3 most common — shown as featured row
+const FEATURED_IDS = ['cafe-restaurant', 'retail-trading', 'it-technology'];
+
 export default function BusinessTypePage() {
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
-  // Scroll expanded card into view, or scroll to top on collapse
+  const featured = businessTypes.filter((bt) => FEATURED_IDS.includes(bt.id));
+  const others = businessTypes.filter((bt) => !FEATURED_IDS.includes(bt.id));
+
   useEffect(() => {
     if (expandedId && detailRef.current) {
       detailRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
@@ -34,107 +39,154 @@ export default function BusinessTypePage() {
     topRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
+  function handleSelect(btId: string) {
+    setExpandedId((prev) => (prev === btId ? null : btId));
+  }
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div ref={topRef} />
       <ProgressIndicator currentStep={2} label="Business type" />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
-          {expandedId ? 'Select your business type' : 'What type of business?'}
+          What type of business?
         </h1>
         <p className="mt-2 text-text-muted">
           {expandedId
-            ? 'Defaults are pre-filled, adjust anything before getting quotes.'
+            ? 'Defaults are pre-filled — adjust anything before getting quotes.'
             : "Select your type — we'll pre-configure your cover instantly."}
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
-        {/* 2-column card grid — always visible */}
-        <div className="grid grid-cols-2 gap-3">
-          {businessTypes.map((bt) => {
-            const isExpanded = expandedId === bt.id;
-            return (
-              <button
-                key={bt.id}
-                onClick={() =>
-                  setExpandedId((prev) => (prev === bt.id ? null : bt.id))
-                }
-                className="text-left w-full"
-              >
-                <Card
-                  className={`rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full ${
-                    isExpanded
-                      ? 'border-primary ring-2 ring-primary/20'
-                      : 'border-border'
-                  }`}
+      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">
+        {/* Popular picks — horizontal scroll on mobile, 3-col on desktop */}
+        <div>
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2.5 text-center">
+            Popular in UAE
+          </p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {featured.map((bt) => {
+              const isExpanded = expandedId === bt.id;
+              return (
+                <button
+                  key={bt.id}
+                  onClick={() => handleSelect(bt.id)}
+                  className="text-left w-full"
                 >
-                  <CardContent className="flex flex-col gap-2.5 p-3 sm:p-4">
-                    <div className="flex items-center gap-2.5">
+                  <Card
+                    className={`rounded-2xl border-2 bg-white transition-all duration-200 cursor-pointer h-full ${
+                      isExpanded
+                        ? 'border-primary shadow-md bg-linear-to-br from-primary/5 to-white'
+                        : 'border-transparent shadow-sm hover:shadow-md hover:border-primary/30'
+                    }`}
+                  >
+                    <CardContent className="flex flex-col items-center gap-2 p-3 sm:p-4 text-center">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl ${
                           isExpanded ? 'bg-primary/10' : 'bg-surface'
                         }`}
                       >
                         {bt.icon}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="font-semibold text-text text-sm leading-tight line-clamp-1">
-                          {bt.title}
-                        </span>
-                        <Badge
-                          className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize mt-0.5 inline-block ${
-                            RISK_BADGE_STYLES[bt.riskLevel]
-                          }`}
-                        >
-                          {bt.riskLevel} risk
-                        </Badge>
-                      </div>
+                      <span className="font-semibold text-text text-xs sm:text-sm leading-tight">
+                        {bt.title}
+                      </span>
+                      <Badge
+                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize ${
+                          RISK_BADGE_STYLES[bt.riskLevel]
+                        }`}
+                      >
+                        {bt.riskLevel} risk
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[11px] text-text-muted">all business types</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        {/* All other types — 2-col grid */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {others.map((bt) => {
+            const isExpanded = expandedId === bt.id;
+            return (
+              <button
+                key={bt.id}
+                onClick={() => handleSelect(bt.id)}
+                className="text-left w-full"
+              >
+                <Card
+                  className={`rounded-2xl border bg-white transition-all duration-200 cursor-pointer h-full ${
+                    isExpanded
+                      ? 'border-primary ring-2 ring-primary/20 shadow-md'
+                      : 'border-border shadow-sm hover:shadow-md hover:border-primary/40'
+                  }`}
+                >
+                  <CardContent className="flex items-center gap-3 p-3 sm:p-4">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${
+                        isExpanded ? 'bg-primary/10' : 'bg-surface'
+                      }`}
+                    >
+                      {bt.icon}
                     </div>
-                    <p className="text-[11px] sm:text-xs text-text-muted leading-relaxed line-clamp-2">
-                      {bt.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-auto">
-                      {bt.products.map((productId) => {
-                        const product = products[productId as ProductId];
-                        if (!product) return null;
-                        return (
-                          <span
-                            key={productId}
-                            className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] bg-surface text-text-muted rounded-full px-1.5 py-0.5"
-                          >
-                            <span>{product.icon}</span>
-                            <span>{product.shortName}</span>
-                          </span>
-                        );
-                      })}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-semibold text-text text-xs sm:text-sm leading-tight line-clamp-1 block">
+                        {bt.title}
+                      </span>
+                      <Badge
+                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize mt-1 inline-block ${
+                          RISK_BADGE_STYLES[bt.riskLevel]
+                        }`}
+                      >
+                        {bt.riskLevel} risk
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
               </button>
             );
           })}
-
-          {/* Fallback: not listed */}
-          <button
-            onClick={() => router.push('/quote/manual')}
-            className="w-full col-span-2"
-          >
-            <Card className="rounded-2xl border-2 border-dashed border-border bg-white hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
-              <CardContent className="flex items-center justify-center gap-2 p-4">
-                <span className="text-sm font-medium text-text">
-                  My business type isn&apos;t listed
-                </span>
-                <span className="text-sm text-text-muted">
-                  — fill in manually
-                </span>
-              </CardContent>
-            </Card>
-          </button>
         </div>
 
-        {/* Expanded detail form — below grid */}
+        {/* Not listed fallback */}
+        <button
+          onClick={() => router.push('/quote/manual')}
+          className="w-full"
+        >
+          <div className="rounded-2xl border-2 border-dashed border-border bg-white hover:border-primary hover:shadow-sm transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 p-4">
+            <span className="text-sm font-medium text-text">
+              My business type isn&apos;t listed
+            </span>
+            <span className="text-sm text-text-muted">— fill in manually</span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="text-text-muted ml-1"
+            >
+              <path
+                d="M6 3.333L10.667 8L6 12.667"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </button>
+
+        {/* Expanded detail form */}
         {expandedId &&
           (() => {
             const bt = businessTypes.find((b) => b.id === expandedId);

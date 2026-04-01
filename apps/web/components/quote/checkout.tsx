@@ -27,17 +27,19 @@ export function Checkout() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
   const total = Number(searchParams.get('total') ?? '0');
-  const productIds = (searchParams.get('products') ?? '').split(',') as ProductId[];
+  const productIds = (searchParams.get('products') ?? '').split(
+    ',',
+  ) as ProductId[];
   const limits: Record<string, string> = JSON.parse(
     searchParams.get('limits') ?? '{}',
   );
 
-  // Company details from previous step
   const businessName = searchParams.get('businessName') ?? '';
   const companyVerified = searchParams.get('companyVerified') === 'true';
   const emirate = searchParams.get('emirate') ?? 'Dubai';
 
-  const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
+  const businessType =
+    businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
   const [form, setForm] = useState<ContactForm>({
@@ -65,10 +67,7 @@ export function Checkout() {
 
   function handlePay() {
     if (!validate()) return;
-
     setIsProcessing(true);
-
-    // Mock payment processing (2 seconds)
     setTimeout(() => {
       const params = new URLSearchParams({
         type: typeId,
@@ -85,18 +84,31 @@ export function Checkout() {
     }, 2000);
   }
 
+  function clearError(field: string) {
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = {...prev};
+        delete next[field];
+        return next;
+      });
+    }
+  }
+
   if (isProcessing) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 py-20">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+      <div className="flex-1 flex flex-col items-center justify-center gap-5 py-20">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center animate-pulse">
           <span className="text-3xl">💳</span>
         </div>
-        <p className="text-lg font-medium text-text">
+        <p className="text-lg font-semibold text-text">
           Processing your payment...
         </p>
-        <div className="w-48 h-1.5 bg-border rounded-full overflow-hidden">
+        <div className="w-56 h-2 bg-border rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full animate-[loading_2s_ease-in-out]" />
         </div>
+        <p className="text-xs text-text-muted">
+          This will only take a moment
+        </p>
       </div>
     );
   }
@@ -107,19 +119,28 @@ export function Checkout() {
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
-          Review & Complete Your Purchase
+          Review & Pay
         </h1>
+        <p className="mt-1 text-sm text-text-muted">
+          Review your order and complete the purchase
+        </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-6">
+      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">
         {/* Order Summary */}
-        <Card className="rounded-2xl border border-border bg-white">
-          <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-border">
-              <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-lg font-bold text-text">
+        <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
+          <div className="bg-surface px-5 py-2.5">
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+              Order summary
+            </p>
+          </div>
+          <CardContent className="flex flex-col gap-4 p-5">
+            {/* Insurer */}
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-primary/80 flex items-center justify-center text-lg font-bold text-white">
                 {insurer.name.charAt(0)}
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="font-semibold text-text text-sm">
                   {insurer.name}
                 </p>
@@ -129,14 +150,30 @@ export function Checkout() {
               </div>
             </div>
 
-            {/* Company details summary */}
+            {/* Company */}
             {companyVerified && businessName && (
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-600">✅</span>
+              <div className="flex items-center gap-2 bg-green-50 rounded-lg px-3 py-2 text-sm">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  className="text-green-600"
+                >
+                  <path
+                    d="M3.5 7.5L6 10L10.5 4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 <span className="text-text font-medium">{businessName}</span>
-                <span className="text-xs text-text-muted">· verified</span>
+                <span className="text-xs text-green-600">verified</span>
               </div>
             )}
+
+            <div className="h-px bg-border" />
 
             {/* Product lines */}
             {productIds
@@ -152,117 +189,107 @@ export function Checkout() {
                     <div className="flex items-center gap-2">
                       <span>{product.icon}</span>
                       <span className="text-text">{product.name}</span>
-                      <span className="text-xs text-text-muted">
-                        (AED {limit})
-                      </span>
                     </div>
+                    <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
+                      AED {limit}
+                    </span>
                   </div>
                 );
               })}
 
-            <div className="border-t border-border pt-4 flex items-center justify-between">
+            <div className="h-px bg-border" />
+
+            <div className="flex items-center justify-between">
               <span className="font-bold text-text">Total Premium</span>
-              <span className="font-bold text-text text-lg">
-                AED {formatPrice(total)}/yr
+              <span className="font-bold text-primary text-xl">
+                AED {formatPrice(total)}
+                <span className="text-xs font-normal text-text-muted">
+                  /yr
+                </span>
               </span>
             </div>
           </CardContent>
         </Card>
 
         {/* Contact Details */}
-        <Card className="rounded-2xl border border-border bg-white">
-          <CardContent className="flex flex-col gap-5 p-5 sm:p-6">
-            <h2 className="font-semibold text-text">Your Contact Details</h2>
-
-            <div>
-              <label className="block text-sm font-medium text-text mb-1.5">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.fullName}
-                onChange={(e) => {
-                  setForm((prev) => ({...prev, fullName: e.target.value}));
-                  if (errors.fullName) {
-                    setErrors((prev) => {
-                      const next = {...prev};
-                      delete next.fullName;
-                      return next;
-                    });
-                  }
-                }}
-                placeholder="Enter your full name"
-                className={`w-full rounded-xl border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
-                  errors.fullName ? 'border-red-500' : 'border-border'
-                }`}
-              />
-              {errors.fullName && (
-                <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text mb-1.5">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => {
-                  setForm((prev) => ({...prev, email: e.target.value}));
-                  if (errors.email) {
-                    setErrors((prev) => {
-                      const next = {...prev};
-                      delete next.email;
-                      return next;
-                    });
-                  }
-                }}
-                placeholder="you@example.com"
-                className={`w-full rounded-xl border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
-                  errors.email ? 'border-red-500' : 'border-border'
-                }`}
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text mb-1.5">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => {
-                  setForm((prev) => ({...prev, phone: e.target.value}));
-                  if (errors.phone) {
-                    setErrors((prev) => {
-                      const next = {...prev};
-                      delete next.phone;
-                      return next;
-                    });
-                  }
-                }}
-                placeholder="05X XXXX XXX"
-                className={`w-full rounded-xl border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
-                  errors.phone ? 'border-red-500' : 'border-border'
-                }`}
-              />
-              {errors.phone && (
-                <p className="mt-1 text-xs text-red-500">{errors.phone}</p>
-              )}
-            </div>
+        <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
+          <div className="bg-surface px-5 py-2.5">
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+              Your contact details
+            </p>
+          </div>
+          <CardContent className="flex flex-col gap-4 p-5">
+            {[
+              {
+                key: 'fullName',
+                label: 'Full Name',
+                type: 'text',
+                placeholder: 'Enter your full name',
+              },
+              {
+                key: 'email',
+                label: 'Email Address',
+                type: 'email',
+                placeholder: 'you@example.com',
+              },
+              {
+                key: 'phone',
+                label: 'Phone Number',
+                type: 'tel',
+                placeholder: '05X XXXX XXX',
+              },
+            ].map((field) => (
+              <div key={field.key}>
+                <label className="block text-sm font-medium text-text mb-1.5">
+                  {field.label}{' '}
+                  <span className="text-red-500 text-xs">*</span>
+                </label>
+                <input
+                  type={field.type}
+                  value={form[field.key as keyof ContactForm]}
+                  onChange={(e) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      [field.key]: e.target.value,
+                    }));
+                    clearError(field.key);
+                  }}
+                  placeholder={field.placeholder}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
+                    errors[field.key] ? 'border-red-500' : 'border-border'
+                  }`}
+                />
+                {errors[field.key] && (
+                  <p className="mt-1 text-[11px] text-red-500">
+                    {errors[field.key]}
+                  </p>
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
 
         {/* Pay Button */}
         <Button
           onClick={handlePay}
-          className="w-full rounded-xl bg-primary text-white py-3 text-base font-medium hover:bg-primary-hover transition-all duration-200"
+          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
         >
           Pay Now — AED {formatPrice(total)}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="ml-2 inline"
+          >
+            <path
+              d="M6 3.333L10.667 8L6 12.667"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Button>
       </div>
     </div>
