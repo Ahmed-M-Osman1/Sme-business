@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
-
+// Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 const FEATURED = {
   id: 'ai-advisor',
   icon: '🤖',
