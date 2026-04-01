@@ -32,6 +32,11 @@ export function Checkout() {
     searchParams.get('limits') ?? '{}',
   );
 
+  // Company details from previous step
+  const businessName = searchParams.get('businessName') ?? '';
+  const companyVerified = searchParams.get('companyVerified') === 'true';
+  const emirate = searchParams.get('emirate') ?? 'Dubai';
+
   const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
@@ -73,6 +78,8 @@ export function Checkout() {
         limits: JSON.stringify(limits),
         email: form.email,
         name: form.fullName,
+        businessName,
+        emirate,
       });
       router.push(`/quote/confirmation?${params.toString()}`);
     }, 2000);
@@ -96,7 +103,7 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={5} totalSteps={6} label="Checkout" />
+      <ProgressIndicator currentStep={6} totalSteps={7} label="Checkout" />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -117,10 +124,19 @@ export function Checkout() {
                   {insurer.name}
                 </p>
                 <p className="text-xs text-text-muted">
-                  {businessType.title} · Dubai
+                  {businessType.title} · {emirate}
                 </p>
               </div>
             </div>
+
+            {/* Company details summary */}
+            {companyVerified && businessName && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-green-600">✅</span>
+                <span className="text-text font-medium">{businessName}</span>
+                <span className="text-xs text-text-muted">· verified</span>
+              </div>
+            )}
 
             {/* Product lines */}
             {productIds

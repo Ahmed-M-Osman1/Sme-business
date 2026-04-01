@@ -30,6 +30,7 @@ See `.claude/commands/architecture.md` for full rules. Key points:
 - Tailwind CSS v4 — `@theme inline` in CSS, NO `tailwind.config.js`
 - shadcn/ui from `@shory/ui` — never build what shadcn provides
 - Shory design system: `#1D68FF` primary, rounded corners, subtle shadows, smooth transitions
+- **Responsive design is a must** — every page and component must work on mobile, tablet, and desktop. Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`) and test all breakpoints
 
 ### Data
 - Drizzle ORM + PostgreSQL — schema in `packages/db/src/schema/`
@@ -40,6 +41,15 @@ See `.claude/commands/architecture.md` for full rules. Key points:
 ### Auth
 - Auth.js for admin app only
 - Web app quote journey is anonymous (no auth)
+
+## Skills to Use
+Always invoke relevant skills before writing code:
+
+- `/ui` — Build UI following Shory's design language
+- `/tailwind` — Tailwind CSS v4 with Shory design tokens
+- `/shadcn` — shadcn/ui component usage in Shory style
+- `/add-component` — Adding new UI components
+- `/architecture` — Architecture rules and file placement
 
 ## Design Spec
 Full spec: `docs/superpowers/specs/2026-04-01-shory-sme-platform-design.md`

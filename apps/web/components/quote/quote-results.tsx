@@ -79,8 +79,11 @@ export function QuoteResults() {
       total: String(total),
       products: Array.from(activeProducts).join(','),
       limits: JSON.stringify(coverageLimits),
+      source: source,
+      employees: employeeBand,
     });
-    router.push(`/quote/checkout?${params.toString()}`);
+    // Route to company details step first, then checkout
+    router.push(`/quote/company-details?${params.toString()}`);
   }
 
   return (

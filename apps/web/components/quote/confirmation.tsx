@@ -23,13 +23,15 @@ export function Confirmation() {
   );
   const email = searchParams.get('email') ?? '';
   const name = searchParams.get('name') ?? '';
+  const businessName = searchParams.get('businessName') ?? '';
+  const emirate = searchParams.get('emirate') ?? 'Dubai';
 
   const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={6} totalSteps={6} label="Confirmed" />
+      <ProgressIndicator currentStep={7} totalSteps={7} label="Confirmed" />
 
       <div className="max-w-3xl mx-auto px-4 w-full text-center">
         {/* Success icon */}
@@ -57,7 +59,7 @@ export function Confirmation() {
                   {insurer.name}
                 </p>
                 <p className="text-xs text-text-muted">
-                  {businessType.title} · Dubai
+                  {businessType.title} · {emirate}
                 </p>
               </div>
             </div>
@@ -66,6 +68,13 @@ export function Confirmation() {
               <span className="text-text-muted">Policy holder</span>
               <span className="text-text font-medium">{name}</span>
             </div>
+
+            {businessName && (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Business</span>
+                <span className="text-text font-medium">{businessName}</span>
+              </div>
+            )}
 
             <div className="border-t border-border" />
 
