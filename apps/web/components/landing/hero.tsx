@@ -2,67 +2,147 @@
 
 import {useState} from 'react';
 import Link from 'next/link';
-import {Button, Card, CardContent} from '@shory/ui';
+import {Button} from '@shory/ui';
 import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
 
-const PERSONAL_PRODUCTS = [
-  {title: 'Car\nInsurance', imageBg: 'bg-white', href: '#'},
-  {title: 'Health\nInsurance', imageBg: 'bg-white', href: '#'},
-  {title: 'Home\nInsurance', imageBg: 'bg-white', href: '#'},
-  {title: 'Pet\nInsurance', imageBg: 'bg-white', href: '#'},
-] as const;
+type ProductCard = {
+  title: string;
+  image: string | 'sme-icon';
+  href: string;
+  active: boolean;
+  comingSoon?: boolean;
+};
 
-const BUSINESS_PRODUCTS = [
+const PERSONAL_PRODUCTS: ProductCard[] = [
   {
-    title: 'Visit Visa\nfor Agencies',
-    imageBg: 'bg-white',
+    title: 'Car Insurance',
+    image: 'https://www.shory.com/media/w2mel21w/car-insurance_card.webp',
     href: '#',
-    buttons: [
-      {label: 'Buy a quota', variant: 'default' as const},
-      {label: 'Learn more', variant: 'outline' as const},
-    ],
+    active: false,
+    comingSoon: true,
   },
   {
-    title: 'SME Business\nInsurance',
-    imageBg: 'bg-white',
-    href: '/quote/start',
-    buttons: [{label: 'Get a quote', variant: 'default' as const}],
+    title: 'Health Insurance',
+    image: 'https://www.shory.com/media/03dfofzl/health-insurance_card.webp',
+    href: '#',
+    active: false,
+    comingSoon: true,
   },
-] as const;
+  {
+    title: 'Home Insurance',
+    image: 'https://www.shory.com/media/edaboops/home-insurance_card.webp',
+    href: '#',
+    active: false,
+    comingSoon: true,
+  },
+  {
+    title: 'Pet Insurance',
+    image: 'https://www.shory.com/media/2keaiue0/pet-insurance_card.webp',
+    href: '#',
+    active: false,
+    comingSoon: true,
+  },
+];
+
+const BUSINESS_PRODUCTS: ProductCard[] = [
+  {
+    title: 'SME Business Insurance',
+    image: 'sme-icon',
+    href: '/quote/start',
+    active: true,
+  },
+  {
+    title: 'Visit Visa for Agencies',
+    image: 'https://www.shory.com/media/podicoyv/card-travel_insurance.webp',
+    href: '#',
+    active: false,
+    comingSoon: true,
+  },
+];
+
+function ProductCardItem({product}: {product: ProductCard}) {
+  return (
+    <div className="relative flex flex-col items-center rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
+      {product.comingSoon && (
+        <span className="absolute top-3 right-3 rounded-full bg-gray-100 px-2.5 py-0.5 text-[10px] font-medium text-gray-500">
+          Coming soon
+        </span>
+      )}
+      <div className="flex h-28 w-full items-center justify-center">
+        {product.image === 'sme-icon' ? (
+          <BusinessBundleIcon className="h-24 w-24" />
+        ) : (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={product.image}
+            alt={product.title}
+            className="h-28 w-auto object-contain"
+          />
+        )}
+      </div>
+      <h3 className="mt-3 text-center text-sm font-semibold text-gray-900">
+        {product.title}
+      </h3>
+      {product.active ? (
+        <Button
+          asChild
+          size="sm"
+          className="mt-4 w-full rounded-full bg-primary text-white text-xs font-medium hover:bg-primary-hover transition-all duration-200"
+        >
+          <Link href={product.href}>Get a quote</Link>
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          disabled
+          className="mt-4 w-full rounded-full bg-gray-100 text-gray-400 text-xs font-medium cursor-not-allowed"
+        >
+          Get a quote
+        </Button>
+      )}
+    </div>
+  );
+}
 
 export function Hero() {
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
     'personal',
   );
 
+  const products =
+    activeTab === 'personal' ? PERSONAL_PRODUCTS : BUSINESS_PRODUCTS;
+
   return (
-    <section className="pt-12 pb-8 text-center">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-sm font-semibold text-text mb-3">
+    <section className="pb-8 pt-12 text-center">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <p className="mb-3 text-sm font-semibold text-gray-500">
           Compare and buy insurance in the UAE
         </p>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
           Top insurers. Best prices. One app.
         </h1>
 
         {/* Tab Toggle */}
-        <div className="mt-8 inline-flex rounded-full border border-border bg-white p-1">
+        <div className="relative mt-8 inline-flex rounded-full border border-gray-200 bg-gray-50 p-1">
+          <div
+            className="absolute top-1 bottom-1 rounded-full bg-gray-900 transition-all duration-300 ease-in-out"
+            style={{
+              width: 'calc(50% - 4px)',
+              left: activeTab === 'personal' ? '4px' : 'calc(50% + 0px)',
+            }}
+          />
           <button
             onClick={() => setActiveTab('personal')}
-            className={`rounded-full px-8 py-2.5 text-sm font-medium transition-all duration-200 ${
-              activeTab === 'personal'
-                ? 'bg-text text-white'
-                : 'text-text-muted hover:text-text'
+            className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
+              activeTab === 'personal' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Personal
           </button>
           <button
             onClick={() => setActiveTab('business')}
-            className={`rounded-full px-8 py-2.5 text-sm font-medium transition-all duration-200 ${
-              activeTab === 'business'
-                ? 'bg-text text-white'
-                : 'text-text-muted hover:text-text'
+            className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
+              activeTab === 'business' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Business
@@ -70,82 +150,16 @@ export function Hero() {
         </div>
 
         {/* Product Cards */}
-        <div className="mt-10 flex justify-center gap-6">
-          {activeTab === 'personal' ? (
-            <>
-              {PERSONAL_PRODUCTS.map((product) => (
-                <Card
-                  key={product.title}
-                  className="w-40 sm:w-44 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all duration-200 bg-white"
-                >
-                  <CardContent className="flex flex-col items-center gap-3 p-5">
-                    <h3 className="font-semibold text-text text-sm whitespace-pre-line text-center leading-tight">
-                      {product.title}
-                    </h3>
-                    {/* Image placeholder */}
-                    <div className="w-24 h-20 rounded-lg bg-surface flex items-center justify-center">
-                      <span className="text-3xl text-text-muted">
-                        {product.title.includes('Car')
-                          ? '🚗'
-                          : product.title.includes('Health')
-                            ? '❤️'
-                            : product.title.includes('Home')
-                              ? '🏠'
-                              : '🐾'}
-                      </span>
-                    </div>
-                    <Button
-                      asChild
-                      size="sm"
-                      className="w-full rounded-full bg-primary text-white text-xs font-medium hover:bg-primary-hover transition-all duration-200"
-                    >
-                      <Link href={product.href}>Get a quote</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </>
-          ) : (
-            <>
-              {BUSINESS_PRODUCTS.map((product) => (
-                <Card
-                  key={product.title}
-                  className="w-52 sm:w-56 rounded-2xl border border-border shadow-sm hover:shadow-md transition-all duration-200 bg-white"
-                >
-                  <CardContent className="flex flex-col items-center gap-3 p-6">
-                    <h3 className="font-semibold text-text text-sm whitespace-pre-line text-center leading-tight">
-                      {product.title}
-                    </h3>
-                    {/* Image placeholder */}
-                    <div className="w-32 h-24 rounded-lg bg-surface flex items-center justify-center">
-                      {product.title.includes('SME') ? (
-                        <BusinessBundleIcon className="w-16 h-16" />
-                      ) : (
-                        <span className="text-3xl text-text-muted">✈️</span>
-                      )}
-                    </div>
-                    <div className="flex gap-2 w-full">
-                      {product.buttons.map((btn) => (
-                        <Button
-                          key={btn.label}
-                          asChild
-                          size="sm"
-                          variant={btn.variant}
-                          className={`flex-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                            btn.variant === 'default'
-                              ? 'bg-primary text-white hover:bg-primary-hover'
-                              : 'border-border text-text hover:bg-surface'
-                          }`}
-                        >
-                          <Link href={product.href}>{btn.label}</Link>
-                        </Button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </>
-          )}
+        <div
+          className={`mt-10 grid gap-4 ${
+            activeTab === 'personal'
+              ? 'grid-cols-2 lg:grid-cols-4'
+              : 'mx-auto grid-cols-1 sm:grid-cols-2 max-w-lg'
+          }`}
+        >
+          {products.map((product) => (
+            <ProductCardItem key={product.title} product={product} />
+          ))}
         </div>
       </div>
     </section>

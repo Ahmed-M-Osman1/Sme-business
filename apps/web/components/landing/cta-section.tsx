@@ -1,22 +1,34 @@
+import Link from 'next/link';
 import {Button} from '@shory/ui';
 
 export function CtaSection() {
   return (
-    <section className="py-16 sm:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-12">
-        {/* Image placeholder */}
-        <div className="flex-1 w-full max-w-lg">
-          <div className="w-full aspect-[4/3] rounded-2xl bg-surface flex items-center justify-center">
-            <span className="text-6xl">🏠🚗👨‍👩‍👧</span>
+    <section className="bg-white py-16 sm:py-20">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 sm:px-6 lg:flex-row lg:px-8">
+        {/* Illustration placeholder */}
+        <div className="w-full max-w-lg flex-1">
+          <div className="flex aspect-4/3 w-full items-center justify-center rounded-3xl bg-linear-to-br from-blue-50 to-blue-100">
+            <svg
+              className="h-32 w-32 text-primary opacity-30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 text-left">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
             Buy Insurance Online
           </h2>
-          <p className="mt-4 text-sm text-text-muted leading-relaxed max-w-md">
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-500">
             We&apos;re here for you every step of the way to help you find your
             ideal insurance plan. Whether you&apos;re getting insurance or
             filing claims, Shory is with you to meet your personal and business
@@ -31,10 +43,11 @@ export function CtaSection() {
             for corporate insurance and we&apos;ll get in touch with you.
           </p>
           <Button
+            asChild
             size="lg"
-            className="mt-6 rounded-full bg-primary text-white px-8 text-sm font-medium hover:bg-primary-hover transition-all duration-200"
+            className="mt-6 rounded-full bg-primary px-8 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-hover"
           >
-            Get started
+            <Link href="/quote/start">Get started</Link>
           </Button>
         </div>
       </div>

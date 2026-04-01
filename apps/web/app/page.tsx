@@ -1,6 +1,5 @@
 import {Hero} from '@/components/landing/hero';
 import {TrustBadges} from '@/components/landing/trust-badges';
-import {PromoBanner} from '@/components/landing/promo-banner';
 import {StatsSection} from '@/components/landing/stats-section';
 import {CtaSection} from '@/components/landing/cta-section';
 
@@ -9,7 +8,6 @@ export default function HomePage() {
     <main className="flex-1">
       <Hero />
       <TrustBadges />
-      <PromoBanner />
       <StatsSection />
       <CtaSection />
     </main>

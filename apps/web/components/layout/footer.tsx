@@ -9,7 +9,10 @@ const PERSONAL_LINKS = [
   'Pet insurance',
 ] as const;
 
-const CORPORATE_LINKS = ['Travel Insurance for Agencies'] as const;
+const CORPORATE_LINKS = [
+  {label: 'SME Business Insurance', href: '/quote/start'},
+  {label: 'Travel Insurance for Agencies', href: '#'},
+] as const;
 
 const COMPANY_LINKS = [
   'Help and Support',
@@ -54,13 +57,13 @@ export function Footer() {
               Corporate Insurance
             </h4>
             <ul className="space-y-2">
-              {CORPORATE_LINKS.map((label) => (
-                <li key={label}>
+              {CORPORATE_LINKS.map((item) => (
+                <li key={item.label}>
                   <Link
-                    href="#"
+                    href={item.href}
                     className="text-sm text-text-muted hover:text-text transition-colors duration-200"
                   >
-                    {label}
+                    {item.label}
                   </Link>
                 </li>
               ))}
