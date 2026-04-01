@@ -15,3 +15,7 @@ export type {UploadMetadata} from './schemas/upload';
 
 export {aiRecommendRequestSchema, recommendationSchema} from './schemas/ai';
 export type {AiRecommendRequest, Recommendation} from './schemas/ai';
+
+// Data
+export {INSURERS} from './data/insurers';
+export type {InsurerInfo} from './data/insurers';
