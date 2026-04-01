@@ -137,8 +137,12 @@ export function Checkout() {
           <CardContent className="flex flex-col gap-4 p-5">
             {/* Insurer */}
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-primary/80 flex items-center justify-center text-lg font-bold text-white">
-                {insurer.name.charAt(0)}
+              <div className="w-11 h-11 rounded-2xl border border-border bg-white flex items-center justify-center overflow-hidden">
+                {insurer.logo ? (
+                  <img src={insurer.logo} alt={insurer.name} className="w-9 h-9 object-contain" />
+                ) : (
+                  <span className="text-lg font-bold text-white bg-primary/80 w-full h-full flex items-center justify-center">{insurer.name.charAt(0)}</span>
+                )}
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-text text-sm">
