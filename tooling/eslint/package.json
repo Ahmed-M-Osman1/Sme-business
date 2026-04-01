@@ -1,0 +1,9 @@
+{
+  "name": "@shory/eslint-config",
+  "private": true,
+  "version": "0.0.0",
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "16.2.2"
+  }
+}
