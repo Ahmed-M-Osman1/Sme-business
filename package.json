@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "turbo dev",
+    "web": "pnpm --filter @shory/web dev",
+    "admin": "pnpm --filter @shory/admin dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "db:generate": "turbo db:generate",
