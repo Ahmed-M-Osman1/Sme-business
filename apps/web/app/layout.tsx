@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Shory SME — Insurance for Your Business',
+  title: 'Shory — Compare and Buy Insurance in the UAE',
   description:
-    'Compare and buy SME insurance in minutes. Top insurers, best prices.',
+    'Top insurers. Best prices. One app. Get instant insurance quotes from leading insurers.',
 };
 
 export default function RootLayout({

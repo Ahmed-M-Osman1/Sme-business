@@ -1,15 +1,17 @@
 import {Hero} from '@/components/landing/hero';
-import {ProductCards} from '@/components/landing/product-cards';
 import {TrustBadges} from '@/components/landing/trust-badges';
+import {PromoBanner} from '@/components/landing/promo-banner';
 import {StatsSection} from '@/components/landing/stats-section';
+import {CtaSection} from '@/components/landing/cta-section';
 
 export default function HomePage() {
   return (
     <main className="flex-1">
       <Hero />
       <TrustBadges />
-      <ProductCards />
+      <PromoBanner />
       <StatsSection />
+      <CtaSection />
     </main>
   );
 }
