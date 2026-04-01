@@ -5,6 +5,7 @@ import {useSearchParams} from 'next/navigation';
 import Link from 'next/link';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
+import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {formatPrice} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import businessTypes from '@/config/business-types.json';
@@ -31,8 +32,8 @@ export function Confirmation() {
 
   const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
-  const policyNumber = `SHR-${Date.now().toString(36).toUpperCase()}`;
-  const today = new Date();
+  const [policyNumber] = useState(() => `SHR-${Date.now().toString(36).toUpperCase()}`);
+  const [today] = useState(() => new Date());
   const expiryDate = new Date(today);
   expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
@@ -246,19 +247,21 @@ export function Confirmation() {
       <ProgressIndicator currentStep={6} label="Confirmed" />
 
       {/* Success hero */}
-      <div className="max-w-3xl mx-auto px-4 w-full text-center py-4">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto shadow-sm">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <path d="M10 21.667L17.5 29.167L30 13.333" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+      <div className="max-w-3xl mx-auto px-4 w-full py-4">
+        <div className="flex items-center gap-4">
+          <div className="shrink-0" style={{background: 'transparent'}}>
+            <LottieAnimation path="/lottie/confirm.lottie" className="w-24 h-24" loop={false} />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              You&apos;re all set!
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Your policy is active and a confirmation has been sent to{' '}
+              <span className="font-medium text-gray-900">{email}</span>
+            </p>
+          </div>
         </div>
-        <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-gray-900">
-          You&apos;re all set!
-        </h1>
-        <p className="mt-2 text-gray-500">
-          Your policy is active and a confirmation has been sent to
-        </p>
-        <p className="font-medium text-gray-900 mt-1">{email}</p>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">

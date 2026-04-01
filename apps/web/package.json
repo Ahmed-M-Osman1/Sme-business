@@ -10,11 +10,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dotlottie/react-player": "^1.6.19",
     "@shory/db": "workspace:*",
     "@shory/shared": "workspace:*",
     "@shory/ui": "workspace:*",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
+    "lottie-react": "^2.4.1",
     "next": "16.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4"

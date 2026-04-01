@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
+import {LottieAnimation} from '@/components/ui/lottie-animation';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 const FEATURED = {
   id: 'ai-advisor',
@@ -66,8 +69,8 @@ export default function QuoteStartPage() {
         <Link href={FEATURED.href}>
           <Card className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
             <CardContent className="flex items-center gap-4 p-5 sm:p-6">
-              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-2xl shrink-0 shadow-sm">
-                {FEATURED.icon}
+              <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                <LottieAnimation path="/lottie/aiChat.lottie" className="w-18 h-18" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
