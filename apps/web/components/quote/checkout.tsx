@@ -11,7 +11,8 @@ import insurers from '@/config/insurers.json';
 
 type ProductId = keyof typeof productsConfig;
 
-const UAE_PHONE_REGEX = /^(05\d{8}|\+9715\d{8})$/;
+// Validates 9 digits after +971 prefix (5XXXXXXXX) — stored without prefix
+const UAE_PHONE_REGEX = /^5\d{8}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface ContactForm {
@@ -59,7 +60,7 @@ export function Checkout() {
       newErrors.email = 'Please enter a valid email address';
     }
     if (!form.phone || !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Please enter a valid UAE phone (05X or +9715X)';
+      newErrors.phone = 'Please enter a valid UAE mobile number';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -77,9 +78,14 @@ export function Checkout() {
         limits: JSON.stringify(limits),
         email: form.email,
         name: form.fullName,
+        phone: form.phone,
         businessName,
         emirate,
       });
+      const licenseNumber = searchParams.get('licenseNumber');
+      const employees = searchParams.get('employees');
+      if (licenseNumber) params.set('licenseNumber', licenseNumber);
+      if (employees) params.set('employees', employees);
       router.push(`/quote/confirmation?${params.toString()}`);
     }, 2000);
   }
@@ -236,12 +242,6 @@ export function Checkout() {
                 type: 'email',
                 placeholder: 'you@example.com',
               },
-              {
-                key: 'phone',
-                label: 'Phone Number',
-                type: 'tel',
-                placeholder: '05X XXXX XXX',
-              },
             ].map((field) => (
               <div key={field.key}>
                 <label className="block text-sm font-medium text-text mb-1.5">
@@ -270,6 +270,43 @@ export function Checkout() {
                 )}
               </div>
             ))}
+
+            {/* Phone with UAE flag + auto-formatting */}
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Phone Number <span className="text-red-500 text-xs">*</span>
+              </label>
+              <div className={`flex items-center rounded-xl border bg-white overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent ${
+                errors.phone ? 'border-red-500' : 'border-border'
+              }`}>
+                <div className="flex items-center gap-1.5 pl-4 pr-2 py-3 border-r border-gray-100 shrink-0 bg-gray-50">
+                  <span className="text-base">🇦🇪</span>
+                  <span className="text-sm text-gray-500 font-medium">+971</span>
+                </div>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = digits;
+                    if (digits.length > 2) {
+                      formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+                    }
+                    if (digits.length > 5) {
+                      formatted = `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 9)}`;
+                    }
+                    setForm((prev) => ({...prev, phone: formatted}));
+                    clearError('phone');
+                  }}
+                  placeholder="55 123 4567"
+                  maxLength={12}
+                  className="flex-1 px-3 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none tracking-wide"
+                />
+              </div>
+              {errors.phone && (
+                <p className="mt-1 text-[11px] text-red-500">{errors.phone}</p>
+              )}
+            </div>
           </CardContent>
         </Card>
 

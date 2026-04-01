@@ -119,7 +119,19 @@ export function QuoteResults() {
     });
     if (revenue) params.set('revenue', revenue);
     if (coverageArea) params.set('coverageArea', coverageArea);
-    router.push(`/quote/company-details?${params.toString()}`);
+    // If company details already collected (upload path), skip to checkout
+    const businessName = searchParams.get('businessName');
+    const licenseNumber = searchParams.get('licenseNumber');
+    if (businessName) params.set('businessName', businessName);
+    if (licenseNumber) params.set('licenseNumber', licenseNumber);
+
+    if (licenseNumber && businessName) {
+      params.set('companyVerified', 'true');
+      params.set('companySource', 'ocr');
+      router.push(`/quote/checkout?${params.toString()}`);
+    } else {
+      router.push(`/quote/company-details?${params.toString()}`);
+    }
   }
 
   function handleBack() {

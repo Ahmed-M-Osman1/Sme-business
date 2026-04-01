@@ -74,9 +74,9 @@ const scenarios: Scenario[] = [
       licenseNumber: { value: '3298145', confidence: 'high' },
       activity: { value: 'Beauty Services', confidence: 'high' },
       emirate: { value: 'Ajman', confidence: 'high' },
-      expiryDate: { value: '08/03/2025', confidence: 'high' },
+      expiryDate: { value: '08/03/2025', confidence: 'low' },
     },
-    warnings: ['Trade license appears to be expired'],
+    warnings: ['Trade license appears to be expired — please renew before purchasing a policy'],
   },
   {
     name: 'blurry',
