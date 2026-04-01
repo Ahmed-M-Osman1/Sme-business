@@ -1,0 +1,27 @@
+{
+  "name": "@shory/db",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.39",
+    "postgres": "^3"
+  },
+  "devDependencies": {
+    "@shory/typescript-config": "workspace:*",
+    "drizzle-kit": "^0.30",
+    "typescript": "^5"
+  }
+}
