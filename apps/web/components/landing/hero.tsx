@@ -3,6 +3,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import {Button, Card, CardContent} from '@shory/ui';
+import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
 
 const PERSONAL_PRODUCTS = [
   {title: 'Car\nInsurance', imageBg: 'bg-white', href: '#'},
@@ -117,9 +118,11 @@ export function Hero() {
                     </h3>
                     {/* Image placeholder */}
                     <div className="w-32 h-24 rounded-lg bg-surface flex items-center justify-center">
-                      <span className="text-3xl text-text-muted">
-                        {product.title.includes('Visa') ? '✈️' : '🏢'}
-                      </span>
+                      {product.title.includes('SME') ? (
+                        <BusinessBundleIcon className="w-16 h-16" />
+                      ) : (
+                        <span className="text-3xl text-text-muted">✈️</span>
+                      )}
                     </div>
                     <div className="flex gap-2 w-full">
                       {product.buttons.map((btn) => (

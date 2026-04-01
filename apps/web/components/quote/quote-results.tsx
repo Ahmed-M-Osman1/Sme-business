@@ -6,6 +6,7 @@ import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
 import {calculateTotalPremium, getSizeFactor, formatPrice} from '@/lib/pricing';
+import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -208,7 +209,7 @@ export function QuoteResults() {
                         : 'bg-white text-gray-500 border border-gray-200 hover:border-primary/40'
                     }`}
                   >
-                    <span>{product.icon}</span>
+                    {PRODUCT_ICONS[productId] ? PRODUCT_ICONS[productId]({className: 'w-4 h-4'}) : <span>{product.icon}</span>}
                     <span>{product.shortName}</span>
                     {isActive && (
                       <svg
@@ -247,7 +248,7 @@ export function QuoteResults() {
                     className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-4 py-3"
                   >
                     <div className="flex items-center gap-2 text-sm">
-                      <span>{product.icon}</span>
+                      {PRODUCT_ICONS[productId] ? PRODUCT_ICONS[productId]({className: 'w-4 h-4'}) : <span>{product.icon}</span>}
                       <span className="text-gray-700">
                         {product.shortName}
                       </span>
