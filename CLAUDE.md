@@ -3,15 +3,17 @@
 # Shory SME Insurance Platform
 
 ## What is this?
-SME insurance platform with a customer-facing quote journey and an internal admin portal. Monorepo with two Next.js 16 apps sharing a common database and UI library.
+SME insurance platform with a customer-facing quote journey and an internal admin portal. API-first monorepo with two Next.js 16 apps, a Hono REST API, and shared packages.
 
 ## Architecture
 See `.claude/commands/architecture.md` for full rules. Key points:
 
 - **Monorepo**: pnpm workspaces + Turborepo
 - **Apps**: `apps/web` (customer), `apps/admin` (internal)
-- **Packages**: `@shory/db` (Drizzle + Postgres), `@shory/ui` (shadcn), `@shory/shared` (Zod + types)
+- **API**: `packages/api` (Hono REST API — the only layer that talks to DB, Claude, Blob)
+- **Packages**: `@shory/db` (Drizzle + Neon Postgres), `@shory/ui` (shadcn), `@shory/shared` (Zod + types)
 - **Tooling**: shared ESLint, TypeScript, Tailwind configs in `tooling/`
+- **Deploy**: 3 Vercel projects (web, admin, api) — see system architecture spec
 
 ## Critical Rules
 
@@ -32,11 +34,13 @@ See `.claude/commands/architecture.md` for full rules. Key points:
 - Shory design system: `#1D68FF` primary, rounded corners, subtle shadows, smooth transitions
 - **Responsive design is a must** — every page and component must work on mobile, tablet, and desktop. Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`) and test all breakpoints
 
-### Data
-- Drizzle ORM + PostgreSQL — schema in `packages/db/src/schema/`
-- Zod validation in `@shory/shared` — reused client + server
-- Server actions for mutations, server components for fetching
+### Data & API
+- **API-first**: All data access goes through the Hono API in `packages/api/`
+- Next.js apps call the API via typed fetch wrappers in `lib/api-client.ts`
+- Drizzle ORM + Neon PostgreSQL — schema in `packages/db/src/schema/`
+- Zod validation in `@shory/shared` — reused in API + frontend forms
 - `"use client"` only when needed for interactivity
+- NEVER access the database directly from Next.js apps
 
 ### Auth
 - Auth.js for admin app only
@@ -50,6 +54,8 @@ Always invoke relevant skills before writing code:
 - `/shadcn` — shadcn/ui component usage in Shory style
 - `/add-component` — Adding new UI components
 - `/architecture` — Architecture rules and file placement
+- `/api` — API endpoint reference and conventions
 
-## Design Spec
-Full spec: `docs/superpowers/specs/2026-04-01-shory-sme-platform-design.md`
+## Design Specs
+- Platform design: `docs/superpowers/specs/2026-04-01-shory-sme-platform-design.md`
+- System architecture: `docs/superpowers/specs/2026-04-01-shory-sme-system-architecture.md`

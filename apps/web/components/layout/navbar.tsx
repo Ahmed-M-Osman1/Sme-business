@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import {Button} from '@shory/ui';
 
+const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL ?? 'http://localhost:3001';
+
 const NAV_LINKS = [
   {label: 'Personal', href: '#'},
   {label: 'Business', href: '#'},
@@ -43,13 +45,19 @@ export function Navbar() {
             </span>
             عربي
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full px-6 border-border text-sm font-medium"
+          <Link
+            href={ADMIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Login
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full px-6 border-border text-sm font-medium"
+            >
+              Dashboard
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>
