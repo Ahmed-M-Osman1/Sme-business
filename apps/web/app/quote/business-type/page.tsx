@@ -1,8 +1,8 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
-import {Card, CardContent, Badge, Button} from '@shory/ui';
+import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeDetail} from '@/components/quote/business-type-detail';
 import businessTypes from '@/config/business-types.json';
@@ -19,17 +19,25 @@ type ProductId = keyof typeof products;
 export default function BusinessTypePage() {
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
-  function handleCardTap(btId: string) {
-    setExpandedId((prev) => (prev === btId ? null : btId));
+  // Scroll expanded card into view, or scroll to top on collapse
+  useEffect(() => {
+    if (expandedId && detailRef.current) {
+      detailRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  }, [expandedId]);
+
+  function handleCollapse() {
+    setExpandedId(null);
+    topRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <ProgressIndicator
-        currentStep={2}
-        label="Business type"
-      />
+      <div ref={topRef} />
+      <ProgressIndicator currentStep={2} label="Business type" />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -37,38 +45,38 @@ export default function BusinessTypePage() {
         </h1>
         <p className="mt-2 text-text-muted">
           {expandedId
-            ? "Tap your type — defaults are pre-filled, adjust anything before getting quotes."
+            ? 'Defaults are pre-filled, adjust anything before getting quotes.'
             : "Select your type — we'll pre-configure your cover instantly."}
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-3">
-        {/* Expanded detail — full width above grid */}
-        {expandedId && (() => {
-          const bt = businessTypes.find((b) => b.id === expandedId);
-          if (!bt) return null;
-          return (
-            <BusinessTypeDetail
-              key={bt.id}
-              businessType={bt}
-              onCollapse={() => setExpandedId(null)}
-            />
-          );
-        })()}
-
-        {/* 2-column card grid */}
-        {!expandedId && (
-          <div className="grid grid-cols-2 gap-3">
-            {businessTypes.map((bt) => (
+      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
+        {/* 2-column card grid — always visible */}
+        <div className="grid grid-cols-2 gap-3">
+          {businessTypes.map((bt) => {
+            const isExpanded = expandedId === bt.id;
+            return (
               <button
                 key={bt.id}
-                onClick={() => handleCardTap(bt.id)}
+                onClick={() =>
+                  setExpandedId((prev) => (prev === bt.id ? null : bt.id))
+                }
                 className="text-left w-full"
               >
-                <Card className="rounded-2xl border border-border bg-white shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full">
+                <Card
+                  className={`rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full ${
+                    isExpanded
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-border'
+                  }`}
+                >
                   <CardContent className="flex flex-col gap-2.5 p-3 sm:p-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-xl shrink-0">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${
+                          isExpanded ? 'bg-primary/10' : 'bg-surface'
+                        }`}
+                      >
                         {bt.icon}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -105,26 +113,42 @@ export default function BusinessTypePage() {
                   </CardContent>
                 </Card>
               </button>
-            ))}
+            );
+          })}
 
-            {/* Fallback: not listed */}
-            <button
-              onClick={() => router.push('/quote/manual')}
-              className="w-full col-span-2"
-            >
-              <Card className="rounded-2xl border-2 border-dashed border-border bg-white hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
-                <CardContent className="flex items-center justify-center gap-2 p-4">
-                  <span className="text-sm font-medium text-text">
-                    My business type isn&apos;t listed
-                  </span>
-                  <span className="text-sm text-text-muted">
-                    — fill in manually
-                  </span>
-                </CardContent>
-              </Card>
-            </button>
-          </div>
-        )}
+          {/* Fallback: not listed */}
+          <button
+            onClick={() => router.push('/quote/manual')}
+            className="w-full col-span-2"
+          >
+            <Card className="rounded-2xl border-2 border-dashed border-border bg-white hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
+              <CardContent className="flex items-center justify-center gap-2 p-4">
+                <span className="text-sm font-medium text-text">
+                  My business type isn&apos;t listed
+                </span>
+                <span className="text-sm text-text-muted">
+                  — fill in manually
+                </span>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+
+        {/* Expanded detail form — below grid */}
+        {expandedId &&
+          (() => {
+            const bt = businessTypes.find((b) => b.id === expandedId);
+            if (!bt) return null;
+            return (
+              <div ref={detailRef}>
+                <BusinessTypeDetail
+                  key={bt.id}
+                  businessType={bt}
+                  onCollapse={handleCollapse}
+                />
+              </div>
+            );
+          })()}
       </div>
     </div>
   );

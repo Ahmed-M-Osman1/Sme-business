@@ -179,10 +179,24 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
           </div>
           <button
             onClick={onCollapse}
-            className="text-text-muted text-lg shrink-0 hover:text-text transition-colors"
+            className="w-8 h-8 rounded-full bg-surface flex items-center justify-center shrink-0 hover:bg-border transition-colors"
             aria-label="Collapse"
           >
-            ∨
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              className="text-text-muted"
+            >
+              <path
+                d="M3.5 8.75L7 5.25L10.5 8.75"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         </div>
 

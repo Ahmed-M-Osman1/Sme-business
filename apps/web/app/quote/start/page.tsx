@@ -62,45 +62,39 @@ export default function QuoteStartPage() {
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-3">
+      <div className="max-w-3xl mx-auto px-4 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
         {INPUT_METHODS.map((method) => (
           <Link key={method.id} href={method.href}>
             <Card
-              className={`rounded-2xl border bg-white hover:shadow-md transition-all duration-200 cursor-pointer ${
+              className={`rounded-2xl border bg-white hover:shadow-md transition-all duration-200 cursor-pointer h-full ${
                 method.highlighted
                   ? 'border-primary shadow-sm'
                   : 'border-border shadow-sm'
               }`}
             >
-              <CardContent className="flex items-center gap-4 p-4 sm:p-5">
-                {/* Icon */}
-                <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${method.iconBg}`}
-                >
-                  {method.icon}
-                </div>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-text text-sm sm:text-base">
-                      {method.title}
-                    </span>
-                    {method.badge && (
-                      <Badge
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${method.badge.className}`}
-                      >
-                        {method.badge.label}
-                      </Badge>
-                    )}
+              <CardContent className="flex flex-col gap-3 p-4 sm:p-5">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${method.iconBg}`}
+                  >
+                    {method.icon}
                   </div>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5 leading-relaxed">
+                  {method.badge && (
+                    <Badge
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${method.badge.className}`}
+                    >
+                      {method.badge.label}
+                    </Badge>
+                  )}
+                </div>
+                <div>
+                  <span className="font-semibold text-text text-sm sm:text-base">
+                    {method.title}
+                  </span>
+                  <p className="text-xs text-text-muted mt-1 leading-relaxed">
                     {method.description}
                   </p>
                 </div>
-
-                {/* Chevron */}
-                <span className="text-text-muted text-lg shrink-0">›</span>
               </CardContent>
             </Card>
           </Link>
