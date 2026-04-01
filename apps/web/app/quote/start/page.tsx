@@ -3,23 +3,30 @@ import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 
 const FEATURED = {
-  id: 'pre-configured',
-  icon: '⚡',
-  title: 'Select a pre-configured business',
-  description: 'Choose from 8 UAE business types — instant quote, no forms',
-  badge: {label: 'Fastest', className: 'bg-green-100 text-green-700'},
-  href: '/quote/business-type',
+  id: 'ai-advisor',
+  icon: '🤖',
+  title: 'AI Advisor',
+  description:
+    'Describe your business in plain English — AI handles the rest',
+  badge: {
+    label: 'Recommended',
+    className: 'bg-blue-100 text-blue-700',
+  },
+  href: '/quote/ai-advisor',
 } as const;
 
 const OTHER_METHODS = [
   {
-    id: 'ai-advisor',
-    icon: '🤖',
-    title: 'AI Advisor',
+    id: 'pre-configured',
+    icon: '⚡',
+    title: 'Select a pre-configured business',
     description:
-      'Describe your business in plain English — AI handles the rest',
-    badge: {label: 'Recommended', className: 'bg-blue-100 text-blue-700'},
-    href: '/quote/ai-advisor',
+      'Choose from 8 UAE business types — instant quote, no forms',
+    badge: {
+      label: 'Fastest',
+      className: 'bg-green-100 text-green-700',
+    },
+    href: '/quote/business-type',
   },
   {
     id: 'upload',
@@ -68,8 +75,7 @@ export default function QuoteStartPage() {
                     {FEATURED.title}
                   </span>
                   <Badge
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${FEATURED.badge.className}`}
-                  >
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${FEATURED.badge.className}`}>
                     {FEATURED.badge.label}
                   </Badge>
                 </div>
@@ -82,8 +88,7 @@ export default function QuoteStartPage() {
                 height="20"
                 viewBox="0 0 20 20"
                 fill="none"
-                className="text-primary shrink-0"
-              >
+                className="text-primary shrink-0">
                 <path
                   d="M7.5 4.167L13.333 10L7.5 15.833"
                   stroke="currentColor"
@@ -99,7 +104,9 @@ export default function QuoteStartPage() {
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-text-muted">or choose another way</span>
+          <span className="text-xs text-text-muted">
+            or choose another way
+          </span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -115,8 +122,7 @@ export default function QuoteStartPage() {
                     </div>
                     {method.badge && (
                       <Badge
-                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${method.badge.className}`}
-                      >
+                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${method.badge.className}`}>
                         {method.badge.label}
                       </Badge>
                     )}

@@ -1,0 +1,38 @@
+{
+  "employeeBands": [
+    {"label": "Just me", "value": "1"},
+    {"label": "2–5", "value": "2-5"},
+    {"label": "6–20", "value": "6-20"},
+    {"label": "21–50", "value": "21-50"},
+    {"label": "51–100", "value": "51-100"},
+    {"label": "100+", "value": "100+"}
+  ],
+  "revenueBands": [
+    {"label": "Under AED 500,000", "value": "under-500k"},
+    {"label": "AED 500K – 1 million", "value": "500k-1m"},
+    {"label": "AED 1M – 5 million", "value": "1m-5m"},
+    {"label": "AED 5M – 10 million", "value": "5m-10m"},
+    {"label": "Over AED 10 million", "value": "over-10m"}
+  ],
+  "emirates": [
+    "Abu Dhabi",
+    "Dubai",
+    "Sharjah",
+    "Ajman",
+    "Umm Al Quwain",
+    "Ras Al Khaimah",
+    "Fujairah"
+  ],
+  "coverageAreas": [
+    {"label": "UAE only", "value": "uae"},
+    {"label": "GCC", "value": "gcc"},
+    {"label": "Worldwide", "value": "worldwide"}
+  ],
+  "highValueAssets": [
+    {"id": "stock", "label": "Stock / inventory", "icon": "📦", "description": "Current retail stock at cost price"},
+    {"id": "fixtures", "label": "Fixtures & fit-out", "icon": "🪟", "description": "Display shelving, counters, lighting"},
+    {"id": "pos", "label": "POS & payment systems", "icon": "💳", "description": "Terminals, tablets, cash registers"},
+    {"id": "security", "label": "Security / CCTV systems", "icon": "📷", "description": "Cameras, access control, alarms"},
+    {"id": "safe", "label": "Safe / cash handling", "icon": "🔒", "description": "Safes, cash counters"}
+  ]
+}

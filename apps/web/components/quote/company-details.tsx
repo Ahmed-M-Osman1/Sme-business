@@ -6,7 +6,7 @@ import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
-import {DragDropZone, EditableField} from '@/components/quote/company-details-fields';
+import {DragDropZone, EditableField, formatDateInput, ACTIVITIES} from '@/components/quote/company-details-fields';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
 
@@ -226,6 +226,7 @@ export function CompanyDetails() {
                       key={key}
                       field={{...field, value: editedFields[key] ?? field.value}}
                       label={label}
+                      fieldKey={key}
                       onUpdate={(val) => setEditedFields((prev) => ({...prev, [key]: val}))}
                     />
                   );
@@ -243,22 +244,27 @@ export function CompanyDetails() {
               </svg>
             </Button>
 
-            <div className="flex items-center justify-center gap-4 text-xs">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => {
                   setOcrResult(null);
                   setEditedFields({});
                   setMode('choice');
                 }}
-                className="text-primary font-medium hover:underline"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
               >
-                Re-upload
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
+                  <path d="M2 8C2 4.686 4.686 2 8 2C10.21 2 12.117 3.273 13.064 5.143M14 8C14 11.314 11.314 14 8 14C5.79 14 3.883 12.727 2.936 10.857M2 8V4M2 8H6M14 8V12M14 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Re-upload document
               </button>
-              <span className="text-border">|</span>
               <button
                 onClick={() => setMode('manual')}
-                className="text-text-muted font-medium hover:text-text hover:underline"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
               >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
+                  <path d="M11.333 2L14 4.667M1.333 14.667L2.067 11.72L10.067 3.72C10.333 3.453 10.733 3.453 11 3.72L12.333 5.053C12.6 5.32 12.6 5.72 12.333 5.987L4.333 13.987L1.333 14.667Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 Enter manually instead
               </button>
             </div>
@@ -282,8 +288,6 @@ export function CompanyDetails() {
               {[
                 {k: 'companyName', label: 'Company name', ph: 'Al Noor Trading LLC'},
                 {k: 'licenseNumber', label: 'Trade license No.', ph: 'e.g. 1234567'},
-                {k: 'activity', label: 'Business activity', ph: 'e.g. Food & Beverage'},
-                {k: 'expiryDate', label: 'License expiry date', ph: 'DD/MM/YYYY'},
               ].map(({k, label, ph}) => (
                 <div key={k}>
                   <label className="block text-sm font-medium text-text mb-1.5">{label}</label>
@@ -299,6 +303,35 @@ export function CompanyDetails() {
                   {errs[k] && <p className="mt-1 text-[11px] text-red-500">{errs[k]}</p>}
                 </div>
               ))}
+
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">Business activity</label>
+                <select
+                  value={form.activity}
+                  onChange={(e) => setF('activity', e.target.value)}
+                  className="w-full rounded-lg border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none transition-all duration-200"
+                >
+                  <option value="">Select activity</option>
+                  {ACTIVITIES.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">License expiry date</label>
+                <input
+                  type="text"
+                  value={form.expiryDate}
+                  onChange={(e) => setF('expiryDate', formatDateInput(e.target.value))}
+                  placeholder="DD/MM/YYYY"
+                  maxLength={10}
+                  className={`w-full rounded-lg border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
+                    errs.expiryDate ? 'border-red-500' : 'border-border'
+                  }`}
+                />
+                {errs.expiryDate && <p className="mt-1 text-[11px] text-red-500">{errs.expiryDate}</p>}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-text mb-1.5">Emirate</label>

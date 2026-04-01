@@ -2,316 +2,453 @@
 
 import {useState, useRef, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
-import {Button, Card, CardContent} from '@shory/ui';
+import {Button} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeTags} from '@/components/quote/business-type-tags';
+import quoteOptions from '@/config/quote-options.json';
+
+// --- Types ---
 
 interface Message {
   role: 'ai' | 'user';
   content: string;
   cta?: {label: string; href: string};
+  chips?: {label: string; value: string}[];
+  chipKey?: string;
 }
 
-const OPENING_MESSAGE: Message = {
-  role: 'ai',
-  content:
-    "Hi! Tell me about your business and I'll find the right coverage for you — or just tap your business type below to get started instantly.",
-};
+type ConvoStep = 'business' | 'employees' | 'revenue' | 'emirate' | 'done';
+
+interface ConvoState {
+  step: ConvoStep;
+  businessType: string;
+  businessLabel: string;
+  employees: string;
+  revenue: string;
+  emirate: string;
+}
+
+// --- Chip options ---
+
+const EMPLOYEE_CHIPS = quoteOptions.employeeBands.map((b) => ({label: b.label, value: b.value}));
+const REVENUE_CHIPS = quoteOptions.revenueBands.map((b) => ({label: b.label, value: b.value}));
+const EMIRATE_CHIPS = quoteOptions.emirates.map((e) => ({label: e, value: e}));
+
+// --- Component ---
 
 export default function AiAdvisorPage() {
   const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState<Message[]>([OPENING_MESSAGE]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'ai',
+      content: "Hi! Tell me about your business and I'll find the right coverage for you — or just tap your business type below to get started instantly.",
+    },
+  ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const [tagLocked, setTagLocked] = useState(false);
+  const [convo, setConvo] = useState<ConvoState>({
+    step: 'business',
+    businessType: '',
+    businessLabel: '',
+    employees: '',
+    revenue: '',
+    emirate: '',
+  });
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({behavior: 'smooth'});
-  }, [messages, isProcessing]);
+    // Small delay so DOM has rendered the new message
+    const t = setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({behavior: 'smooth', block: 'end'});
+    }, 100);
+    return () => clearTimeout(t);
+  }, [messages.length]);
+
+  // Current chips to show above input
+  const currentChips = (() => {
+    const last = messages[messages.length - 1];
+    if (last?.chips && convo.step !== 'done') return {chips: last.chips, key: last.chipKey ?? ''};
+    return null;
+  })();
+
+  // --- Handlers ---
+
+  function addMessages(...msgs: Message[]) {
+    setMessages((prev) => [...prev, ...msgs]);
+  }
+
+  function simulateDelay(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  function buildResultsUrl(state: ConvoState): string {
+    const params = new URLSearchParams({
+      type: state.businessType,
+      source: 'ai',
+      employees: state.employees,
+      emirate: state.emirate,
+    });
+    if (state.revenue) params.set('revenue', state.revenue);
+    return `/quote/results?${params.toString()}`;
+  }
+
+  async function advanceConvo(nextState: ConvoState) {
+    setConvo(nextState);
+    setIsProcessing(true);
+    await simulateDelay(800);
+
+    if (nextState.step === 'employees') {
+      addMessages({
+        role: 'ai',
+        content: 'How many people work in your business (including yourself)?',
+        chips: EMPLOYEE_CHIPS,
+        chipKey: 'employees',
+      });
+    } else if (nextState.step === 'revenue') {
+      addMessages({
+        role: 'ai',
+        content: "What's your estimated annual revenue for the next 12 months?",
+        chips: REVENUE_CHIPS,
+        chipKey: 'revenue',
+      });
+    } else if (nextState.step === 'emirate') {
+      addMessages({
+        role: 'ai',
+        content: 'Which emirate is your business based in?',
+        chips: EMIRATE_CHIPS,
+        chipKey: 'emirate',
+      });
+    } else if (nextState.step === 'done') {
+      const url = buildResultsUrl(nextState);
+      addMessages({
+        role: 'ai',
+        content: `Here's what I've got:\n\n• **Business:** ${nextState.businessLabel}\n• **Team size:** ${nextState.employees}\n• **Revenue:** ${quoteOptions.revenueBands.find((b) => b.value === nextState.revenue)?.label ?? nextState.revenue}\n• **Location:** ${nextState.emirate}\n\nI've prepared personalised quotes based on your profile.`,
+        cta: {label: 'See my quotes', href: url},
+      });
+    }
+
+    setIsProcessing(false);
+  }
+
+  function handleChipSelect(value: string, label: string) {
+    if (isProcessing || convo.step === 'done') return;
+
+    // Add user message with selected chip
+    addMessages({role: 'user', content: label});
+
+    if (convo.step === 'employees') {
+      advanceConvo({...convo, employees: value, step: 'revenue'});
+    } else if (convo.step === 'revenue') {
+      advanceConvo({...convo, revenue: value, step: 'emirate'});
+    } else if (convo.step === 'emirate') {
+      advanceConvo({...convo, emirate: value, step: 'done'});
+    }
+  }
 
   function handleTagSelect(bt: {id: string; title: string} | null) {
-    if (tagLocked || isProcessing) return;
+    if (isProcessing || convo.step !== 'business') return;
 
     if (!bt) {
       setSelectedTagId(null);
-      // Remove any fast-path messages beyond the opening
-      setMessages([OPENING_MESSAGE]);
       return;
     }
 
     setSelectedTagId(bt.id);
-    setTagLocked(true);
-
-    const aiResponse: Message = {
+    addMessages({
       role: 'ai',
-      content: `Got it — I've configured a quote for ${bt.title}. Tap below to see your quotes.`,
-      cta: {
-        label: 'See my quotes →',
-        href: `/quote/results?type=${bt.id}&source=ai`,
-      },
-    };
+      content: `Great choice — **${bt.title}**! Let me ask a few quick questions to personalise your quote.`,
+    });
 
-    setMessages([OPENING_MESSAGE, aiResponse]);
+    advanceConvo({...convo, businessType: bt.id, businessLabel: bt.title, step: 'employees'});
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || isProcessing || tagLocked) return;
+    if (!input.trim() || isProcessing) return;
 
     const userMessage = input.trim();
-    setMessages((prev) => [...prev, {role: 'user', content: userMessage}]);
     setInput('');
-    setIsProcessing(true);
 
-    setTimeout(() => {
-      const analysis = analyzeInput(userMessage);
+    if (convo.step === 'business') {
+      addMessages({role: 'user', content: userMessage});
+      setIsProcessing(true);
 
-      if (analysis.needsMore) {
-        setMessages((prev) => [
-          ...prev,
-          {role: 'ai', content: analysis.response},
-        ]);
+      setTimeout(() => {
+        const analysis = analyzeInput(userMessage);
+
+        if (analysis.needsMore) {
+          addMessages({role: 'ai', content: analysis.response});
+          setIsProcessing(false);
+          inputRef.current?.focus();
+          return;
+        }
+
+        setSelectedTagId(analysis.businessType);
+        addMessages({
+          role: 'ai',
+          content: `I'd classify your business as **${analysis.label}**. Let me ask a few quick questions to personalise your quote.`,
+        });
+
         setIsProcessing(false);
-        return;
+        advanceConvo({
+          ...convo,
+          businessType: analysis.businessType,
+          businessLabel: analysis.label,
+          step: 'employees',
+        });
+      }, 1200);
+    } else {
+      // Free-text answer to a chip question — treat as chip selection
+      addMessages({role: 'user', content: userMessage});
+      if (convo.step === 'employees') {
+        const match = EMPLOYEE_CHIPS.find((c) => userMessage.includes(c.value) || userMessage.includes(c.label));
+        advanceConvo({...convo, employees: match?.value ?? '2-5', step: 'revenue'});
+      } else if (convo.step === 'revenue') {
+        const match = REVENUE_CHIPS.find((c) => userMessage.toLowerCase().includes(c.value));
+        advanceConvo({...convo, revenue: match?.value ?? '500k-1m', step: 'emirate'});
+      } else if (convo.step === 'emirate') {
+        const match = EMIRATE_CHIPS.find((c) => userMessage.toLowerCase().includes(c.label.toLowerCase()));
+        advanceConvo({...convo, emirate: match?.value ?? 'Dubai', step: 'done'});
       }
+    }
+  }
 
-      const aiMsg: Message = {
+  function handleReset() {
+    setMessages([
+      {
         role: 'ai',
-        content: analysis.response,
-        cta: {
-          label: 'These look right — see my quotes →',
-          href: `/quote/results?type=${analysis.businessType}&source=ai`,
-        },
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
-      setIsProcessing(false);
-      setTagLocked(true);
-    }, 1500);
+        content: "Hi! Tell me about your business and I'll find the right coverage for you — or just tap your business type below to get started instantly.",
+      },
+    ]);
+    setSelectedTagId(null);
+    setConvo({step: 'business', businessType: '', businessLabel: '', employees: '', revenue: '', emirate: ''});
+    setInput('');
+    inputRef.current?.focus();
   }
 
   const hasCta = messages.some((m) => m.cta);
+  const showInput = convo.step === 'business' || !currentChips;
 
   return (
-    <div className="flex flex-col flex-1 h-full">
-      <div className="pt-4 pb-2">
-        <ProgressIndicator currentStep={2} label="AI Advisor" />
+    <div className="flex flex-col h-[calc(100vh-64px)]">
+      {/* Fixed header */}
+      <div className="shrink-0">
+        <div className="pt-4 pb-2">
+          <ProgressIndicator currentStep={2} label="AI Advisor" />
+        </div>
+        <div className="max-w-3xl mx-auto px-4 w-full py-2 border-b border-gray-100">
+          <BusinessTypeTags
+            selectedId={selectedTagId}
+            onSelect={handleTagSelect}
+            disabled={convo.step !== 'business' || isProcessing}
+          />
+        </div>
       </div>
 
-      {/* Sticky tags area */}
-      <div className="max-w-3xl mx-auto px-4 w-full py-3">
-        <BusinessTypeTags
-          selectedId={selectedTagId}
-          onSelect={handleTagSelect}
-          disabled={tagLocked || isProcessing}
-        />
-      </div>
-
-      {/* Chat area — scrollable */}
-      <div className="flex-1 overflow-y-auto px-4">
-        <div className="max-w-3xl mx-auto w-full flex flex-col gap-3 pb-4">
+      {/* Scrollable chat — centered when few messages */}
+      <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
+        <div className="max-w-3xl mx-auto w-full px-4 py-6 flex flex-col gap-4 mt-0 mb-auto">
           {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <Card
-                className={`max-w-[85%] rounded-2xl border-0 shadow-sm ${
-                  msg.role === 'user'
-                    ? 'bg-primary text-white'
-                    : 'bg-white text-text'
-                }`}
-              >
-                <CardContent className="p-4">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {msg.content}
-                  </p>
-                  {msg.cta && (
-                    <Button
-                      onClick={() => router.push(msg.cta!.href)}
-                      className="mt-3 w-full rounded-xl bg-primary text-white py-3 font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      {msg.cta.label}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <ChatBubble key={i} message={msg} onCtaClick={(href) => router.push(href)} isLatest={i === messages.length - 1} />
           ))}
-
-          {isProcessing && (
-            <div className="flex justify-start">
-              <Card className="rounded-2xl border-0 shadow-sm bg-white">
-                <CardContent className="p-4">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 bg-text-muted rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-text-muted rounded-full animate-bounce [animation-delay:0.15s]" />
-                    <span className="w-2 h-2 bg-text-muted rounded-full animate-bounce [animation-delay:0.3s]" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
+          {isProcessing && <TypingIndicator />}
           <div ref={chatEndRef} />
         </div>
       </div>
 
-      {/* Fixed input at bottom */}
-      {!hasCta && (
-        <div className="border-t border-border bg-white/80 backdrop-blur-sm">
-          <div className="max-w-3xl mx-auto px-4 py-3">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Describe your business in plain English..."
-                className="flex-1 rounded-xl border border-border bg-white px-4 py-3 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                disabled={isProcessing || tagLocked}
-              />
-              <Button
-                type="submit"
-                disabled={!input.trim() || isProcessing || tagLocked}
-                className="rounded-xl bg-primary text-white px-6 disabled:opacity-50"
-              >
-                Send
-              </Button>
-            </form>
+      {/* Messenger-style bottom bar */}
+      <div className="shrink-0 bg-white">
+        <div className="max-w-3xl mx-auto w-full">
+          {/* Quick-reply chips */}
+          {currentChips && !hasCta && !isProcessing && (
+            <div className="px-4 pt-2 pb-1">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {currentChips.chips.map((chip) => (
+                  <button
+                    key={chip.value}
+                    onClick={() => handleChipSelect(chip.value, chip.label)}
+                    className="shrink-0 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white active:scale-95 transition-all duration-150 whitespace-nowrap"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Input bar */}
+          <div className="px-3 py-2 pb-3">
+            {hasCta ? (
+              <div className="flex items-center justify-between px-1">
+                <p className="text-sm text-gray-500">Not what you expected?</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  className="rounded-full text-sm text-primary border-primary hover:bg-primary/5"
+                >
+                  Start over
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <textarea
+                  ref={inputRef as unknown as React.RefObject<HTMLTextAreaElement>}
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    const el = e.target;
+                    el.style.height = '40px';
+                    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e as unknown as React.FormEvent);
+                    }
+                  }}
+                  placeholder={
+                    convo.step === 'business'
+                      ? 'Describe your business...'
+                      : 'Type your answer...'
+                  }
+                  rows={1}
+                  className="flex-1 resize-none rounded-3xl border border-gray-200 bg-gray-100 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all duration-200 leading-5 min-h-10 max-h-30"
+                  disabled={isProcessing}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isProcessing}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 self-end transition-all duration-200 ${
+                    input.trim()
+                      ? 'bg-primary text-white hover:bg-primary/90 active:scale-90'
+                      : 'bg-gray-200 text-gray-400'
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M16.5 1.5L8.25 9.75M16.5 1.5L11.25 16.5L8.25 9.75M16.5 1.5L1.5 6.75L8.25 9.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </form>
+            )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Chat bubble ---
+
+function ChatBubble({message, onCtaClick, isLatest}: {message: Message; onCtaClick: (href: string) => void; isLatest: boolean}) {
+  const isAi = message.role === 'ai';
+
+  return (
+    <div className={`flex gap-3 ${isAi ? 'justify-start' : 'justify-end'}`}>
+      {isAi && (
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
+            <path d="M8 1.333C4.318 1.333 1.333 4.318 1.333 8S4.318 14.667 8 14.667 14.667 11.682 14.667 8 11.682 1.333 8 1.333ZM5.333 6.667a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334Zm5.334 0a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334ZM10.827 9.6a3.333 3.333 0 0 1-5.654 0 .333.333 0 1 1 .56-.36 2.667 2.667 0 0 0 4.534 0 .333.333 0 1 1 .56.36Z" fill="currentColor" />
+          </svg>
+        </div>
+      )}
+
+      <div className={`max-w-[80%] ${isAi ? '' : 'order-first flex justify-end w-full'}`}>
+        {isAi && isLatest && <p className="text-[11px] text-gray-400 mb-1 ml-1">Shory AI</p>}
+
+        <div className={`rounded-2xl px-4 py-3 ${isAi ? 'bg-white border border-gray-100 shadow-sm rounded-tl-md' : 'bg-primary text-white rounded-tr-md'}`}>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderContent(message.content)}</p>
+
+          {message.cta && (
+            <Button
+              onClick={() => onCtaClick(message.cta!.href)}
+              className="mt-3 w-full rounded-xl bg-primary text-white py-3 font-semibold hover:bg-primary/90 transition-colors gap-2"
+            >
+              {message.cta.label}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Button>
+          )}
+        </div>
+
+        {isLatest && (
+          <p className={`text-[10px] text-gray-300 mt-1 ${isAi ? 'ml-1' : 'text-right mr-1'}`}>
+            {new Date().toLocaleTimeString('en-AE', {hour: '2-digit', minute: '2-digit'})}
+          </p>
+        )}
+      </div>
+
+      {!isAi && (
+        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0 mt-1">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-gray-500">
+            <path d="M7 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.333 13c0-2.577-2.388-4.667-5.333-4.667S1.667 10.423 1.667 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
         </div>
       )}
     </div>
   );
 }
 
-/**
- * Keyword-based business type resolver with Arabic support.
- * Maps user free-text input to a pre-configured business type.
- */
-function analyzeInput(text: string): {
-  response: string;
-  businessType: string;
-  needsMore?: boolean;
-} {
+function TypingIndicator() {
+  return (
+    <div className="flex gap-3 justify-start">
+      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
+          <path d="M8 1.333C4.318 1.333 1.333 4.318 1.333 8S4.318 14.667 8 14.667 14.667 11.682 14.667 8 11.682 1.333 8 1.333ZM5.333 6.667a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334Zm5.334 0a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334ZM10.827 9.6a3.333 3.333 0 0 1-5.654 0 .333.333 0 1 1 .56-.36 2.667 2.667 0 0 0 4.534 0 .333.333 0 1 1 .56.36Z" fill="currentColor" />
+          </svg>
+      </div>
+      <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-tl-md px-4 py-3">
+        <div className="flex gap-1.5 items-center h-5">
+          <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
+          <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.15s]" />
+          <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:0.3s]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function renderContent(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
+// --- Classification ---
+
+function analyzeInput(text: string): {response: string; businessType: string; label: string; needsMore?: boolean} {
   const lower = text.toLowerCase();
 
-  const mappings: Array<{
-    keywords: string[];
-    type: string;
-    label: string;
-    products: string[];
-  }> = [
-    {
-      keywords: [
-        'cafe', 'café', 'restaurant', 'food', 'catering', 'coffee',
-        'مقهى', 'مطعم', 'قهوة', 'طعام',
-      ],
-      type: 'cafe-restaurant',
-      label: 'Café / Restaurant',
-      products: ['Workers Compensation', 'Public Liability', 'Property Insurance'],
-    },
-    {
-      keywords: [
-        'law', 'legal', 'lawyer', 'attorney', 'litigation',
-        'محامي', 'محاماة', 'قانون', 'قانوني',
-      ],
-      type: 'law-firm',
-      label: 'Law Firm / Legal',
-      products: ['Workers Compensation', 'Public Liability', 'Professional Indemnity'],
-    },
-    {
-      keywords: [
-        'retail', 'shop', 'store', 'ecommerce', 'e-commerce', 'trading',
-        'تجزئة', 'متجر', 'تجارة',
-      ],
-      type: 'retail-trading',
-      label: 'Retail / Trading',
-      products: ['Workers Compensation', 'Public Liability', 'Property Insurance'],
-    },
-    {
-      keywords: [
-        'tech', 'software', 'saas', 'it', 'digital', 'developer', 'app',
-        'تقنية', 'برمجة', 'تكنولوجيا',
-      ],
-      type: 'it-technology',
-      label: 'IT / Technology',
-      products: ['Workers Compensation', 'Professional Indemnity'],
-    },
-    {
-      keywords: [
-        'construction', 'building', 'contractor', 'fit-out', 'mep',
-        'بناء', 'مقاولات', 'تشييد',
-      ],
-      type: 'construction',
-      label: 'Construction / Contracting',
-      products: ['Workers Compensation', 'Public Liability', 'Property Insurance', 'Professional Indemnity'],
-    },
-    {
-      keywords: [
-        'health', 'clinic', 'medical', 'pharmacy', 'doctor', 'hospital',
-        'طبيب', 'عيادة', 'صحة', 'مستشفى', 'صيدلية',
-      ],
-      type: 'healthcare',
-      label: 'Healthcare / Clinic',
-      products: ['Workers Compensation', 'Public Liability', 'Professional Indemnity', 'Property Insurance'],
-    },
-    {
-      keywords: [
-        'consult', 'advisory', 'management', 'strategy',
-        'استشارات', 'استشاري',
-      ],
-      type: 'consulting',
-      label: 'Consulting / Advisory',
-      products: ['Workers Compensation', 'Public Liability', 'Professional Indemnity'],
-    },
-    {
-      keywords: [
-        'logistics', 'transport', 'delivery', 'freight', 'warehouse', 'courier',
-        'نقل', 'لوجستيات', 'توصيل', 'شحن',
-      ],
-      type: 'logistics',
-      label: 'Logistics / Transport',
-      products: ['Workers Compensation', 'Property Insurance', 'Fleet Insurance'],
-    },
-    {
-      keywords: [
-        'real estate', 'property management', 'brokerage',
-        'عقارات', 'عقار',
-      ],
-      type: 'real-estate',
-      label: 'Real Estate',
-      products: ['Workers Compensation', 'Public Liability', 'Professional Indemnity'],
-    },
+  const mappings: Array<{keywords: string[]; type: string; label: string}> = [
+    {keywords: ['cafe', 'café', 'restaurant', 'food', 'catering', 'coffee', 'مقهى', 'مطعم', 'قهوة', 'طعام'], type: 'cafe-restaurant', label: 'Café / Restaurant'},
+    {keywords: ['law', 'legal', 'lawyer', 'attorney', 'litigation', 'محامي', 'محاماة', 'قانون'], type: 'law-firm', label: 'Law Firm / Legal'},
+    {keywords: ['retail', 'shop', 'store', 'ecommerce', 'e-commerce', 'boutique', 'تجزئة', 'متجر', 'تجارة'], type: 'retail-trading', label: 'Retail / Trading'},
+    {keywords: ['tech', 'software', 'saas', 'it', 'digital', 'developer', 'app', 'تقنية', 'برمجة'], type: 'it-technology', label: 'IT / Technology'},
+    {keywords: ['construction', 'building', 'contractor', 'fit-out', 'mep', 'بناء', 'مقاولات'], type: 'construction', label: 'Construction / Contracting'},
+    {keywords: ['health', 'clinic', 'medical', 'pharmacy', 'doctor', 'hospital', 'dental', 'طبيب', 'عيادة', 'صحة'], type: 'healthcare', label: 'Healthcare / Clinic'},
+    {keywords: ['consult', 'advisory', 'management', 'strategy', 'hr', 'استشارات'], type: 'consulting', label: 'Consulting / Advisory'},
+    {keywords: ['import', 'export', 'general trading', 'merchandise', 'wholesale', 'تجارة عامة'], type: 'general-trading', label: 'General Trading'},
+    {keywords: ['logistics', 'transport', 'delivery', 'freight', 'warehouse', 'courier', 'نقل', 'لوجستيات'], type: 'logistics', label: 'Logistics / Transport'},
+    {keywords: ['real estate', 'property management', 'brokerage', 'عقارات', 'عقار'], type: 'real-estate', label: 'Real Estate'},
   ];
 
-  const match = mappings.find((m) =>
-    m.keywords.some((kw) => lower.includes(kw) || text.includes(kw)),
-  );
+  const match = mappings.find((m) => m.keywords.some((kw) => lower.includes(kw) || text.includes(kw)));
 
-  // If input is too vague — fewer than 3 words and no keyword match
   if (!match && text.trim().split(/\s+/).length < 3) {
-    return {
-      response:
-        "Can you tell me a bit more about what your business does?",
-      businessType: '',
-      needsMore: true,
-    };
+    return {response: "Could you tell me a bit more? For example, what products or services does your business offer?", businessType: '', label: '', needsMore: true};
   }
 
   if (match) {
-    return {
-      businessType: match.type,
-      response: `Based on what you've told me, I'd classify your business as **${match.label}**.\n\nHere's what I recommend:\n${match.products.map((p) => `• ${p}`).join('\n')}\n\nThese cover the key risks for your type of business.`,
-    };
+    return {businessType: match.type, label: match.label, response: ''};
   }
 
-  // Default fallback
-  return {
-    businessType: 'general-trading',
-    response:
-      "Thanks for the details! Based on your description, I'd recommend a **General Trading** insurance package.\n\nHere's what I suggest:\n• Workers Compensation\n• Public Liability\n• Property Insurance\n\nThese cover the most common risks for businesses like yours.",
-  };
+  return {businessType: 'general-trading', label: 'General Trading', response: ''};
 }
