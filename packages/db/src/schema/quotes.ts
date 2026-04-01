@@ -6,6 +6,7 @@ export const quoteStatusEnum = pgEnum('quote_status', [
   'quoted',
   'accepted',
   'expired',
+  'rejected',
 ]);
 
 export const quotes = pgTable('quotes', {
@@ -14,6 +15,7 @@ export const quotes = pgTable('quotes', {
   tradeLicense: text('trade_license'),
   emirate: text('emirate').notNull(),
   industry: text('industry').notNull(),
+  businessType: text('business_type'),
   employeesCount: integer('employees_count').notNull(),
   coverageType: text('coverage_type').notNull(),
   status: quoteStatusEnum('status').default('draft').notNull(),
