@@ -1,0 +1,37 @@
+{
+  "workers-comp": {
+    "id": "workers-comp",
+    "name": "Workers Compensation",
+    "shortName": "Workers",
+    "icon": "👷",
+    "basePrice": 400
+  },
+  "public-liability": {
+    "id": "public-liability",
+    "name": "Public Liability",
+    "shortName": "Public",
+    "icon": "🤝",
+    "basePrice": 500
+  },
+  "professional-indemnity": {
+    "id": "professional-indemnity",
+    "name": "Professional Indemnity",
+    "shortName": "Professional",
+    "icon": "📋",
+    "basePrice": 600
+  },
+  "property": {
+    "id": "property",
+    "name": "Property Insurance",
+    "shortName": "Property",
+    "icon": "🏢",
+    "basePrice": 700
+  },
+  "fleet": {
+    "id": "fleet",
+    "name": "Fleet Insurance",
+    "shortName": "Fleet",
+    "icon": "🚛",
+    "basePrice": 800
+  }
+}

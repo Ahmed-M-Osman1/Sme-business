@@ -1,0 +1,92 @@
+[
+  {
+    "id": "cafe-restaurant",
+    "title": "Café / Restaurant",
+    "description": "Coffee shops, restaurants, takeaways, catering",
+    "icon": "☕",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "property"]
+  },
+  {
+    "id": "law-firm",
+    "title": "Law Firm / Legal",
+    "description": "Legal advice, litigation, contract review",
+    "icon": "⚖️",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "professional-indemnity"]
+  },
+  {
+    "id": "retail-trading",
+    "title": "Retail / Trading",
+    "description": "Shops, trading companies, wholesale, e-commerce",
+    "icon": "🛒",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "property"]
+  },
+  {
+    "id": "it-technology",
+    "title": "IT / Technology",
+    "description": "Software, SaaS, IT consulting, digital agencies",
+    "icon": "💻",
+    "riskLevel": "low",
+    "riskFactor": 1.0,
+    "products": ["workers-comp", "professional-indemnity"]
+  },
+  {
+    "id": "construction",
+    "title": "Construction / Contracting",
+    "description": "Building, fit-out, MEP, civil works, maintenance",
+    "icon": "🏗️",
+    "riskLevel": "high",
+    "riskFactor": 1.8,
+    "products": ["workers-comp", "public-liability", "property", "professional-indemnity"]
+  },
+  {
+    "id": "healthcare",
+    "title": "Healthcare / Clinic",
+    "description": "Medical clinics, pharmacies, wellness centres",
+    "icon": "🏥",
+    "riskLevel": "high",
+    "riskFactor": 1.8,
+    "products": ["workers-comp", "public-liability", "professional-indemnity", "property"]
+  },
+  {
+    "id": "consulting",
+    "title": "Consulting / Advisory",
+    "description": "Management consulting, financial advisory",
+    "icon": "💼",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "professional-indemnity"]
+  },
+  {
+    "id": "general-trading",
+    "title": "General Trading",
+    "description": "Import/export, general merchandise",
+    "icon": "📦",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "property"]
+  },
+  {
+    "id": "logistics",
+    "title": "Logistics / Transport",
+    "description": "Freight, last-mile delivery, warehousing, couriers",
+    "icon": "🚛",
+    "riskLevel": "high",
+    "riskFactor": 1.8,
+    "products": ["workers-comp", "property", "fleet"]
+  },
+  {
+    "id": "real-estate",
+    "title": "Real Estate",
+    "description": "Property brokerage, development, property management",
+    "icon": "🏢",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "professional-indemnity"]
+  }
+]
