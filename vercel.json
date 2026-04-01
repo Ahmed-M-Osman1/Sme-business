@@ -1,8 +1,6 @@
 {
   "version": 2,
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @shory/web build",
-  "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "ignoreCommand": "npx turbo-ignore"
 }
