@@ -39,14 +39,14 @@ export function QuoteResults() {
       return limits;
     },
   );
-  const [selectedInsurer, setSelectedInsurer] = useState<{
-    id: string;
-    total: number;
-  } | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState<'price' | 'rating'>('price');
+  const [shariahOnly, setShariahOnly] = useState(false);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
 
   const sizeFactor = getSizeFactor(employeeBand);
 
-  const insurerQuotes = useMemo(() => {
+  const allQuotes = useMemo(() => {
     return insurers
       .map((insurer) => {
         const total = calculateTotalPremium({
@@ -60,6 +60,28 @@ export function QuoteResults() {
       })
       .sort((a, b) => a.total - b.total);
   }, [activeProducts, coverageLimits, businessType.riskFactor, sizeFactor]);
+
+  const insurerQuotes = useMemo(() => {
+    let filtered = allQuotes.filter((q) => {
+      if (shariahOnly && !q.shariahCompliant) return false;
+      if (maxPrice && q.total > maxPrice) return false;
+      return true;
+    });
+    if (sortBy === 'rating') {
+      filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+    }
+    return filtered;
+  }, [allQuotes, shariahOnly, maxPrice, sortBy]);
+
+  const priceRange = useMemo(() => {
+    if (allQuotes.length === 0) return {min: 0, max: 10000};
+    return {
+      min: Math.floor(allQuotes[0].total / 100) * 100,
+      max: Math.ceil(allQuotes[allQuotes.length - 1].total / 100) * 100,
+    };
+  }, [allQuotes]);
+
+  const activeFilterCount = [shariahOnly, maxPrice !== null].filter(Boolean).length;
 
   const coverageType = Array.from(activeProducts)
     .map((id) => productsConfig[id].shortName)
@@ -84,15 +106,10 @@ export function QuoteResults() {
   }
 
   function handleSelect(insurerId: string, total: number) {
-    setSelectedInsurer({id: insurerId, total});
-  }
-
-  function handleContinue() {
-    if (!selectedInsurer) return;
     const params = new URLSearchParams({
       type: typeId,
-      insurer: selectedInsurer.id,
-      total: String(selectedInsurer.total),
+      insurer: insurerId,
+      total: String(total),
       products: Array.from(activeProducts).join(','),
       limits: JSON.stringify(coverageLimits),
       source,
@@ -109,8 +126,31 @@ export function QuoteResults() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pb-24">
+    <div className="flex flex-col gap-6 pb-12">
       <ProgressIndicator currentStep={3} label="Your quotes" />
+
+      {/* Back + Title */}
+      <div className="max-w-6xl mx-auto px-4 w-full">
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M10 12.667L5.333 8L10 3.333"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Back
+        </button>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Quotes</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {businessType.title} &middot; {emirate} &middot; {employeeBand} employees
+        </p>
+      </div>
 
       {/* Two-column layout */}
       <div className="max-w-6xl mx-auto px-4 w-full flex flex-col lg:flex-row gap-6">
@@ -240,14 +280,10 @@ export function QuoteResults() {
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
+                onClick={() => setShowFilters((prev) => !prev)}
                 className="text-primary hover:bg-primary/5 text-sm gap-1.5"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M2 4.667h12M4.667 8h6.666M6.667 11.333h2.666"
                     stroke="currentColor"
@@ -256,84 +292,124 @@ export function QuoteResults() {
                   />
                 </svg>
                 Filter
+                {activeFilterCount > 0 && (
+                  <span className="bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
               </Button>
-              <Button
-                variant="ghost"
-                className="text-primary hover:bg-primary/5 text-sm gap-1.5"
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'price' | 'rating')}
+                className="text-sm text-gray-600 border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M4 2.667v10.666M8 2.667v10.666M12 2.667v10.666"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                Compare
-              </Button>
+                <option value="price">Sort: Lowest price</option>
+                <option value="rating">Sort: Highest rating</option>
+              </select>
             </div>
             <p className="text-sm text-gray-500 font-medium">
-              {insurerQuotes.length} Quotes
+              {insurerQuotes.length} of {allQuotes.length} Quotes
             </p>
           </div>
 
+          {/* Filter Panel */}
+          {showFilters && (
+            <Card className="rounded-xl border border-gray-200 bg-white animate-in slide-in-from-top-2 duration-200">
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-900">Filters</p>
+                  <button
+                    onClick={() => {
+                      setShariahOnly(false);
+                      setMaxPrice(null);
+                    }}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
+
+                {/* Shariah Compliant */}
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <p className="text-sm text-gray-700">Shariah-compliant only</p>
+                    <p className="text-xs text-gray-400">Show Takaful providers</p>
+                  </div>
+                  <button
+                    onClick={() => setShariahOnly((prev) => !prev)}
+                    className={`w-10 h-6 rounded-full flex items-center transition-colors duration-200 ${
+                      shariahOnly ? 'bg-primary' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`block w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                        shariahOnly ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </label>
+
+                {/* Max Price Slider */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm text-gray-700">Max annual price</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {maxPrice === null
+                        ? 'Any'
+                        : `AED ${formatPrice(maxPrice)}`}
+                    </p>
+                  </div>
+                  <input
+                    type="range"
+                    min={priceRange.min}
+                    max={priceRange.max}
+                    step={100}
+                    value={maxPrice ?? priceRange.max}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setMaxPrice(val >= priceRange.max ? null : val);
+                    }}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:shadow-md"
+                  />
+                  <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                    <span>AED {formatPrice(priceRange.min)}</span>
+                    <span>AED {formatPrice(priceRange.max)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quote Cards */}
           <div className="flex flex-col gap-4">
-            {insurerQuotes.map((insurer, index) => (
-              <QuoteCard
-                key={insurer.id}
-                insurer={insurer}
-                coverageType={coverageType}
-                benefits={benefits}
-                isBestPrice={index === 0}
-                isSelected={selectedInsurer?.id === insurer.id}
-                onSelect={handleSelect}
-              />
-            ))}
+            {insurerQuotes.length === 0 ? (
+              <Card className="rounded-xl border border-gray-200 bg-white">
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-500 text-sm">No quotes match your filters.</p>
+                  <button
+                    onClick={() => {
+                      setShariahOnly(false);
+                      setMaxPrice(null);
+                    }}
+                    className="text-primary text-sm mt-2 hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                </CardContent>
+              </Card>
+            ) : (
+              insurerQuotes.map((insurer, index) => (
+                <QuoteCard
+                  key={insurer.id}
+                  insurer={insurer}
+                  coverageType={coverageType}
+                  benefits={benefits}
+                  isBestPrice={insurer.total === Math.min(...insurerQuotes.map((q) => q.total))}
+                  onSelect={handleSelect}
+                />
+              ))
+            )}
           </div>
-        </div>
-      </div>
-
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-md py-4 px-6 z-50">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            className="rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50 gap-2"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M10 12.667L5.333 8L10 3.333"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Back
-          </Button>
-          <Button
-            onClick={handleContinue}
-            disabled={!selectedInsurer}
-            className="rounded-xl bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed px-8 gap-2"
-          >
-            Continue
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M6 3.333L10.667 8L6 12.667"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Button>
         </div>
       </div>
     </div>

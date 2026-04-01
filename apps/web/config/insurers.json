@@ -18,6 +18,15 @@
     "priceMultiplier": 1.023
   },
   {
+    "id": "yas-takaful",
+    "name": "YAS Takaful",
+    "logo": "/insurers/YASTakaful.png",
+    "rating": 4.1,
+    "reviewCount": 530,
+    "shariahCompliant": true,
+    "priceMultiplier": 1.045
+  },
+  {
     "id": "sukoon",
     "name": "Sukoon Insurance",
     "logo": "/insurers/SukoonInsurance.png",
@@ -27,6 +36,42 @@
     "priceMultiplier": 1.057
   },
   {
+    "id": "afnic",
+    "name": "AFNIC",
+    "logo": "/insurers/AFNIC.png",
+    "rating": 3.8,
+    "reviewCount": 440,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.09
+  },
+  {
+    "id": "dubai-insurance",
+    "name": "Dubai Insurance",
+    "logo": "/insurers/DubaiInsurance.png",
+    "rating": 4.0,
+    "reviewCount": 750,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.12
+  },
+  {
+    "id": "qic",
+    "name": "QIC",
+    "logo": "/insurers/QIC.png",
+    "rating": 4.1,
+    "reviewCount": 920,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.15
+  },
+  {
+    "id": "adnic",
+    "name": "ADNIC",
+    "logo": "/insurers/ADNIC.png",
+    "rating": 4.4,
+    "reviewCount": 1870,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.18
+  },
+  {
     "id": "orient",
     "name": "Orient Insurance",
     "logo": "/insurers/ORIENT.png",
@@ -34,5 +79,32 @@
     "reviewCount": 1105,
     "shariahCompliant": false,
     "priceMultiplier": 1.218
+  },
+  {
+    "id": "orient-takaful",
+    "name": "Orient Takaful",
+    "logo": "/insurers/OrientTakaful.png",
+    "rating": 4.2,
+    "reviewCount": 780,
+    "shariahCompliant": true,
+    "priceMultiplier": 1.25
+  },
+  {
+    "id": "al-ain-ahlia",
+    "name": "Al Ain Ahlia",
+    "logo": "/insurers/AlAinAhlia.png",
+    "rating": 4.0,
+    "reviewCount": 680,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.28
+  },
+  {
+    "id": "insurance-house",
+    "name": "Insurance House",
+    "logo": "/insurers/InsuranceHouse.png",
+    "rating": 3.9,
+    "reviewCount": 620,
+    "shariahCompliant": false,
+    "priceMultiplier": 1.32
   }
 ]
