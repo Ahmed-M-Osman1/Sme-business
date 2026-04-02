@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useCallback} from 'react';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
@@ -16,7 +16,11 @@ const RISK_BADGE_STYLES: Record<string, string> = {
 };
 
 // Top 3 most common — shown as featured row
-const FEATURED_IDS = ['cafe-restaurant', 'retail-trading', 'it-technology'];
+const FEATURED_IDS = [
+  'cafe-restaurant',
+  'retail-trading',
+  'it-technology',
+];
 
 export default function BusinessTypePage() {
   const {t} = useI18n();
@@ -24,32 +28,83 @@ export default function BusinessTypePage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
-  const [businessTypes, setBusinessTypes] = useState<Array<{
-    id: string; title: string; description: string; icon: string;
-    riskLevel: string; riskFactor: number; products: string[];
-  }>>([]);
+  const [businessTypes, setBusinessTypes] = useState<
+    Array<{
+      id: string;
+      title: string;
+      description: string;
+      icon: string;
+      riskLevel: string;
+      riskFactor: number;
+      products: string[];
+    }>
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.catalog.businessTypes()
+    api.catalog
+      .businessTypes()
       .then(setBusinessTypes)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const featured = businessTypes.filter((bt) => FEATURED_IDS.includes(bt.id));
-  const others = businessTypes.filter((bt) => !FEATURED_IDS.includes(bt.id));
+  const featured = businessTypes.filter((bt) =>
+    FEATURED_IDS.includes(bt.id),
+  );
+  const others = businessTypes.filter(
+    (bt) => !FEATURED_IDS.includes(bt.id),
+  );
 
   useEffect(() => {
     if (expandedId && detailRef.current) {
-      detailRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+      detailRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
   }, [expandedId]);
 
   function handleCollapse() {
     setExpandedId(null);
-    topRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    topRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   }
+
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const allTypes = [...featured, ...others];
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const total = allTypes.length;
+      if (total === 0) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        setFocusedIndex((prev) => (prev + 1) % total);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setFocusedIndex((prev) => (prev - 1 + total) % total);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < total) {
+          handleSelect(allTypes[focusedIndex].id);
+        }
+      }
+    },
+    [allTypes, focusedIndex],
+  );
+
+  useEffect(() => {
+    if (focusedIndex >= 0) {
+      const btn = document.querySelector(
+        `[data-bt-index="${focusedIndex}"]`,
+      ) as HTMLElement;
+      btn?.focus();
+    }
+  }, [focusedIndex]);
 
   function handleSelect(btId: string) {
     setExpandedId((prev) => (prev === btId ? null : btId));
@@ -66,7 +121,10 @@ export default function BusinessTypePage() {
   return (
     <div className="flex flex-col gap-6">
       <div ref={topRef} />
-      <ProgressIndicator currentStep={2} label={t.businessType.title} />
+      <ProgressIndicator
+        currentStep={2}
+        label={t.businessType.title}
+      />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -82,39 +140,50 @@ export default function BusinessTypePage() {
           <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2.5 text-center">
             {t.businessType.popularInUae}
           </p>
-          <div className="grid grid-cols-3 gap-2.5">
-            {featured.map((bt) => {
+          <div
+            className="grid grid-cols-3 gap-2.5"
+            role="listbox"
+            aria-label="Popular business types"
+            onKeyDown={handleKeyDown}>
+            {featured.map((bt, idx) => {
               const isExpanded = expandedId === bt.id;
               return (
                 <button
                   key={bt.id}
                   onClick={() => handleSelect(bt.id)}
-                  className="text-left w-full"
-                >
+                  onFocus={() => setFocusedIndex(idx)}
+                  data-bt-index={idx}
+                  role="option"
+                  aria-selected={isExpanded}
+                  tabIndex={focusedIndex === idx ? 0 : -1}
+                  className="text-left w-full">
                   <Card
                     className={`rounded-2xl border-2 bg-white transition-all duration-200 cursor-pointer h-full ${
                       isExpanded
                         ? 'border-primary shadow-md bg-linear-to-br from-primary/5 to-white'
                         : 'border-transparent shadow-sm hover:shadow-md hover:border-primary/30'
-                    }`}
-                  >
+                    }`}>
                     <CardContent className="flex flex-col items-center gap-2 p-3 sm:p-4 text-center">
                       <div
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl ${
                           isExpanded ? 'bg-primary/10' : 'bg-surface'
-                        }`}
-                      >
+                        }`}>
                         {bt.icon}
                       </div>
                       <span className="font-semibold text-text text-xs sm:text-sm leading-tight">
-                        {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
+                        {(t.businessType as Record<string, string>)[
+                          bt.id
+                        ] ?? bt.title}
                       </span>
                       <Badge
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize ${
                           RISK_BADGE_STYLES[bt.riskLevel]
-                        }`}
-                      >
-                        {bt.riskLevel === 'low' ? t.businessType.lowRisk : bt.riskLevel === 'medium' ? t.businessType.mediumRisk : t.businessType.highRisk}
+                        }`}>
+                        {bt.riskLevel === 'low'
+                          ? t.businessType.lowRisk
+                          : bt.riskLevel === 'medium'
+                            ? t.businessType.mediumRisk
+                            : t.businessType.highRisk}
                       </Badge>
                     </CardContent>
                   </Card>
@@ -127,45 +196,59 @@ export default function BusinessTypePage() {
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-[11px] text-text-muted">all business types</span>
+          <span className="text-[11px] text-text-muted">
+            all business types
+          </span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* All other types — 2-col grid */}
-        <div className="grid grid-cols-2 gap-2.5">
-          {others.map((bt) => {
+        <div
+          className="grid grid-cols-2 gap-2.5"
+          role="listbox"
+          aria-label="All business types"
+          onKeyDown={handleKeyDown}>
+          {others.map((bt, idx) => {
             const isExpanded = expandedId === bt.id;
+            const globalIdx = featured.length + idx;
             return (
               <button
                 key={bt.id}
                 onClick={() => handleSelect(bt.id)}
-                className="text-left w-full"
-              >
+                onFocus={() => setFocusedIndex(globalIdx)}
+                data-bt-index={globalIdx}
+                role="option"
+                aria-selected={isExpanded}
+                tabIndex={focusedIndex === globalIdx ? 0 : -1}
+                className="text-left w-full">
                 <Card
                   className={`rounded-2xl border bg-white transition-all duration-200 cursor-pointer h-full ${
                     isExpanded
                       ? 'border-primary ring-2 ring-primary/20 shadow-md'
                       : 'border-border shadow-sm hover:shadow-md hover:border-primary/40'
-                  }`}
-                >
+                  }`}>
                   <CardContent className="flex items-center gap-3 p-3 sm:p-4">
                     <div
                       className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${
                         isExpanded ? 'bg-primary/10' : 'bg-surface'
-                      }`}
-                    >
+                      }`}>
                       {bt.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="font-semibold text-text text-xs sm:text-sm leading-tight line-clamp-1 block">
-                        {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
+                        {(t.businessType as Record<string, string>)[
+                          bt.id
+                        ] ?? bt.title}
                       </span>
                       <Badge
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize mt-1 inline-block ${
                           RISK_BADGE_STYLES[bt.riskLevel]
-                        }`}
-                      >
-                        {bt.riskLevel === 'low' ? t.businessType.lowRisk : bt.riskLevel === 'medium' ? t.businessType.mediumRisk : t.businessType.highRisk}
+                        }`}>
+                        {bt.riskLevel === 'low'
+                          ? t.businessType.lowRisk
+                          : bt.riskLevel === 'medium'
+                            ? t.businessType.mediumRisk
+                            : t.businessType.highRisk}
                       </Badge>
                     </div>
                   </CardContent>
@@ -178,8 +261,7 @@ export default function BusinessTypePage() {
         {/* Not listed fallback */}
         <button
           onClick={() => router.push('/quote/manual')}
-          className="w-full"
-        >
+          className="w-full rounded-2xl border-2 border-primary text-primary bg-white hover:bg-primary/5 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 py-4 px-6 text-base font-semibold">
           <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 px-6 py-5">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary text-lg shrink-0">
               +
@@ -188,15 +270,17 @@ export default function BusinessTypePage() {
               <span className="text-base font-semibold text-text">
                 My business type isn&apos;t listed
               </span>
-              <span className="text-sm text-text-muted">Describe your business and we&apos;ll classify it for you</span>
+              <span className="text-sm text-text-muted">
+                Describe your business and we&apos;ll classify it for
+                you
+              </span>
             </div>
             <svg
               width="20"
               height="20"
               viewBox="0 0 16 16"
               fill="none"
-              className="text-primary ml-auto shrink-0"
-            >
+              className="text-primary ml-auto shrink-0">
               <path
                 d="M6 3.333L10.667 8L6 12.667"
                 stroke="currentColor"
@@ -212,27 +296,53 @@ export default function BusinessTypePage() {
         {expandedId && BUSINESS_TYPE_HELP[expandedId] && (
           <div className="rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex flex-col gap-2 text-sm animate-in fade-in duration-200">
             <div className="flex items-center gap-2 text-primary font-medium text-xs uppercase tracking-wider">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
-                <path d="M7 1.167A5.833 5.833 0 1 0 12.833 7 5.84 5.84 0 0 0 7 1.167Zm0 9.333a.583.583 0 1 1 0-1.167.583.583 0 0 1 0 1.167Zm.583-2.917a.583.583 0 0 1-1.166 0V4.667a.583.583 0 0 1 1.166 0v2.916Z" fill="currentColor" />
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                className="shrink-0">
+                <path
+                  d="M7 1.167A5.833 5.833 0 1 0 12.833 7 5.84 5.84 0 0 0 7 1.167Zm0 9.333a.583.583 0 1 1 0-1.167.583.583 0 0 1 0 1.167Zm.583-2.917a.583.583 0 0 1-1.166 0V4.667a.583.583 0 0 1 1.166 0v2.916Z"
+                  fill="currentColor"
+                />
               </svg>
               Quick overview
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-text-muted">
               <div>
-                <p className="font-medium text-text mb-0.5">Recommended covers</p>
-                <p>{BUSINESS_TYPE_HELP[expandedId].recommendedCovers.join(', ')}</p>
+                <p className="font-medium text-text mb-0.5">
+                  Recommended covers
+                </p>
+                <p>
+                  {BUSINESS_TYPE_HELP[
+                    expandedId
+                  ].recommendedCovers.join(', ')}
+                </p>
               </div>
               <div>
-                <p className="font-medium text-text mb-0.5">Typical employees</p>
-                <p>{BUSINESS_TYPE_HELP[expandedId].typicalEmployees}</p>
+                <p className="font-medium text-text mb-0.5">
+                  Typical employees
+                </p>
+                <p>
+                  {BUSINESS_TYPE_HELP[expandedId].typicalEmployees}
+                </p>
               </div>
               <div>
-                <p className="font-medium text-text mb-0.5">Annual revenue</p>
+                <p className="font-medium text-text mb-0.5">
+                  Annual revenue
+                </p>
                 <p>{BUSINESS_TYPE_HELP[expandedId].annualRevenue}</p>
               </div>
               <div>
-                <p className="font-medium text-text mb-0.5">High-value assets</p>
-                <p>{BUSINESS_TYPE_HELP[expandedId].highValueAssets ? 'Likely applies' : 'Usually not needed'}</p>
+                <p className="font-medium text-text mb-0.5">
+                  High-value assets
+                </p>
+                <p>
+                  {BUSINESS_TYPE_HELP[expandedId].highValueAssets
+                    ? 'Likely applies'
+                    : 'Usually not needed'}
+                </p>
               </div>
             </div>
           </div>

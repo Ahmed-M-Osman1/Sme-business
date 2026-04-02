@@ -94,6 +94,7 @@ export function Checkout() {
       const employees = searchParams.get('employees');
       if (licenseNumber) params.set('licenseNumber', licenseNumber);
       if (employees) params.set('employees', employees);
+      window.scrollTo({top: 0, behavior: 'smooth'});
       router.push(`/quote/confirmation?${params.toString()}`);
     }, 2000);
   }

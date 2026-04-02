@@ -122,6 +122,7 @@ export function CompanyDetails() {
       existing.set('companyVerified', 'false');
       existing.set('companySource', 'none');
     }
+    window.scrollTo({top: 0, behavior: 'smooth'});
     router.push(`/quote/checkout?${existing.toString()}`);
   };
 

@@ -149,6 +149,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
       params.set('assets', JSON.stringify(assets));
     }
 
+    window.scrollTo({top: 0, behavior: 'smooth'});
     router.push(`/quote/results?${params.toString()}`);
   }
 

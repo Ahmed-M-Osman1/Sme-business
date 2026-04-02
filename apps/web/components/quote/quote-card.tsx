@@ -56,7 +56,7 @@ export function QuoteCard({
         isSelected
           ? 'border-primary ring-2 ring-primary/20 shadow-md'
           : isBestPrice
-            ? 'border-green-300 shadow-sm'
+            ? 'border-2 border-primary shadow-sm'
             : 'border-gray-200 hover:border-gray-300'
       }`}>
       {/* Badges row */}
@@ -121,7 +121,7 @@ export function QuoteCard({
             </div>
           </div>
         </div>
-        <div className="text-right shrink-0">
+        <div className="text-end shrink-0">
           <div className="flex items-baseline gap-1 justify-end">
             <span className="text-sm font-semibold text-gray-500">
               AED
