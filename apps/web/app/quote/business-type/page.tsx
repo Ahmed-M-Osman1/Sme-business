@@ -156,7 +156,7 @@ export default function BusinessTypePage() {
                   role="option"
                   aria-selected={isExpanded}
                   tabIndex={focusedIndex === idx ? 0 : -1}
-                  className="text-left w-full">
+                  className="text-start w-full">
                   <Card
                     className={`rounded-2xl border-2 bg-white transition-all duration-200 cursor-pointer h-full ${
                       isExpanded
@@ -220,7 +220,7 @@ export default function BusinessTypePage() {
                 role="option"
                 aria-selected={isExpanded}
                 tabIndex={focusedIndex === globalIdx ? 0 : -1}
-                className="text-left w-full">
+                className="text-start w-full">
                 <Card
                   className={`rounded-2xl border bg-white transition-all duration-200 cursor-pointer h-full ${
                     isExpanded
