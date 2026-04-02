@@ -539,7 +539,8 @@
     "startDate": "Effective Date",
     "endDate": "Expiry Date",
     "annualPremium": "Annual Premium",
-    "monthlyPremium": "Monthly Premium"
+    "monthlyPremium": "Monthly Premium",
+    "logout": "Log out"
   },
   "footer": {
     "personalInsurance": "Personal Insurance",

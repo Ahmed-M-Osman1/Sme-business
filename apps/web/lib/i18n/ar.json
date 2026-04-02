@@ -539,7 +539,8 @@
     "startDate": "تاريخ البداية",
     "endDate": "تاريخ الانتهاء",
     "annualPremium": "القسط السنوي",
-    "monthlyPremium": "القسط الشهري"
+    "monthlyPremium": "القسط الشهري",
+    "logout": "تسجيل الخروج"
   },
   "footer": {
     "personalInsurance": "التأمين الشخصي",

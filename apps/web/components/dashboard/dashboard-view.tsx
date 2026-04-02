@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import {signOut} from 'next-auth/react';
 import {useI18n} from '@/lib/i18n';
 import {PolicyDetailSheet} from './policy-detail-sheet';
 import {SettingsTab} from './settings-tab';
@@ -35,9 +36,16 @@ export function DashboardView({user, policies, stats}: DashboardViewProps) {
             {activePolicies.length} {activePolicies.length === 1 ? 'policy' : 'policies'} active
           </p>
         </div>
-        <button className="rounded-xl bg-primary text-white px-6 py-3 font-semibold hover:bg-primary/90">
-          {t.dashboard?.addCover || '+ Add Cover'}
-        </button>
+        <div className="flex gap-3">
+          <button className="rounded-xl bg-primary text-white px-6 py-3 font-semibold hover:bg-primary/90">
+            {t.dashboard?.addCover || '+ Add Cover'}
+          </button>
+          <button
+            onClick={() => signOut({callbackUrl: '/'})}
+            className="rounded-xl border-2 border-border bg-white text-gray-900 px-6 py-3 font-semibold hover:bg-gray-50">
+            {t.dashboard?.logout || 'Log out'}
+          </button>
+        </div>
       </div>
 
       {/* Stats Bar */}

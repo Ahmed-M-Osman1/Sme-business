@@ -32,7 +32,12 @@ export function SignupForm({onSuccess}: SignupFormProps) {
 
     try {
       // Register the user
-      await api.user.register({email, password, name, phone: phone || undefined});
+      await api.user.register({
+        email,
+        password,
+        name,
+        phone: phone || undefined,
+      });
 
       // Auto sign-in
       const result = await signIn('credentials', {
@@ -44,12 +49,22 @@ export function SignupForm({onSuccess}: SignupFormProps) {
       if (result?.ok) {
         onSuccess();
       } else {
-        setError(t.auth?.accountCreatedSignIn || 'Account created but failed to sign in. Please try logging in.');
+        setError(
+          t.auth?.accountCreatedSignIn ||
+            'Account created but failed to sign in. Please try logging in.',
+        );
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Registration failed';
-      if (errorMsg.includes('EMAIL_EXISTS') || errorMsg.includes('email already')) {
-        setError(t.auth?.emailAlreadyRegistered || 'Email already registered');
+      const errorMsg =
+        err instanceof Error ? err.message : 'Registration failed';
+      if (
+        errorMsg.includes('EMAIL_EXISTS') ||
+        errorMsg.includes('email already')
+      ) {
+        setError(
+          t.auth?.emailAlreadyRegistered ||
+            'Email already registered',
+        );
       } else {
         setError(errorMsg);
       }
@@ -125,9 +140,10 @@ export function SignupForm({onSuccess}: SignupFormProps) {
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90"
-      >
-        {isLoading ? (t.auth?.creatingAccount || 'Creating account...') : (t.auth?.signUp || 'Create Account')}
+        className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90">
+        {isLoading
+          ? t.auth?.creatingAccount || 'Creating account...'
+          : t.auth?.signUp || 'Create Account'}
       </Button>
     </form>
   );

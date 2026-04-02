@@ -11,20 +11,25 @@ interface AuthModalProps {
   onSuccess: () => void;
 }
 
-export function AuthModal({open, onClose, onSuccess}: AuthModalProps) {
+export function AuthModal({
+  open,
+  onClose,
+  onSuccess,
+}: AuthModalProps) {
   const {t} = useI18n();
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'signup'>(
+    'login',
+  );
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="max-w-md rounded-2xl border-2 border-border bg-white p-6 shadow-sm relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-2xl border-2 border-border bg-white p-8 shadow-sm relative">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600"
-        >
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path
               d="M18 6L6 18M6 6l12 12"
@@ -38,9 +43,13 @@ export function AuthModal({open, onClose, onSuccess}: AuthModalProps) {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="mb-4 text-2xl font-bold italic text-primary">Shory</div>
+          <div className="mb-4 text-2xl font-bold italic text-primary">
+            Shory
+          </div>
           <h2 className="text-xl font-bold text-gray-900">
-            {activeTab === 'login' ? (t.auth?.signIn || 'Sign In') : (t.auth?.createAccount || 'Create Account')}
+            {activeTab === 'login'
+              ? t.auth?.signIn || 'Sign In'
+              : t.auth?.createAccount || 'Create Account'}
           </h2>
         </div>
 
@@ -52,8 +61,7 @@ export function AuthModal({open, onClose, onSuccess}: AuthModalProps) {
               activeTab === 'login'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
+            }`}>
             {t.auth?.signIn || 'Sign In'}
           </button>
           <button
@@ -62,8 +70,7 @@ export function AuthModal({open, onClose, onSuccess}: AuthModalProps) {
               activeTab === 'signup'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
+            }`}>
             {t.auth?.signUp || 'Sign Up'}
           </button>
         </div>
@@ -89,21 +96,20 @@ export function AuthModal({open, onClose, onSuccess}: AuthModalProps) {
         <p className="mt-6 text-center text-xs text-gray-500">
           {activeTab === 'login' ? (
             <>
-              {t.auth?.dontHaveAccount || 'Don\'t have an account?'}{' '}
+              {t.auth?.dontHaveAccount || "Don't have an account?"}{' '}
               <button
                 onClick={() => setActiveTab('signup')}
-                className="font-semibold text-primary hover:underline"
-              >
+                className="font-semibold text-primary hover:underline">
                 {t.auth?.signUp || 'Sign up'}
               </button>
             </>
           ) : (
             <>
-              {t.auth?.alreadyHaveAccount || 'Already have an account?'}{' '}
+              {t.auth?.alreadyHaveAccount ||
+                'Already have an account?'}{' '}
               <button
                 onClick={() => setActiveTab('login')}
-                className="font-semibold text-primary hover:underline"
-              >
+                className="font-semibold text-primary hover:underline">
                 {t.auth?.signIn || 'Sign in'}
               </button>
             </>
