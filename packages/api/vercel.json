@@ -1,14 +1,8 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build",
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "index.ts": {
+      "runtime": "nodejs20.x"
     }
-  ]
+  }
 }

@@ -9,18 +9,29 @@ import {notificationsRouter} from './routes/notifications';
 import {userAuthRouter} from './routes/user-auth';
 import {userPoliciesRouter} from './routes/user-policies';
 
-const app = new Hono().basePath('/api');
+const app = new Hono();
+const api = new Hono().basePath('/api');
 
-app.use('*', corsMiddleware);
+app.get('/', (c) =>
+  c.json({
+    name: 'Shory SME API',
+    status: 'ok',
+    health: '/api/health',
+  }),
+);
 
-app.get('/health', (c) => c.json({status: 'ok'}));
-app.route('/quotes', quotesRouter);
-app.route('/uploads', uploadsRouter);
-app.route('/ai', aiRouter);
-app.route('/admin', adminRouter);
-app.route('/catalog', catalogRouter);
-app.route('/notifications', notificationsRouter);
-app.route('/user/auth', userAuthRouter);
-app.route('/user', userPoliciesRouter);
+api.use('*', corsMiddleware);
+
+api.get('/health', (c) => c.json({status: 'ok'}));
+api.route('/quotes', quotesRouter);
+api.route('/uploads', uploadsRouter);
+api.route('/ai', aiRouter);
+api.route('/admin', adminRouter);
+api.route('/catalog', catalogRouter);
+api.route('/notifications', notificationsRouter);
+api.route('/user/auth', userAuthRouter);
+api.route('/user', userPoliciesRouter);
+
+app.route('/', api);
 
 export default app;
