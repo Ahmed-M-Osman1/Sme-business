@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
 import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
@@ -11,7 +12,6 @@ type ProductCard = {
   image: string | 'sme-icon';
   href: string;
   active: boolean;
-  comingSoon?: boolean;
 };
 
 const PERSONAL_PRODUCTS: ProductCard[] = [
@@ -20,28 +20,24 @@ const PERSONAL_PRODUCTS: ProductCard[] = [
     image: 'https://www.shory.com/media/w2mel21w/car-insurance_card.webp',
     href: '#',
     active: false,
-    comingSoon: true,
   },
   {
     title: 'Health Insurance',
     image: 'https://www.shory.com/media/03dfofzl/health-insurance_card.webp',
     href: '#',
     active: false,
-    comingSoon: true,
   },
   {
     title: 'Home Insurance',
     image: 'https://www.shory.com/media/edaboops/home-insurance_card.webp',
     href: '#',
     active: false,
-    comingSoon: true,
   },
   {
     title: 'Pet Insurance',
     image: 'https://www.shory.com/media/2keaiue0/pet-insurance_card.webp',
     href: '#',
     active: false,
-    comingSoon: true,
   },
 ];
 
@@ -57,7 +53,6 @@ const BUSINESS_PRODUCTS: ProductCard[] = [
     image: 'https://www.shory.com/media/podicoyv/card-travel_insurance.webp',
     href: '#',
     active: false,
-    comingSoon: true,
   },
 ];
 
@@ -65,11 +60,6 @@ function ProductCardItem({product}: {product: ProductCard}) {
   const {t} = useI18n();
   return (
     <div className="relative flex flex-col items-center rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
-      {product.comingSoon && (
-        <span className="absolute top-3 right-3 rounded-full bg-gray-100 px-2.5 py-0.5 text-[10px] font-medium text-gray-500">
-          Coming soon
-        </span>
-      )}
       <div className="flex h-28 w-full items-center justify-center">
         {product.image === 'sme-icon' ? (
           <BusinessBundleIcon className="h-24 w-24" />
@@ -108,9 +98,14 @@ function ProductCardItem({product}: {product: ProductCard}) {
 
 export function Hero() {
   const {t, locale} = useI18n();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
-    'personal',
+    'business',
   );
+
+  function handlePersonalTab() {
+    router.push('/coming-soon');
+  }
 
   const products =
     activeTab === 'personal' ? PERSONAL_PRODUCTS : BUSINESS_PRODUCTS;
@@ -135,7 +130,7 @@ export function Hero() {
             }}
           />
           <button
-            onClick={() => setActiveTab('personal')}
+            onClick={handlePersonalTab}
             className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
               activeTab === 'personal' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
             }`}

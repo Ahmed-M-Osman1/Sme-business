@@ -24,7 +24,10 @@
     "yes": "Yes",
     "no": "No",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "comingSoon": "Coming Soon",
+    "comingSoonDesc": "Personal insurance products are launching soon. Stay tuned for car, health, home, and pet insurance.",
+    "backToHome": "Back to Home"
   },
   "nav": {
     "personal": "Personal",

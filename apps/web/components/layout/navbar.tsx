@@ -10,7 +10,7 @@ export function Navbar() {
   const {t, toggleLocale} = useI18n();
 
   const NAV_LINKS = [
-    {label: t.nav.personal, href: '#'},
+    {label: t.nav.personal, href: '/coming-soon'},
     {label: t.nav.business, href: '#'},
     {label: t.nav.company, href: '#'},
     {label: t.nav.help, href: '#'},
