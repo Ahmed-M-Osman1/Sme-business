@@ -298,7 +298,13 @@ export function CompanyDetails() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <p className="text-sm text-amber-800">{warning}</p>
+                    <p className="text-sm text-amber-800">
+                      {!activeResult.success
+                        ? t.upload.unsupportedDocument
+                        : warning.toLowerCase().includes('expired')
+                          ? t.companyDetails.expiredNotice
+                          : t.upload.unreadableWarning}
+                    </p>
                   </div>
                 ))}
               </div>

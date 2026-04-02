@@ -244,6 +244,7 @@ export function DragDropZone({
   onFile: (file: File) => void;
   fileRef: React.RefObject<HTMLInputElement | null>;
 }) {
+  const {t} = useI18n();
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -304,13 +305,13 @@ export function DragDropZone({
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-sm font-semibold text-gray-900">Drop your trade license here</p>
+        <p className="text-sm font-semibold text-gray-900">{t.upload.dropTradeLicenseHere}</p>
         <p className="text-xs text-gray-500 mt-1">
-          or{' '}
-          <span className="text-primary font-medium underline underline-offset-2">browse files</span>
+          {t.common.or}{' '}
+          <span className="text-primary font-medium underline underline-offset-2">{t.upload.browseFiles}</span>
         </p>
       </div>
-      <p className="text-[11px] text-gray-400">PDF, PNG, or JPG up to 10 MB</p>
+      <p className="text-[11px] text-gray-400">{t.upload.fileHint}</p>
 
       {selectedFile && (
         <div className="flex items-center gap-2 mt-1 px-3 py-1.5 rounded-lg bg-gray-100 text-xs text-gray-500">

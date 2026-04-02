@@ -262,7 +262,11 @@ export default function UploadPage() {
                       <path d="M8 5.333V8M8 10.667H8.007M14 8A6 6 0 1 1 2 8a6 6 0 0 1 12 0Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <p className="text-sm text-amber-800">
-                      {ocrResult.success ? w : t.upload.unsupportedDocument}
+                      {!ocrResult.success
+                        ? t.upload.unsupportedDocument
+                        : w.toLowerCase().includes('expired')
+                          ? t.companyDetails.expiredNotice
+                          : t.upload.unreadableWarning}
                     </p>
                   </div>
                 ))}
