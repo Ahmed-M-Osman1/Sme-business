@@ -1,10 +1,13 @@
 import {Hono} from 'hono';
 import {db, quotes, quoteResults, policies} from '@shory/db';
 import {createQuoteSchema, updateQuoteSchema, acceptQuoteSchema} from '@shory/shared';
-import {eq, sql} from 'drizzle-orm';
+import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler';
 import {ZodError} from 'zod';
 import {calculateQuotes} from '../pricing/engine';
+
+type QuoteInsert = typeof quotes.$inferInsert;
+type QuoteUpdate = Partial<QuoteInsert>;
 
 export const quotesRouter = new Hono();
 
@@ -13,18 +16,16 @@ quotesRouter.post('/', async (c) => {
   try {
     const body = await c.req.json();
     const data = createQuoteSchema.parse(body);
-    const [quote] = await db
-      .insert(quotes)
-      .values({
-        businessName: data.businessName,
-        tradeLicense: data.tradeLicense,
-        emirate: data.emirate,
-        industry: data.industry,
-        businessType: data.businessType,
-        employeesCount: data.employeesCount,
-        coverageType: data.coverageType,
-      })
-      .returning();
+    const values: QuoteInsert = {
+      businessName: data.businessName,
+      tradeLicense: data.tradeLicense,
+      emirate: data.emirate,
+      industry: data.industry,
+      businessType: data.businessType,
+      employeesCount: data.employeesCount,
+      coverageType: data.coverageType,
+    };
+    const [quote] = await db.insert(quotes).values(values).returning();
     return c.json(quote, 201);
   } catch (e) {
     if (e instanceof ZodError) return handleZodError(c, e);
@@ -46,18 +47,13 @@ quotesRouter.patch('/:id', async (c) => {
     const id = c.req.param('id');
     const body = await c.req.json();
     const data = updateQuoteSchema.parse(body);
+    const updates: QuoteUpdate = {
+      ...data,
+      updatedAt: new Date(),
+    };
     const [quote] = await db
       .update(quotes)
-      .set({
-        ...(data.businessName !== undefined && {businessName: data.businessName}),
-        ...(data.tradeLicense !== undefined && {tradeLicense: data.tradeLicense}),
-        ...(data.emirate !== undefined && {emirate: data.emirate}),
-        ...(data.industry !== undefined && {industry: data.industry}),
-        ...(data.businessType !== undefined && {businessType: data.businessType}),
-        ...(data.employeesCount !== undefined && {employeesCount: data.employeesCount}),
-        ...(data.coverageType !== undefined && {coverageType: data.coverageType}),
-        updatedAt: sql`now()`,
-      })
+      .set(updates)
       .where(eq(quotes.id, id))
       .returning();
     if (!quote) return errorResponse(c, 'QUOTE_NOT_FOUND', `Quote ${id} not found`, 404);
@@ -101,10 +97,8 @@ quotesRouter.post('/:id/submit', async (c) => {
     )
     .returning();
 
-  await db
-    .update(quotes)
-    .set({status: 'quoted', updatedAt: sql`now()`})
-    .where(eq(quotes.id, id));
+  const statusUpdate: QuoteUpdate = {status: 'quoted', updatedAt: new Date()};
+  await db.update(quotes).set(statusUpdate).where(eq(quotes.id, id));
 
   return c.json({status: 'quoted', results: insertedResults});
 });
@@ -153,10 +147,8 @@ quotesRouter.post('/:id/accept', async (c) => {
       })
       .returning();
 
-    await db
-      .update(quotes)
-      .set({status: 'accepted', updatedAt: sql`now()`})
-      .where(eq(quotes.id, id));
+    const acceptUpdate: QuoteUpdate = {status: 'accepted', updatedAt: new Date()};
+    await db.update(quotes).set(acceptUpdate).where(eq(quotes.id, id));
 
     return c.json(policy, 201);
   } catch (e) {

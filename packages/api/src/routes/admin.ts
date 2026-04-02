@@ -45,9 +45,13 @@ adminRouter.patch('/quotes/:id', async (c) => {
     return errorResponse(c, 'VALIDATION_ERROR', `Invalid status: ${status}`, 400);
   }
 
+  const updates: Partial<typeof quotes.$inferInsert> = {
+    status: status as 'draft',
+    updatedAt: new Date(),
+  };
   const [quote] = await db
     .update(quotes)
-    .set({status: status as 'draft', updatedAt: new Date()})
+    .set(updates)
     .where(eq(quotes.id, id))
     .returning();
 
