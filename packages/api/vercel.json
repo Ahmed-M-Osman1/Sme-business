@@ -1,3 +1,9 @@
 {
-  "version": 2
+  "version": 2,
+  "buildCommand": "npm run build",
+  "functions": {
+    "dist/api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
