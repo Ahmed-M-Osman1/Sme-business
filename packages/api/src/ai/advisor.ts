@@ -1,9 +1,10 @@
-import AnthropicModule from '@anthropic-ai/sdk';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import Anthropic from '@anthropic-ai/sdk';
 import type {Recommendation} from '@shory/shared';
 
-// Handle both ESM default and CJS module resolution
-const Anthropic = ('default' in AnthropicModule ? (AnthropicModule as unknown as {default: typeof AnthropicModule}).default : AnthropicModule) as typeof AnthropicModule;
-const client = new Anthropic();
+// Vercel resolves this module differently than local — use any to bypass
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const client = new (Anthropic as any)();
 
 interface AdvisorContext {
   industry: string;
