@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {Button} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
+import {NotificationBell} from '@/components/notifications/notification-bell';
 
 const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL ?? 'http://localhost:3001';
 
@@ -37,6 +38,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <NotificationBell />
           <Button
             variant="outline"
             size="sm"

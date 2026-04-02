@@ -365,5 +365,14 @@
     "callUsAt": "Call us at",
     "callHours": "Mon - Sun: 08:00 AM - 10:00 PM",
     "callNumber": "800 SHORY (74679)"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markRead": "Mark as read",
+    "justNow": "Just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago"
   }
 }

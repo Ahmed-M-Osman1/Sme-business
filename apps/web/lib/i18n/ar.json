@@ -365,5 +365,14 @@
     "callUsAt": "اتصل بنا على",
     "callHours": "الاثنين - الأحد: 08:00 صباحاً - 10:00 مساءً",
     "callNumber": "800 SHORY (74679)"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات",
+    "markRead": "تعيين كمقروء",
+    "justNow": "الآن",
+    "minutesAgo": "منذ {count} د",
+    "hoursAgo": "منذ {count} س",
+    "daysAgo": "منذ {count} ي"
   }
 }

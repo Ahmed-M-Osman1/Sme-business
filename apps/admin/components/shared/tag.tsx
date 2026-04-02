@@ -1,6 +1,6 @@
 'use client';
 
-type TagVariant = 'success' | 'danger' | 'warning' | 'info' | 'purple';
+type TagVariant = 'success' | 'danger' | 'warning' | 'info' | 'purple' | 'teal' | 'indigo';
 
 interface TagProps {
   label: string;
@@ -13,6 +13,8 @@ const VARIANT_CLASSES: Record<TagVariant, string> = {
   warning: 'bg-amber-50 text-amber-700 border-amber-200',
   info: 'bg-blue-50 text-blue-700 border-blue-200',
   purple: 'bg-violet-50 text-violet-700 border-violet-200',
+  teal: 'bg-teal-50 text-teal-700 border-teal-200',
+  indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
 };
 
 export function Tag({label, variant}: TagProps) {
