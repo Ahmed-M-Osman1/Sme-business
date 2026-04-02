@@ -72,22 +72,22 @@ export function DashboardView({stats, alerts, attentionCustomers, incidents, ser
 
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
-        <KpiCard label={t.dashboard.totalQuotes} value={stats.totalQuotes} icon="\u{1F4CB}" />
-        <KpiCard label={t.dashboard.thisWeek} value={stats.quotesThisWeek} icon="\u{1F4C5}" />
-        <KpiCard label={t.dashboard.accepted} value={stats.acceptedQuotes} color="text-emerald-600" icon="\u{2705}" />
-        <KpiCard label={t.dashboard.pendingReview} value={stats.pendingQuotes} color="text-amber-600" icon="\u{23F3}" />
-        <KpiCard label={t.dashboard.totalCustomers} value={attentionCustomers.length > 0 ? attentionCustomers.length : '-'} icon="\u{1F465}" />
+        <KpiCard label={t.dashboard.totalQuotes} value={stats.totalQuotes} icon="📋" />
+        <KpiCard label={t.dashboard.thisWeek} value={stats.quotesThisWeek} icon="📅" />
+        <KpiCard label={t.dashboard.accepted} value={stats.acceptedQuotes} color="text-emerald-600" icon="✅" />
+        <KpiCard label={t.dashboard.pendingReview} value={stats.pendingQuotes} color="text-amber-600" icon="⏳" />
+        <KpiCard label={t.dashboard.totalCustomers} value={attentionCustomers.length > 0 ? attentionCustomers.length : '-'} icon="👥" />
         <KpiCard
           label={t.dashboard.activeIncidents}
           value={activeIncidents.length}
           color={activeIncidents.length > 0 ? 'text-red-600' : 'text-emerald-600'}
-          icon="\u{26A0}\u{FE0F}"
+          icon="⚠️"
         />
         <KpiCard
           label={t.dashboard.degradedServices}
           value={degradedServices.length}
           color={degradedServices.length > 0 ? 'text-amber-600' : 'text-emerald-600'}
-          icon="\u{1F6E0}\u{FE0F}"
+          icon="🛠️"
         />
       </div>
 
