@@ -7,7 +7,7 @@ import type {
 } from '@shory/shared';
 import type { Quote, QuoteResult, Policy, Document as ShoryDocument } from '@shory/db';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {
