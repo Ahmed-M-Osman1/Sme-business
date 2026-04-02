@@ -25,8 +25,12 @@ export function Confirmation() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
   const total = Number(searchParams.get('total') ?? '0');
-  const productIds = (searchParams.get('products') ?? '').split(',') as ProductId[];
-  const limits: Record<string, string> = JSON.parse(searchParams.get('limits') ?? '{}');
+  const productIds = (searchParams.get('products') ?? '').split(
+    ',',
+  ) as ProductId[];
+  const limits: Record<string, string> = JSON.parse(
+    searchParams.get('limits') ?? '{}',
+  );
   const email = searchParams.get('email') ?? '';
   const name = searchParams.get('name') ?? '';
   const phone = searchParams.get('phone') ?? '';
@@ -35,15 +39,23 @@ export function Confirmation() {
   const emirate = searchParams.get('emirate') ?? 'Dubai';
   const employees = searchParams.get('employees') ?? '';
 
-  const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
-  const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
-  const [policyNumber] = useState(() => `SHR-${Date.now().toString(36).toUpperCase()}`);
+  const businessType =
+    businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
+  const insurer =
+    insurers.find((i) => i.id === insurerId) ?? insurers[0];
+  const [policyNumber] = useState(
+    () => `SHR-${Date.now().toString(36).toUpperCase()}`,
+  );
   const [today] = useState(() => new Date());
   const expiryDate = new Date(today);
   expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
   function formatDate(d: Date) {
-    return d.toLocaleDateString('en-AE', {day: '2-digit', month: 'short', year: 'numeric'});
+    return d.toLocaleDateString('en-AE', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
   }
 
   const [downloadingCert, setDownloadingCert] = useState(false);
@@ -51,11 +63,16 @@ export function Confirmation() {
 
   async function generatePdf(docType: 'certificate' | 'invoice') {
     const isInvoice = docType === 'invoice';
-    const setter = isInvoice ? setDownloadingInvoice : setDownloadingCert;
+    const setter = isInvoice
+      ? setDownloadingInvoice
+      : setDownloadingCert;
     setter(true);
     const products = productIds
       .filter((id) => productsConfig[id])
-      .map((id) => ({name: productsConfig[id].name, limit: limits[id] ?? '1M'}));
+      .map((id) => ({
+        name: productsConfig[id].name,
+        limit: limits[id] ?? '1M',
+      }));
 
     const html = `
 <!DOCTYPE html>
@@ -217,7 +234,11 @@ export function Confirmation() {
     document.body.appendChild(iframe);
 
     const iframeDoc = iframe.contentDocument;
-    if (!iframeDoc) { setDownloading(false); return; }
+    if (!iframeDoc) {
+      setter(false);
+      document.body.removeChild(iframe);
+      return;
+    }
     iframeDoc.open();
     iframeDoc.write(html);
     iframeDoc.close();
@@ -253,13 +274,22 @@ export function Confirmation() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={7} label={t.progress.confirmed} />
+      <ProgressIndicator
+        currentStep={7}
+        label={t.progress.confirmed}
+      />
 
       {/* Success hero */}
       <div className="max-w-3xl mx-auto px-4 w-full py-4">
         <div className="flex items-center gap-4">
-          <div className="shrink-0" style={{background: 'transparent'}}>
-            <LottieAnimation path="/lottie/confirm.lottie" className="w-24 h-24" loop={false} />
+          <div
+            className="shrink-0"
+            style={{background: 'transparent'}}>
+            <LottieAnimation
+              path="/lottie/confirm.lottie"
+              className="w-24 h-24"
+              loop={false}
+            />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -267,7 +297,9 @@ export function Confirmation() {
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               {t.confirmation.subtitle}{' '}
-              <span className="font-medium text-gray-900">{email}</span>
+              <span className="font-medium text-gray-900">
+                {email}
+              </span>
             </p>
           </div>
         </div>
@@ -280,14 +312,24 @@ export function Confirmation() {
           <div className="flex items-center gap-4 p-5 border-b border-gray-100">
             <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 p-1">
               {insurer.logo ? (
-                <img src={insurer.logo} alt={insurer.name} className="w-full h-full object-contain" />
+                <img
+                  src={insurer.logo}
+                  alt={insurer.name}
+                  className="w-full h-full object-contain"
+                />
               ) : (
-                <span className="text-lg font-bold text-gray-500">{insurer.name.charAt(0)}</span>
+                <span className="text-lg font-bold text-gray-500">
+                  {insurer.name.charAt(0)}
+                </span>
               )}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900">{insurer.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{businessType.title} · {emirate}</p>
+              <p className="font-semibold text-gray-900">
+                {insurer.name}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {businessType.title} · {emirate}
+              </p>
             </div>
             <div className="shrink-0">
               <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs font-medium px-3 py-1">
@@ -300,17 +342,39 @@ export function Confirmation() {
           <CardContent className="p-5 flex flex-col gap-5">
             {/* Policy details */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.policy}</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {t.confirmation.policy}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  {label: t.confirmation.policyNumber, value: policyNumber},
-                  {label: t.confirmation.effectiveDate, value: formatDate(today)},
-                  {label: t.confirmation.expiryDate, value: formatDate(expiryDate)},
-                  {label: t.confirmation.riskLevel, value: businessType.riskLevel.charAt(0).toUpperCase() + businessType.riskLevel.slice(1)},
+                  {
+                    label: t.confirmation.policyNumber,
+                    value: policyNumber,
+                  },
+                  {
+                    label: t.confirmation.effectiveDate,
+                    value: formatDate(today),
+                  },
+                  {
+                    label: t.confirmation.expiryDate,
+                    value: formatDate(expiryDate),
+                  },
+                  {
+                    label: t.confirmation.riskLevel,
+                    value:
+                      businessType.riskLevel.charAt(0).toUpperCase() +
+                      businessType.riskLevel.slice(1),
+                  },
                 ].map((f) => (
-                  <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
-                    <p className="text-sm font-medium text-gray-900 mt-0.5">{f.value}</p>
+                  <div
+                    key={f.label}
+                    className="bg-gray-50 rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                      {f.label}
+                    </p>
+                    <p className="text-sm font-medium text-gray-900 mt-0.5">
+                      {f.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -318,35 +382,68 @@ export function Confirmation() {
 
             {/* Policy holder */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.policyHolder}</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {t.confirmation.policyHolder}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   {label: t.confirmation.fullName, value: name},
                   {label: t.confirmation.email, value: email},
-                  {label: t.confirmation.phone, value: phone ? `+971 ${phone}` : '—'},
+                  {
+                    label: t.confirmation.phone,
+                    value: phone ? `+971 ${phone}` : '—',
+                  },
                   {label: t.confirmation.emirate, value: emirate},
-                ].filter((f) => f.value).map((f) => (
-                  <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
-                    <p className="text-sm font-medium text-gray-900 mt-0.5">{f.value}</p>
-                  </div>
-                ))}
+                ]
+                  .filter((f) => f.value)
+                  .map((f) => (
+                    <div
+                      key={f.label}
+                      className="bg-gray-50 rounded-lg px-3 py-2.5">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                        {f.label}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900 mt-0.5">
+                        {f.value}
+                      </p>
+                    </div>
+                  ))}
               </div>
             </div>
 
             {/* Business */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.business}</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {t.confirmation.business}
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  {label: t.confirmation.businessType, value: businessType.title},
-                  {label: t.confirmation.businessName, value: businessName || '—'},
-                  {label: t.confirmation.licenseNumber, value: licenseNumber || '—'},
-                  {label: t.confirmation.employees, value: employees || '—'},
+                  {
+                    label: t.confirmation.businessType,
+                    value: businessType.title,
+                  },
+                  {
+                    label: t.confirmation.businessName,
+                    value: businessName || '—',
+                  },
+                  {
+                    label: t.confirmation.licenseNumber,
+                    value: licenseNumber || '—',
+                  },
+                  {
+                    label: t.confirmation.employees,
+                    value: employees || '—',
+                  },
                 ].map((f) => (
-                  <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
-                    <p className="text-sm font-medium text-gray-900 mt-0.5">{f.value}</p>
+                  <div
+                    key={f.label}
+                    className="bg-gray-50 rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                      {f.label}
+                    </p>
+                    <p className="text-sm font-medium text-gray-900 mt-0.5">
+                      {f.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -356,7 +453,9 @@ export function Confirmation() {
 
             {/* Coverage */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.coverage}</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {t.confirmation.coverage}
+              </p>
               <div className="flex flex-col gap-2.5">
                 {productIds
                   .filter((id) => productsConfig[id])
@@ -365,14 +464,20 @@ export function Confirmation() {
                     const limit = limits[productId] ?? '1M';
                     const IconComponent = PRODUCT_ICONS[productId];
                     return (
-                      <div key={productId} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div
+                        key={productId}
+                        className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                         <div className="flex items-center gap-2.5">
                           {IconComponent ? (
                             <IconComponent className="w-5 h-5" />
                           ) : (
-                            <span className="text-base">{product.icon}</span>
+                            <span className="text-base">
+                              {product.icon}
+                            </span>
                           )}
-                          <span className="text-sm text-gray-900">{product.name}</span>
+                          <span className="text-sm text-gray-900">
+                            {product.name}
+                          </span>
                         </div>
                         <span className="text-sm font-medium text-gray-600 bg-gray-50 rounded-full px-3 py-1">
                           AED {limit}
@@ -386,8 +491,12 @@ export function Confirmation() {
             {/* Total */}
             <div className="flex items-center justify-between bg-primary rounded-xl px-5 py-4 -mx-1">
               <div>
-                <p className="text-sm font-semibold text-white">{t.confirmation.totalPremium}</p>
-                <p className="text-xs text-white/85 mt-0.5">{t.confirmation.inclVat}</p>
+                <p className="text-sm font-semibold text-white">
+                  {t.confirmation.totalPremium}
+                </p>
+                <p className="text-xs text-white/85 mt-0.5">
+                  {t.confirmation.inclVat}
+                </p>
               </div>
               <p className="text-2xl font-bold text-white">
                 AED {formatPrice(total)}
@@ -401,19 +510,39 @@ export function Confirmation() {
           <button
             onClick={() => generatePdf('certificate')}
             disabled={downloadingCert}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200"
-          >
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200">
             {downloadingCert ? (
               <>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary animate-spin">
-                  <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  className="text-primary animate-spin">
+                  <path
+                    d="M9 1.5A7.5 7.5 0 1 0 16.5 9"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 {t.confirmation.generating}
               </>
             ) : (
               <>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
-                  <path d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  className="text-primary">
+                  <path
+                    d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
                 {t.confirmation.downloadPdf}
               </>
@@ -422,19 +551,39 @@ export function Confirmation() {
           <button
             onClick={() => generatePdf('invoice')}
             disabled={downloadingInvoice}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200"
-          >
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200">
             {downloadingInvoice ? (
               <>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary animate-spin">
-                  <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  className="text-primary animate-spin">
+                  <path
+                    d="M9 1.5A7.5 7.5 0 1 0 16.5 9"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 {t.confirmation.generating}
               </>
             ) : (
               <>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
-                  <path d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  className="text-primary">
+                  <path
+                    d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
                 {t.confirmation.downloadInvoice}
               </>
@@ -445,10 +594,20 @@ export function Confirmation() {
         {/* Print */}
         <button
           onClick={() => window.print()}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
-            <path d="M4.5 6.75V2.25h9v4.5M4.5 13.5H3a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 3 7.5h12A1.5 1.5 0 0 1 16.5 9v3a1.5 1.5 0 0 1-1.5 1.5h-1.5m-9 0h9v3h-9v-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            className="text-primary">
+            <path
+              d="M4.5 6.75V2.25h9v4.5M4.5 13.5H3a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 3 7.5h12A1.5 1.5 0 0 1 16.5 9v3a1.5 1.5 0 0 1-1.5 1.5h-1.5m-9 0h9v3h-9v-3Z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {t.confirmation.print}
         </button>
@@ -457,19 +616,40 @@ export function Confirmation() {
         <Card className="rounded-xl border border-gray-200 bg-gray-50">
           <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M10 13.75v.01M10 11.25a1.875 1.875 0 1 0-1.875-1.875" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none">
+                <path
+                  d="M10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M10 13.75v.01M10 11.25a1.875 1.875 0 1 0-1.875-1.875"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">{t.confirmation.supportTitle}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{t.confirmation.supportDescription}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {t.confirmation.supportTitle}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {t.confirmation.supportDescription}
+              </p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                <a href={`mailto:${t.confirmation.supportEmail}`} className="text-xs font-medium text-primary hover:underline">
+                <a
+                  href={`mailto:${t.confirmation.supportEmail}`}
+                  className="text-xs font-medium text-primary hover:underline">
                   {t.confirmation.supportEmail}
                 </a>
-                <a href={`tel:${t.confirmation.supportPhone.replace(/\s/g, '')}`} className="text-xs font-medium text-primary hover:underline">
+                <a
+                  href={`tel:${t.confirmation.supportPhone.replace(/\s/g, '')}`}
+                  className="text-xs font-medium text-primary hover:underline">
                   {t.confirmation.supportPhone}
                 </a>
               </div>
@@ -480,11 +660,21 @@ export function Confirmation() {
         {/* Start over */}
         <Link
           href="/quote/start"
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
-        >
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
           {t.confirmation.startNewQuote}
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
-            <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="rtl:rotate-180">
+            <path
+              d="M6 3.333L10.667 8L6 12.667"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </Link>
       </div>
