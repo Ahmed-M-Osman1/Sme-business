@@ -82,10 +82,7 @@ adminCustomersRouter.post('/', async (c) => {
 
   const [customer] = await db
     .insert(customers)
-    .values({
-      ...result.data,
-      premium: result.data.premium?.toString(),
-    })
+    .values(result.data as any)
     .returning();
 
   return c.json(customer, 201);
@@ -105,13 +102,10 @@ adminCustomersRouter.patch('/:id', async (c) => {
     ...result.data,
     updatedAt: new Date(),
   };
-  if (result.data.premium !== undefined) {
-    updates.premium = result.data.premium.toString();
-  }
 
   const [customer] = await db
     .update(customers)
-    .set(updates)
+    .set(updates as any)
     .where(eq(customers.id, id))
     .returning();
 
