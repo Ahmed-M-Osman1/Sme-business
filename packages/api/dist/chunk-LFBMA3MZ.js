@@ -9,16 +9,8 @@ import { Hono as Hono6 } from "hono";
 
 // src/middleware/cors.ts
 import { cors } from "hono/cors";
-var ALLOWED_ORIGINS = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "https://sme-business-web.vercel.app",
-  "https://sme-business-admin.vercel.app",
-  process.env.WEB_URL,
-  process.env.ADMIN_URL
-].filter(Boolean);
 var corsMiddleware = cors({
-  origin: ALLOWED_ORIGINS,
+  origin: "*",
   allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],
   maxAge: 86400
@@ -2800,4 +2792,4 @@ var app_default = app;
 export {
   app_default
 };
-//# sourceMappingURL=chunk-F64EP7OJ.js.map
+//# sourceMappingURL=chunk-LFBMA3MZ.js.map

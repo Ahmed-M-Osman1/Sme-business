@@ -1,6 +1,6 @@
 import {
   app_default
-} from "../chunk-F64EP7OJ.js";
+} from "../chunk-LFBMA3MZ.js";
 
 // api/index.ts
 import { handle } from "hono/vercel";
