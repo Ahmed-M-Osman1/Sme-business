@@ -6,14 +6,18 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup src/index.ts --format esm --external zod --outDir dist"
   },
   "dependencies": {
     "zod": "^3"
   },
   "devDependencies": {
     "@shory/typescript-config": "workspace:*",
+    "tsup": "^8.5.1",
     "typescript": "^5"
   }
 }
