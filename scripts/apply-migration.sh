@@ -1,24 +1,18 @@
-#!/usr/bin/env node
-import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath } from 'url';
+#!/bin/bash
+set -e
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+echo "🔄 Applying database migration..."
+echo ""
 
-// Load postgres from packages/db node_modules
-const require = createRequire(import.meta.url);
-let postgres;
-try {
-  postgres = require('postgres');
-} catch {
-  try {
-    postgres = (await import('/Users/ahmedosman/Developer/the-one-and-only/shory-sme/node_modules/.pnpm/postgres@3.4.8/node_modules/postgres/cjs/index.js')).default;
-  } catch {
-    console.error('❌ Cannot find postgres package. Run: pnpm install');
-    process.exit(1);
-  }
-}
+# Load .env file if it exists
+if [ -f "$(dirname "$0")/../.env" ]; then
+  export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+fi
+
+cd "$(dirname "$0")/../packages/db"
+
+node << 'EOF'
+const postgres = require('postgres');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -27,13 +21,10 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const sql = postgres(DATABASE_URL, { ssl: 'require', debug: process.env.DEBUG ? console.log : undefined });
+const sql = postgres(DATABASE_URL, { ssl: 'require' });
 
-async function applyMigration() {
+(async () => {
   try {
-    console.log('🔄 Applying database migration...\n');
-
-    // Create web_users table
     console.log('  Creating web_users table...');
     await sql`
       CREATE TABLE IF NOT EXISTS "web_users" (
@@ -50,10 +41,8 @@ async function applyMigration() {
     `;
     console.log('  ✓ web_users table ready');
 
-    // Add columns to policies table
     console.log('  Adding columns to policies table...');
 
-    // Check if user_id column exists
     const userIdColumn = await sql`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema='public' AND table_name='policies' AND column_name='user_id'
@@ -66,7 +55,6 @@ async function applyMigration() {
       console.log('  ℹ user_id column already exists');
     }
 
-    // Check if products column exists
     const productsColumn = await sql`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema='public' AND table_name='policies' AND column_name='products'
@@ -79,7 +67,6 @@ async function applyMigration() {
       console.log('  ℹ products column already exists');
     }
 
-    // Add foreign key constraint
     console.log('  Adding foreign key constraint...');
     const constraint = await sql`
       SELECT constraint_name FROM information_schema.table_constraints
@@ -98,20 +85,10 @@ async function applyMigration() {
     }
 
     console.log('\n✅ Database migration completed successfully!\n');
-    console.log('You can now:');
-    console.log('  1. Create a test user: INSERT INTO web_users (email, name, password_hash) VALUES (\'test@example.com\', \'Test User\', \'<hashed-password>\');');
-    console.log('  2. Start the app and test the auth flow');
-
     await sql.end();
   } catch (e) {
     console.error('❌ Migration failed:', e.message);
-    if (e.message.includes('already exists')) {
-      console.log('\n✅ Tables/columns already exist. No action needed.');
-      await sql.end();
-      process.exit(0);
-    }
     process.exit(1);
   }
-}
-
-applyMigration();
+})();
+EOF
