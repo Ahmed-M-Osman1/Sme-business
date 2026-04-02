@@ -10,13 +10,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39",
+    "@hono/node-server": "^1.19.12",
     "@shory/db": "workspace:*",
     "@shory/shared": "workspace:*",
-    "hono": "^4",
-    "@hono/node-server": "^1",
-    "@anthropic-ai/sdk": "^0.39",
     "@vercel/blob": "^0.27",
     "drizzle-orm": "^0.39",
+    "hono": "^4",
     "zod": "^3"
   },
   "devDependencies": {

@@ -146,7 +146,7 @@ importers:
         specifier: ^0.39
         version: 0.39.0
       '@hono/node-server':
-        specifier: ^1
+        specifier: ^1.19.12
         version: 1.19.12(hono@4.12.9)
       '@shory/db':
         specifier: workspace:*
