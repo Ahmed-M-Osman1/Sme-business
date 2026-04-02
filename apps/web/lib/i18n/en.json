@@ -81,7 +81,17 @@
     "notListed": "My business type isn't listed — fill in manually",
     "lowRisk": "Low risk",
     "mediumRisk": "Medium risk",
-    "highRisk": "High risk"
+    "highRisk": "High risk",
+    "cafe-restaurant": "Café / Restaurant",
+    "law-firm": "Law Firm / Legal",
+    "retail-trading": "Retail / Trading",
+    "it-technology": "IT / Technology",
+    "construction": "Construction / Contracting",
+    "healthcare": "Healthcare / Clinic",
+    "consulting": "Consulting / Advisory",
+    "general-trading": "General Trading",
+    "logistics": "Logistics / Transport",
+    "real-estate": "Real Estate"
   },
   "ai": {
     "title": "AI Advisor",

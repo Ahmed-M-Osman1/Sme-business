@@ -81,7 +81,17 @@
     "notListed": "نوع شركتي مب موجود — أبي أعبّي يدوي",
     "lowRisk": "مخاطر منخفضة",
     "mediumRisk": "مخاطر متوسطة",
-    "highRisk": "مخاطر عالية"
+    "highRisk": "مخاطر عالية",
+    "cafe-restaurant": "مقهى / مطعم",
+    "law-firm": "مكتب محاماة",
+    "retail-trading": "تجزئة / تجارة",
+    "it-technology": "تقنية معلومات",
+    "construction": "مقاولات / بناء",
+    "healthcare": "رعاية صحية / عيادة",
+    "consulting": "استشارات",
+    "general-trading": "تجارة عامة",
+    "logistics": "نقل / لوجستيات",
+    "real-estate": "عقارات"
   },
   "ai": {
     "title": "المستشار الذكي",

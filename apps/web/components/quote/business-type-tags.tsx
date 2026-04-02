@@ -41,7 +41,7 @@ export function BusinessTypeTags({
                 disabled && 'opacity-50 cursor-not-allowed',
               )}
             >
-              {bt.icon} {bt.title}
+              {bt.icon} {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
             </button>
           );
         })}

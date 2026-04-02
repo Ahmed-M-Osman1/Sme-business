@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeDetail} from '@/components/quote/business-type-detail';
+import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import products from '@/config/products.json';
 
@@ -20,6 +21,7 @@ type ProductId = keyof typeof products;
 const FEATURED_IDS = ['cafe-restaurant', 'retail-trading', 'it-technology'];
 
 export default function BusinessTypePage() {
+  const {t} = useI18n();
   const router = useRouter();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
@@ -46,24 +48,21 @@ export default function BusinessTypePage() {
   return (
     <div className="flex flex-col gap-6">
       <div ref={topRef} />
-      <ProgressIndicator currentStep={2} label="Business type" />
+      <ProgressIndicator currentStep={2} label={t.businessType.title} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
-          What type of business?
+          {t.businessType.title}
         </h1>
         <p className="mt-2 text-text-muted">
-          {expandedId
-            ? 'Defaults are pre-filled — adjust anything before getting quotes.'
-            : "Select your type — we'll pre-configure your cover instantly."}
+          {t.businessType.subtitle}
         </p>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">
-        {/* Popular picks — horizontal scroll on mobile, 3-col on desktop */}
         <div>
           <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2.5 text-center">
-            Popular in UAE
+            {t.businessType.popularInUae}
           </p>
           <div className="grid grid-cols-3 gap-2.5">
             {featured.map((bt) => {
@@ -90,14 +89,14 @@ export default function BusinessTypePage() {
                         {bt.icon}
                       </div>
                       <span className="font-semibold text-text text-xs sm:text-sm leading-tight">
-                        {bt.title}
+                        {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
                       </span>
                       <Badge
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize ${
                           RISK_BADGE_STYLES[bt.riskLevel]
                         }`}
                       >
-                        {bt.riskLevel} risk
+                        {bt.riskLevel === 'low' ? t.businessType.lowRisk : bt.riskLevel === 'medium' ? t.businessType.mediumRisk : t.businessType.highRisk}
                       </Badge>
                     </CardContent>
                   </Card>
@@ -141,14 +140,14 @@ export default function BusinessTypePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="font-semibold text-text text-xs sm:text-sm leading-tight line-clamp-1 block">
-                        {bt.title}
+                        {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
                       </span>
                       <Badge
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium capitalize mt-1 inline-block ${
                           RISK_BADGE_STYLES[bt.riskLevel]
                         }`}
                       >
-                        {bt.riskLevel} risk
+                        {bt.riskLevel === 'low' ? t.businessType.lowRisk : bt.riskLevel === 'medium' ? t.businessType.mediumRisk : t.businessType.highRisk}
                       </Badge>
                     </div>
                   </CardContent>

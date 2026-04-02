@@ -241,13 +241,6 @@ export default function AiAdvisorPage() {
         <div className="pt-4 pb-2">
           <ProgressIndicator currentStep={2} label={t.ai.title} />
         </div>
-        <div className="max-w-3xl mx-auto px-4 w-full py-2 border-b border-gray-100">
-          <BusinessTypeTags
-            selectedId={selectedTagId}
-            onSelect={handleTagSelect}
-            disabled={convo.step !== 'business' || isProcessing}
-          />
-        </div>
       </div>
 
       {/* Scrollable chat — centered when few messages */}
@@ -264,6 +257,16 @@ export default function AiAdvisorPage() {
       {/* Messenger-style bottom bar */}
       <div className="shrink-0 bg-white">
         <div className="max-w-3xl mx-auto w-full">
+          {/* Business type tags — shown next to input when on business step */}
+          {convo.step === 'business' && !hasCta && (
+            <div className="px-4 pt-2 pb-1">
+              <BusinessTypeTags
+                selectedId={selectedTagId}
+                onSelect={handleTagSelect}
+                disabled={isProcessing}
+              />
+            </div>
+          )}
           {/* Quick-reply chips */}
           {currentChips && !hasCta && !isProcessing && (
             <div className="px-4 pt-2 pb-1">
