@@ -49,4 +49,5 @@ apps/**/node_modules
 packages/**/node_modules
 tooling/**/node_modules
 apps/**/.next
+packages/api/api/*.js
 .claude/worktrees/
