@@ -53,10 +53,7 @@ export function Navbar() {
             </svg>
             {t.nav.switchLang}
           </Button>
-          <Link
-            href={ADMIN_URL}
-            target="_blank"
-            rel="noopener noreferrer">
+          <Link href="/dashboard">
             <Button
               variant="outline"
               size="sm"

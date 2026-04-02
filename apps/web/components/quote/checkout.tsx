@@ -116,9 +116,11 @@ export function Checkout() {
   function handlePay() {
     if (!validate()) return;
     if (!session?.user) {
+      console.log('📱 Opening auth modal - user not authenticated');
       setShowAuthModal(true);
       return;
     }
+    console.log('✓ User authenticated, proceeding with payment');
     proceedWithPayment();
   }
 

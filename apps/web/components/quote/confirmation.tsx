@@ -71,6 +71,7 @@ export function Confirmation() {
     if (hasSaved.current || !session?.user?.id || !session?.user?.email) return;
     hasSaved.current = true;
 
+    console.log('💾 Persisting policy with email:', session.user.email);
     api.user.policies
       .create({
         userId: session.user.id!,
