@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "tsup",
+    "start": "node dist/index.mjs",
     "lint": "eslint"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@shory/typescript-config": "workspace:*",
     "@types/node": "^20",
+    "tsup": "^8.5.1",
     "tsx": "^4",
     "typescript": "^5"
   }
