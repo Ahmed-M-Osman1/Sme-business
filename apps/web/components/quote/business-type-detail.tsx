@@ -205,7 +205,7 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-text text-base sm:text-lg">
-              {businessType.title}
+              {(t.businessType as Record<string, string>)[businessType.id] || businessType.title}
             </span>
             <Badge
               className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${
@@ -220,7 +220,7 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-            {businessType.description}
+            {(t.businessTypeDescriptions as Record<string, string>)[businessType.id] || businessType.description}
           </p>
         </div>
         <button
@@ -263,7 +263,7 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
                   className="inline-flex items-center gap-1.5 text-xs bg-primary/5 text-primary border border-primary/15 rounded-full px-3 py-1.5 font-medium"
                 >
                   <span>{product.icon}</span>
-                  <span>{productTranslation?.shortName || product.shortName}</span>
+                  <span>{productTranslation?.name || product.name}</span>
                 </span>
               );
             })}

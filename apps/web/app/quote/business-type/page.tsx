@@ -291,9 +291,26 @@ export default function BusinessTypePage() {
                   {t.businessType.recommendedCovers}
                 </p>
                 <p>
-                  {BUSINESS_TYPE_HELP[
-                    expandedId
-                  ].recommendedCovers.join(', ')}
+                  {BUSINESS_TYPE_HELP[expandedId].recommendedCovers
+                    .map((productName) => {
+                      // Find product ID by matching English name
+                      const productId = Object.keys(t.products as Record<string, {name: string}>).find(
+                        (id) => (t.products as Record<string, {name: string}>)[id]?.name?.includes(productName.split(' ')[0]) || (t.products as Record<string, {name: string}>)[id]?.name === productName
+                      );
+                      if (productId) {
+                        return (t.products as Record<string, {name: string}>)[productId]?.name || productName;
+                      }
+                      // Fallback: translate common product names
+                      const productMap: Record<string, string> = {
+                        "Workers' Comp": (t.products as Record<string, {name: string}>)['workers-comp']?.name || "Workers' Comp",
+                        'Public Liability': (t.products as Record<string, {name: string}>)['public-liability']?.name || 'Public Liability',
+                        'Professional Indemnity': (t.products as Record<string, {name: string}>)['professional-indemnity']?.name || 'Professional Indemnity',
+                        'Property': (t.products as Record<string, {name: string}>)['property']?.name || 'Property',
+                        'Fleet': (t.products as Record<string, {name: string}>)['fleet']?.name || 'Fleet',
+                      };
+                      return productMap[productName] || productName;
+                    })
+                    .join(', ')}
                 </p>
               </div>
               <div>

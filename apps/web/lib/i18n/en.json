@@ -135,6 +135,18 @@
     "logistics": "Logistics / Transport",
     "real-estate": "Real Estate"
   },
+  "businessTypeDescriptions": {
+    "cafe-restaurant": "Cafés, restaurants, food delivery services",
+    "law-firm": "Legal services, law practices, corporate counsel",
+    "retail-trading": "Retail shops, trading businesses, e-commerce",
+    "it-technology": "Software development, IT services, tech startups",
+    "construction": "Construction companies, contracting, civil engineering",
+    "healthcare": "Medical clinics, pharmacies, wellness centres",
+    "consulting": "Business consulting, management advisory, training",
+    "general-trading": "Import/export, general merchandise, distributors",
+    "logistics": "Transportation, warehousing, supply chain management",
+    "real-estate": "Property brokerage, development, property management"
+  },
   "ai": {
     "title": "AI Advisor",
     "openingMessage": "Hi! I'm your Shory insurance advisor. Tell me about your business and I'll help find the right coverage for you. You can describe your business activity, number of employees, and location.",
