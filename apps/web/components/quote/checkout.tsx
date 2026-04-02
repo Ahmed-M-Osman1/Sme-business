@@ -4,7 +4,7 @@ import {useState} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
-import {formatPrice} from '@/lib/pricing';
+import {calculateMonthlyPrice, formatPrice, formatPriceWithCurrency} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
@@ -23,7 +23,7 @@ const SCROLL_TO_ERROR_DELAY_MS = 50;
 const PAYMENT_PROCESSING_MS = 2000;
 
 export function Checkout() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -218,14 +218,19 @@ export function Checkout() {
 
             <div className="h-px bg-border" />
 
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-text">{t.checkout.totalPremium}</span>
-              <span className="font-bold text-primary text-xl">
-                AED {formatPrice(total)}
-                <span className="text-xs font-normal text-text-muted">
-                  {t.checkout.perYearShort}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-text">{t.checkout.totalPremium}</span>
+                <span className="font-bold text-primary text-xl">
+                  {formatPriceWithCurrency(calculateMonthlyPrice(total), t.common.currency, locale)}
+                  <span className="text-xs font-normal text-text-muted">
+                    {t.common.perMonth}
+                  </span>
                 </span>
-              </span>
+              </div>
+              <p className="text-xs text-text-muted">
+                {t.results.finwallPrefix} <span className="font-semibold text-text">{t.results.finwallBrand}</span>
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -324,7 +329,7 @@ export function Checkout() {
           onClick={handlePay}
           className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
         >
-          {t.checkout.payNow} — AED {formatPrice(total)}
+          {t.checkout.payNow} — {formatPriceWithCurrency(calculateMonthlyPrice(total), t.common.currency, locale)}
           <svg
             width="16"
             height="16"

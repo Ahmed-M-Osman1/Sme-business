@@ -1,7 +1,7 @@
 'use client';
 
 import {Button} from '@shory/ui';
-import {formatPrice} from '@/lib/pricing';
+import {formatPrice, formatPriceWithCurrency} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 
 interface BundleChip {
@@ -33,7 +33,7 @@ export function BundleCard({
   featured = false,
   onSelect,
 }: BundleCardProps) {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
 
   return (
     <div
@@ -54,15 +54,11 @@ export function BundleCard({
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-            {t.common.currency}
-          </p>
           <p className={`text-3xl font-bold ${featured ? 'text-primary' : 'text-gray-900'}`}>
-            {formatPrice(annualPrice)}
-            {t.common.perYear}
+            {formatPriceWithCurrency(annualPrice, t.common.currency, locale)}
           </p>
-          <p className="mt-1 text-sm font-semibold text-emerald-600">
-            {t.results.saveAmountPrefix} {t.common.currency} {formatPrice(savings)}
+          <p className="text-xs text-gray-400 mt-0.5">
+            {t.common.perYear}
           </p>
         </div>
       </div>

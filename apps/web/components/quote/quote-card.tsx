@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {Button, Badge} from '@shory/ui';
-import {calculateQuarterlyPrice, formatPrice} from '@/lib/pricing';
+import {calculateMonthlyPrice, formatPrice, formatPriceWithCurrency} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 
 interface QuoteCardProps {
@@ -32,7 +32,7 @@ export function QuoteCard({
   onSelect,
   onProceed,
 }: QuoteCardProps) {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const [showDetails, setShowDetails] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -117,7 +117,7 @@ export function QuoteCard({
           </div>
           <div>
             <p className="font-semibold text-gray-900 text-sm">
-              {insurer.name}
+              {(t.insurers as Record<string, string>)[insurer.id.toLowerCase()] || insurer.name}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">
               {coverageType}
@@ -136,14 +136,13 @@ export function QuoteCard({
         </div>
         <div className="text-end shrink-0">
           <p className="text-2xl font-bold text-gray-900">
-            {t.common.currency} {formatPrice(insurer.total)}
+            {formatPriceWithCurrency(calculateMonthlyPrice(insurer.total), t.common.currency, locale)}
           </p>
           <p className="text-[11px] text-gray-400">
-            {t.common.perYearInclTax}
+            {t.common.perMonth}
           </p>
-          <p className="text-[11px] text-gray-400 mt-0.5">
-            {t.common.or} {t.common.currency} {formatPrice(calculateQuarterlyPrice(insurer.total))}
-            {t.common.perQuarter}
+          <p className="text-[11px] text-gray-500 mt-2">
+            {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
           </p>
         </div>
       </div>

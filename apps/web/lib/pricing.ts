@@ -68,10 +68,22 @@ export function calculateQuarterlyPrice(annualPrice: number): number {
   return Math.round(annualPrice / 4);
 }
 
+export function calculateMonthlyPrice(annualPrice: number): number {
+  return Math.round(annualPrice / 12);
+}
+
 const priceFormatter = new Intl.NumberFormat('en-AE', {
   maximumFractionDigits: 0,
 });
 
 export function formatPrice(amount: number): string {
   return priceFormatter.format(amount);
+}
+
+export function formatPriceWithCurrency(amount: number, currency: string, locale: 'en' | 'ar'): string {
+  const formatted = formatPrice(amount);
+  if (locale === 'ar') {
+    return `${formatted} ${currency}`;
+  }
+  return `${currency} ${formatted}`;
 }

@@ -5,6 +5,7 @@
     "perYear": "/year",
     "perYearInclTax": "/year incl. tax",
     "perQuarter": "/quarter",
+    "perMonth": "/month",
     "loading": "Loading...",
     "continue": "Continue",
     "back": "Back",
@@ -523,6 +524,30 @@
     "minutesAgo": "{count}m ago",
     "hoursAgo": "{count}h ago",
     "daysAgo": "{count}d ago"
+  },
+  "insurers": {
+    "dubai-insurance": "Dubai Insurance",
+    "sukoon": "Sukoon Insurance",
+    "afnic": "AFNIC",
+    "watania": "Watania",
+    "adnic": "ADNIC",
+    "adntc": "ADNTC",
+    "qic": "Qatar Insurance",
+    "insurance-house": "Insurance House",
+    "yas-takaful": "YAS Takaful",
+    "al-ain-ahlia": "Al Ain Ahlia",
+    "aldhafra": "AlDhafra",
+    "ngi": "NGI",
+    "awnic": "AWNIC",
+    "orient": "ORIENT",
+    "rak": "RAK",
+    "alsagr": "AlSagr",
+    "adamjee": "Adamjee",
+    "fidelity": "Fidelity",
+    "methaq-takaful": "Methaq Takaful",
+    "union": "UNION",
+    "orient-takaful": "OrientTakaful",
+    "salama": "Salama Insurance"
   },
   "products": {
     "workers-comp": {

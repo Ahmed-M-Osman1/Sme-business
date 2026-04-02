@@ -11,14 +11,20 @@ import {QuoteCard} from '@/components/quote/quote-card';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
 import {
+  calculateMonthlyPrice,
   calculateQuarterlyPrice,
   calculateTotalPremium,
-  formatPrice,
+  formatPriceWithCurrency,
   getSizeFactor,
 } from '@/lib/pricing';
 import {evaluateRecommendations} from '@/lib/recommendation-engine';
 import type {ProductInfo} from '@/lib/pricing';
-import type {BundleDeal, BusinessType, Insurer, InsurerQuote} from '@/types/quote';
+import type {
+  BundleDeal,
+  BusinessType,
+  Insurer,
+  InsurerQuote,
+} from '@/types/quote';
 
 const NAVIGATION_DELAY_MS = 800;
 
@@ -29,7 +35,7 @@ interface EnrichedInsurerQuote extends InsurerQuote {
 }
 
 export function QuoteResults() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -40,23 +46,38 @@ export function QuoteResults() {
   const revenue = searchParams.get('revenue') ?? '';
   const coverageArea = searchParams.get('coverageArea') ?? '';
 
-  const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
-  const [productsMap, setProductsMap] = useState<Record<string, ProductInfo>>({});
+  const [businessTypes, setBusinessTypes] = useState<BusinessType[]>(
+    [],
+  );
+  const [productsMap, setProductsMap] = useState<
+    Record<string, ProductInfo>
+  >({});
   const [insurers, setInsurers] = useState<Insurer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeProducts, setActiveProducts] = useState<Set<string>>(new Set());
-  const [coverageLimits, setCoverageLimits] = useState<Record<string, string>>({});
+  const [activeProducts, setActiveProducts] = useState<Set<string>>(
+    new Set(),
+  );
+  const [coverageLimits, setCoverageLimits] = useState<
+    Record<string, string>
+  >({});
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'rating'>('price');
   const [shariahOnly, setShariahOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [selectedInsurerId, setSelectedInsurerId] = useState<string | null>(null);
+  const [selectedInsurerId, setSelectedInsurerId] = useState<
+    string | null
+  >(null);
   const [showTransition, setShowTransition] = useState(false);
-  const [activeTab, setActiveTab] = useState<ResultsTab>('individual');
-  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(null);
-  const [paymentDisplay] = useState<'quarterly' | 'annual'>('quarterly');
+  const [activeTab, setActiveTab] =
+    useState<ResultsTab>('individual');
+  const [selectedBundleId, setSelectedBundleId] = useState<
+    string | null
+  >(null);
+  const [paymentDisplay] = useState<'quarterly' | 'annual'>(
+    'quarterly',
+  );
 
   useEffect(() => {
     Promise.all([
@@ -78,7 +99,9 @@ export function QuoteResults() {
       .finally(() => setLoading(false));
   }, []);
 
-  const businessType = businessTypes.find((item) => item.id === typeId) ?? businessTypes[0];
+  const businessType =
+    businessTypes.find((item) => item.id === typeId) ??
+    businessTypes[0];
 
   const recommendedProducts = useMemo(() => {
     if (!businessType) return [];
@@ -105,7 +128,9 @@ export function QuoteResults() {
         ...businessType.products,
         ...recommendedProducts,
         ...Array.from(activeProducts),
-        ...((bundleDeals as BundleDeal[]).flatMap((bundle) => bundle.productIds)),
+        ...(bundleDeals as BundleDeal[]).flatMap(
+          (bundle) => bundle.productIds,
+        ),
       ]),
     );
   }, [activeProducts, businessType, recommendedProducts]);
@@ -114,16 +139,22 @@ export function QuoteResults() {
     () =>
       (bundleDeals as BundleDeal[]).map((bundle) => ({
         ...bundle,
-        savings: Math.max(bundle.benchmarkAnnualPrice - bundle.annualPrice, 0),
+        savings: Math.max(
+          bundle.benchmarkAnnualPrice - bundle.annualPrice,
+          0,
+        ),
       })),
     [],
   );
 
-  const selectedBundle = bundles.find((bundle) => bundle.id === selectedBundleId) ?? null;
+  const selectedBundle =
+    bundles.find((bundle) => bundle.id === selectedBundleId) ?? null;
   const bundleCopy = t.results.bundleContent;
   const sizeFactor = getSizeFactor(employeeBand);
-  const formatMoney = (amount: number) => `${t.common.currency} ${formatPrice(amount)}`;
-  const formatAnnualTotal = (amount: number) => `${formatMoney(amount)}${t.common.perYear}`;
+  const formatMoney = (amount: number) =>
+    formatPriceWithCurrency(amount, t.common.currency, locale);
+  const formatMonthlyTotal = (amount: number) =>
+    `${formatMoney(calculateMonthlyPrice(amount))}${t.common.perMonth}`;
 
   const allQuotes = useMemo<EnrichedInsurerQuote[]>(() => {
     if (!businessType) return [];
@@ -146,12 +177,22 @@ export function QuoteResults() {
         total: selectedBundle?.annualPrice ?? calculatedTotal,
       };
     });
-  }, [activeProducts, businessType, coverageLimits, insurers, productsMap, selectedBundle, sizeFactor]);
+  }, [
+    activeProducts,
+    businessType,
+    coverageLimits,
+    insurers,
+    productsMap,
+    selectedBundle,
+    sizeFactor,
+  ]);
 
   const eligibleQuotes = useMemo(() => {
     if (!selectedBundle) return allQuotes;
 
-    return allQuotes.filter((quote) => selectedBundle.eligibleInsurerIds.includes(quote.id));
+    return allQuotes.filter((quote) =>
+      selectedBundle.eligibleInsurerIds.includes(quote.id),
+    );
   }, [allQuotes, selectedBundle]);
 
   const insurerQuotes = useMemo(() => {
@@ -177,7 +218,10 @@ export function QuoteResults() {
   }, [eligibleQuotes, maxPrice, shariahOnly, sortBy]);
 
   useEffect(() => {
-    if (selectedInsurerId && !insurerQuotes.some((quote) => quote.id === selectedInsurerId)) {
+    if (
+      selectedInsurerId &&
+      !insurerQuotes.some((quote) => quote.id === selectedInsurerId)
+    ) {
       setSelectedInsurerId(null);
     }
   }, [insurerQuotes, selectedInsurerId]);
@@ -192,18 +236,24 @@ export function QuoteResults() {
     };
   }, [eligibleQuotes]);
 
-  const activeFilterCount = [shariahOnly, maxPrice !== null].filter(Boolean).length;
+  const activeFilterCount = [shariahOnly, maxPrice !== null].filter(
+    Boolean,
+  ).length;
   const activeProductIds = Array.from(activeProducts);
   const coverageType = activeProductIds
-    .map((productId) => productsMap[productId]?.shortName ?? productId)
+    .map(
+      (productId) => ((t.products as Record<string, {name: string; shortName: string}>)[productId]?.shortName) || (productsMap[productId]?.shortName ?? productId),
+    )
     .join(' + ');
 
   const benefits = activeProductIds.map((productId) => ({
-    name: productsMap[productId]?.name ?? productId,
+    name: ((t.products as Record<string, {name: string; shortName: string}>)[productId]?.name) || (productsMap[productId]?.name ?? productId),
     included: true,
   }));
 
-  const selectedQuote = insurerQuotes.find((quote) => quote.id === selectedInsurerId) ?? null;
+  const selectedQuote =
+    insurerQuotes.find((quote) => quote.id === selectedInsurerId) ??
+    null;
   const resultsHeadingPrice = useMemo(() => {
     if (activeTab === 'bundles') {
       return bundles.reduce(
@@ -232,7 +282,9 @@ export function QuoteResults() {
   function handleBundleSelect(bundle: (typeof bundles)[number]) {
     setSelectedBundleId(bundle.id);
     setActiveProducts(new Set(bundle.productIds));
-    setCoverageLimits((current) => buildCoverageLimitState(bundle.productIds, current));
+    setCoverageLimits((current) =>
+      buildCoverageLimitState(bundle.productIds, current),
+    );
     setSelectedInsurerId(null);
     setShowFilters(false);
     setSortBy('price');
@@ -279,7 +331,9 @@ export function QuoteResults() {
   }
 
   function handleSelectToggle(insurerId: string) {
-    setSelectedInsurerId((current) => (current === insurerId ? null : insurerId));
+    setSelectedInsurerId((current) =>
+      current === insurerId ? null : insurerId,
+    );
   }
 
   function handleProceed() {
@@ -310,13 +364,14 @@ export function QuoteResults() {
     if (licenseNumber) params.set('licenseNumber', licenseNumber);
 
     setShowTransition(true);
-    const destination = licenseNumber && businessName
-      ? (() => {
-          params.set('companyVerified', 'true');
-          params.set('companySource', 'ocr');
-          return `/quote/checkout?${params.toString()}`;
-        })()
-      : `/quote/company-details?${params.toString()}`;
+    const destination =
+      licenseNumber && businessName
+        ? (() => {
+            params.set('companyVerified', 'true');
+            params.set('companySource', 'ocr');
+            return `/quote/checkout?${params.toString()}`;
+          })()
+        : `/quote/company-details?${params.toString()}`;
 
     setTimeout(() => {
       router.push(destination);
@@ -341,7 +396,9 @@ export function QuoteResults() {
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
           <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
-        <p className="text-base font-semibold text-gray-900">{t.results.preparingQuote}</p>
+        <p className="text-base font-semibold text-gray-900">
+          {t.results.preparingQuote}
+        </p>
         <div className="h-1.5 w-48 overflow-hidden rounded-full bg-gray-200">
           <div className="h-full rounded-full bg-primary animate-[loading_0.8s_ease-in-out]" />
         </div>
@@ -352,7 +409,11 @@ export function QuoteResults() {
   return (
     <div className="pb-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4">
-        <ProgressIndicator currentStep={4} totalSteps={6} label={t.progress.quotes} />
+        <ProgressIndicator
+          currentStep={4}
+          totalSteps={6}
+          label={t.progress.quotes}
+        />
       </div>
 
       <div className="sticky top-0 z-30 border-y border-gray-200 bg-[#F7F8FC]/95 backdrop-blur">
@@ -360,9 +421,13 @@ export function QuoteResults() {
           <div>
             <button
               onClick={handleBack}
-              className="mb-2 inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
+              className="mb-2 inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="rtl:rotate-180">
                 <path
                   d="M10 12.667L5.333 8L10 3.333"
                   stroke="currentColor"
@@ -373,9 +438,11 @@ export function QuoteResults() {
               </svg>
               {t.common.back}
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t.results.title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              {t.results.title}
+            </h1>
             <p className="mt-1 text-sm text-gray-500">
-              {businessType?.title} &middot; {emirate}
+              {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
             </p>
           </div>
         </div>
@@ -391,8 +458,7 @@ export function QuoteResults() {
                   activeTab === 'individual'
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
+                }`}>
                 {t.results.individualTab}
               </button>
               <button
@@ -401,28 +467,9 @@ export function QuoteResults() {
                   activeTab === 'bundles'
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
+                }`}>
                 {t.results.bundleTab} {'💰'}
               </button>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#F4F7FD] px-3 py-2 sm:justify-end">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-                {t.results.paymentCadence}
-              </span>
-              <div className="grid grid-cols-2 rounded-xl bg-white p-1 text-xs font-semibold text-gray-500 shadow-inner">
-                <span
-                  className={`rounded-lg px-3 py-2 text-center ${
-                    paymentDisplay === 'quarterly' ? 'bg-primary text-white shadow-sm' : ''
-                  }`}
-                >
-                  {t.results.quarterlyPlan}
-                </span>
-                <span className="rounded-lg px-3 py-2 text-center">
-                  {t.results.annualTotal}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -432,23 +479,34 @@ export function QuoteResults() {
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900">{businessType?.title}</h2>
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title}
+                      </h2>
                       <p className="mt-1 text-sm text-gray-500">
-                        {businessType?.description}
+                        {(t.businessTypeDescriptions as Record<string, string>)[businessType?.id ?? ''] || businessType?.description}
                       </p>
                     </div>
                     <div className="rounded-2xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
-                      {employeeBand} {t.results.employees}
+                      {(t.options.employeeBands as Record<string, string>)[employeeBand] || employeeBand} {t.results.employees}
                     </div>
                   </div>
 
                   <div className="mt-5 space-y-3 text-sm text-gray-600">
-                    <SummaryRow label={t.results.industry} value={businessType?.title ?? '-'} />
-                    <SummaryRow label={t.results.emirate} value={emirate} />
-                    <SummaryRow label={t.results.coverage} value={coverageType || '-'} />
+                    <SummaryRow
+                      label={t.results.industry}
+                      value={((t.businessType as Record<string, string>)[businessType?.id ?? '']) || (businessType?.title ?? '-')}
+                    />
+                    <SummaryRow
+                      label={t.results.emirate}
+                      value={(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                    />
+                    <SummaryRow
+                      label={t.results.coverage}
+                      value={coverageType || '-'}
+                    />
                     <SummaryRow
                       label={t.results.summaryFrom}
-                      value={formatAnnualTotal(resultsHeadingPrice)}
+                      value={formatMonthlyTotal(resultsHeadingPrice)}
                       valueClassName="text-primary"
                     />
                   </div>
@@ -482,12 +540,15 @@ export function QuoteResults() {
                           isActive
                             ? 'bg-primary text-white shadow-sm'
                             : 'border border-gray-200 bg-white text-gray-500 hover:border-primary/40'
-                        }`}
-                      >
-                        {PRODUCT_ICONS[productId]
-                          ? PRODUCT_ICONS[productId]({className: 'h-4 w-4'})
-                          : <span>{product.icon}</span>}
-                        <span>{product.shortName}</span>
+                        }`}>
+                        {PRODUCT_ICONS[productId] ? (
+                          PRODUCT_ICONS[productId]({
+                            className: 'h-4 w-4',
+                          })
+                        ) : (
+                          <span>{product.icon}</span>
+                        )}
+                        <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.shortName || product.shortName}</span>
                       </button>
                     );
                   })}
@@ -505,23 +566,36 @@ export function QuoteResults() {
                   return (
                     <div
                       key={productId}
-                      className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3"
-                    >
+                      className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3">
                       <div className="flex items-center gap-2 text-sm text-gray-700">
-                        {PRODUCT_ICONS[productId]
-                          ? PRODUCT_ICONS[productId]({className: 'h-4 w-4'})
-                          : <span>{product.icon}</span>}
+                        {PRODUCT_ICONS[productId] ? (
+                          PRODUCT_ICONS[productId]({
+                            className: 'h-4 w-4',
+                          })
+                        ) : (
+                          <span>{product.icon}</span>
+                        )}
                         <span>{product.shortName}</span>
                       </div>
 
                       <select
                         value={coverageLimits[productId] ?? '1M'}
-                        onChange={(event) => updateCoverageLimit(productId, event.target.value)}
-                        className="cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      >
-                        <option value="1M">{t.results.coverageLimit1m}</option>
-                        <option value="2M">{t.results.coverageLimit2m}</option>
-                        <option value="5M">{t.results.coverageLimit5m}</option>
+                        onChange={(event) =>
+                          updateCoverageLimit(
+                            productId,
+                            event.target.value,
+                          )
+                        }
+                        className="cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="1M">
+                          {t.results.coverageLimit1m}
+                        </option>
+                        <option value="2M">
+                          {t.results.coverageLimit2m}
+                        </option>
+                        <option value="5M">
+                          {t.results.coverageLimit5m}
+                        </option>
                       </select>
                     </div>
                   );
@@ -536,10 +610,16 @@ export function QuoteResults() {
                     <>
                       <Button
                         variant="ghost"
-                        onClick={() => setShowFilters((current) => !current)}
-                        className="gap-1.5 text-sm text-primary hover:bg-primary/5"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
+                        onClick={() =>
+                          setShowFilters((current) => !current)
+                        }
+                        className="gap-1.5 text-sm text-primary hover:bg-primary/5">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          className="rtl:rotate-180">
                           <path
                             d="M2 4.667h12M4.667 8h6.666M6.667 11.333h2.666"
                             stroke="currentColor"
@@ -557,11 +637,18 @@ export function QuoteResults() {
 
                       <select
                         value={sortBy}
-                        onChange={(event) => setSortBy(event.target.value as 'price' | 'rating')}
-                        className="cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      >
-                        <option value="price">{t.results.sortLowest}</option>
-                        <option value="rating">{t.results.sortRating}</option>
+                        onChange={(event) =>
+                          setSortBy(
+                            event.target.value as 'price' | 'rating',
+                          )
+                        }
+                        className="cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="price">
+                          {t.results.sortLowest}
+                        </option>
+                        <option value="rating">
+                          {t.results.sortRating}
+                        </option>
                       </select>
                     </>
                   ) : (
@@ -580,40 +667,50 @@ export function QuoteResults() {
 
               <p className="text-center text-xs text-gray-500">
                 {t.results.finwallPrefix}{' '}
-                <span className="font-semibold text-gray-700">{t.results.finwallBrand}</span>
+                <span className="font-semibold text-gray-700">
+                  {t.results.finwallBrand}
+                </span>
               </p>
 
               {activeTab === 'individual' && showFilters && (
                 <Card className="animate-in slide-in-from-top-2 rounded-[24px] border border-gray-200 bg-white duration-200">
                   <CardContent className="space-y-4 p-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-900">{t.results.filters}</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {t.results.filters}
+                      </p>
                       <button
                         onClick={() => {
                           setShariahOnly(false);
                           setMaxPrice(null);
                         }}
-                        className="text-xs text-primary hover:underline"
-                      >
+                        className="text-xs text-primary hover:underline">
                         {t.common.clearAll}
                       </button>
                     </div>
 
                     <label className="flex cursor-pointer items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-700">{t.results.shariahOnly}</p>
-                        <p className="text-xs text-gray-400">{t.results.shariahDesc}</p>
+                        <p className="text-sm text-gray-700">
+                          {t.results.shariahOnly}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {t.results.shariahDesc}
+                        </p>
                       </div>
 
                       <button
-                        onClick={() => setShariahOnly((current) => !current)}
+                        onClick={() =>
+                          setShariahOnly((current) => !current)
+                        }
                         className={`flex h-6 w-10 rounded-full transition-colors duration-200 ${
                           shariahOnly ? 'bg-primary' : 'bg-gray-200'
-                        }`}
-                      >
+                        }`}>
                         <span
                           className={`block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                            shariahOnly ? 'translate-x-5' : 'translate-x-1'
+                            shariahOnly
+                              ? 'translate-x-5'
+                              : 'translate-x-1'
                           }`}
                         />
                       </button>
@@ -621,9 +718,13 @@ export function QuoteResults() {
 
                     <div>
                       <div className="mb-3 flex items-center justify-between">
-                        <p className="text-sm text-gray-700">{t.results.maxPrice}</p>
+                        <p className="text-sm text-gray-700">
+                          {t.results.maxPrice}
+                        </p>
                         <p className="text-sm font-semibold text-gray-900">
-                          {maxPrice === null ? t.results.any : formatMoney(maxPrice)}
+                          {maxPrice === null
+                            ? t.results.any
+                            : formatMoney(maxPrice)}
                         </p>
                       </div>
 
@@ -635,7 +736,9 @@ export function QuoteResults() {
                         value={maxPrice ?? priceRange.max}
                         onChange={(event) => {
                           const value = Number(event.target.value);
-                          setMaxPrice(value >= priceRange.max ? null : value);
+                          setMaxPrice(
+                            value >= priceRange.max ? null : value,
+                          );
                         }}
                         className="w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-primary"
                       />
@@ -667,8 +770,7 @@ export function QuoteResults() {
 
                       <button
                         onClick={handleBackToBundles}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
+                        className="text-sm font-medium text-primary hover:underline">
                         ← {t.results.backToBundles}
                       </button>
                     </div>
@@ -681,8 +783,7 @@ export function QuoteResults() {
                         return (
                           <span
                             key={productId}
-                            className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-white px-3 py-1.5 text-xs font-medium text-gray-700"
-                          >
+                            className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-white px-3 py-1.5 text-xs font-medium text-gray-700">
                             <span>{product.icon}</span>
                             <span>{product.shortName}</span>
                           </span>
@@ -698,14 +799,15 @@ export function QuoteResults() {
                   {insurerQuotes.length === 0 ? (
                     <Card className="rounded-[24px] border border-gray-200 bg-white">
                       <CardContent className="p-8 text-center">
-                        <p className="text-sm text-gray-500">{t.results.noQuotes}</p>
+                        <p className="text-sm text-gray-500">
+                          {t.results.noQuotes}
+                        </p>
                         <button
                           onClick={() => {
                             setShariahOnly(false);
                             setMaxPrice(null);
                           }}
-                          className="mt-2 text-sm text-primary hover:underline"
-                        >
+                          className="mt-2 text-sm text-primary hover:underline">
                           {t.results.clearFilters}
                         </button>
                       </CardContent>
@@ -717,9 +819,18 @@ export function QuoteResults() {
                         insurer={insurer}
                         coverageType={coverageType}
                         benefits={benefits}
-                        isBestPrice={insurer.total === Math.min(...insurerQuotes.map((quote) => quote.total))}
+                        isBestPrice={
+                          insurer.total ===
+                          Math.min(
+                            ...insurerQuotes.map(
+                              (quote) => quote.total,
+                            ),
+                          )
+                        }
                         isSelected={insurer.id === selectedInsurerId}
-                        onSelect={() => handleSelectToggle(insurer.id)}
+                        onSelect={() =>
+                          handleSelectToggle(insurer.id)
+                        }
                       />
                     ))
                   )}
@@ -734,12 +845,16 @@ export function QuoteResults() {
                     <BundleCard
                       key={bundle.id}
                       title={bundleCopy[bundle.copyKey].title}
-                      description={bundleCopy[bundle.copyKey].description}
+                      description={
+                        bundleCopy[bundle.copyKey].description
+                      }
                       annualPrice={bundle.annualPrice}
                       savings={bundle.savings}
                       chips={bundle.productIds.map((productId) => ({
                         id: productId,
-                        shortName: productsMap[productId]?.shortName ?? productId,
+                        shortName:
+                          productsMap[productId]?.shortName ??
+                          productId,
                         icon: productsMap[productId]?.icon ?? '•',
                       }))}
                       ctaLabel={bundleCopy[bundle.copyKey].cta}
@@ -760,24 +875,32 @@ export function QuoteResults() {
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50 p-0.5">
-                <img src={selectedQuote.logo} alt={selectedQuote.name} className="h-full w-full object-contain" />
+                <img
+                  src={selectedQuote.logo}
+                  alt={selectedQuote.name}
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-gray-900">
                   {t.results.continueWith} {selectedQuote.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {formatAnnualTotal(selectedQuote.total)} · {formatMoney(calculateQuarterlyPrice(selectedQuote.total))}{t.common.perQuarter}
+                  {formatMonthlyTotal(selectedQuote.total)} · {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
                 </p>
               </div>
             </div>
 
             <Button
               onClick={handleProceed}
-              className="shrink-0 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary/90"
-            >
+              className="shrink-0 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary/90">
               {t.common.continue}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ms-1.5 inline rtl:rotate-180">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="ms-1.5 inline rtl:rotate-180">
                 <path
                   d="M6 3.333L10.667 8L6 12.667"
                   stroke="currentColor"
@@ -798,10 +921,13 @@ function buildCoverageLimitState(
   productIds: string[],
   existing: Record<string, string> = {},
 ): Record<string, string> {
-  return productIds.reduce<Record<string, string>>((limits, productId) => {
-    limits[productId] = existing[productId] ?? '1M';
-    return limits;
-  }, {});
+  return productIds.reduce<Record<string, string>>(
+    (limits, productId) => {
+      limits[productId] = existing[productId] ?? '1M';
+      return limits;
+    },
+    {},
+  );
 }
 
 function SummaryRow({
@@ -816,7 +942,8 @@ function SummaryRow({
   return (
     <div className="flex items-center justify-between gap-4">
       <span>{label}</span>
-      <span className={`text-right font-medium text-gray-900 ${valueClassName ?? ''}`}>
+      <span
+        className={`text-right font-medium text-gray-900 ${valueClassName ?? ''}`}>
         {value}
       </span>
     </div>

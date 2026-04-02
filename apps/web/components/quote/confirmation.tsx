@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
-import {formatPrice} from '@/lib/pricing';
+import {calculateMonthlyPrice, formatPrice, formatPriceWithCurrency} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
@@ -19,7 +19,7 @@ type ProductId = keyof typeof productsConfig;
 const IFRAME_RENDER_DELAY_MS = 800;
 
 export function Confirmation() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const searchParams = useSearchParams();
 
   const typeId = searchParams.get('type') ?? 'general-trading';
@@ -490,17 +490,22 @@ export function Confirmation() {
             </div>
 
             {/* Total */}
-            <div className="flex items-center justify-between bg-primary rounded-xl px-5 py-4 -mx-1">
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {t.confirmation.totalPremium}
-                </p>
-                <p className="text-xs text-white/85 mt-0.5">
-                  {t.confirmation.inclVat}
+            <div className="flex flex-col gap-3 bg-primary rounded-xl px-5 py-4 -mx-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    {t.confirmation.totalPremium}
+                  </p>
+                  <p className="text-xs text-white/85 mt-0.5">
+                    {t.confirmation.inclVat}
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {formatPriceWithCurrency(calculateMonthlyPrice(total), t.common.currency, locale)}
                 </p>
               </div>
-              <p className="text-2xl font-bold text-white">
-                AED {formatPrice(total)}
+              <p className="text-xs text-white/85">
+                {t.results.finwallPrefix} <span className="font-semibold text-white">{t.results.finwallBrand}</span>
               </p>
             </div>
           </CardContent>

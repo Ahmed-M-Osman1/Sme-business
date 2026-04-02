@@ -5,6 +5,7 @@
     "perYear": "/سنة",
     "perYearInclTax": "/سنة شامل الضريبة",
     "perQuarter": "/ربع سنوي",
+    "perMonth": "/شهر",
     "loading": "جاري التحميل...",
     "continue": "متابعة",
     "back": "رجوع",
@@ -523,6 +524,30 @@
     "minutesAgo": "منذ {count} د",
     "hoursAgo": "منذ {count} س",
     "daysAgo": "منذ {count} ي"
+  },
+  "insurers": {
+    "dubai-insurance": "دبي للتأمين",
+    "sukoon": "سكون للتأمين",
+    "afnic": "الفجيرة للتأمين",
+    "watania": "وطنية للتكافل",
+    "adnic": "أدنك",
+    "adntc": "شركة أبوظبي الوطنية للتكافل",
+    "qic": "قطر للتأمين",
+    "insurance-house": "دار التأمين",
+    "yas-takaful": "ياس للتكافل",
+    "al-ain-ahlia": "شركة العين الأهلية للتأمين",
+    "aldhafra": "الظفرة",
+    "ngi": "الوطنية للتأمينات العامة",
+    "awnic": "الوثبة الوطنية للتأمين",
+    "orient": "اورينت",
+    "rak": "RAK",
+    "alsagr": "الصقر",
+    "adamjee": "ادمجي",
+    "fidelity": "فيدلتي",
+    "methaq-takaful": "ميثاق تكافل",
+    "union": "الإتحاد",
+    "orient-takaful": "شركة أورينت تكافل ش.م.ع",
+    "salama": "سلامة للتأمين"
   },
   "products": {
     "workers-comp": {
