@@ -29,3 +29,45 @@ export type {Insurer, NewInsurer} from './schema/insurers';
 
 export {quoteOptions} from './schema/quote-options';
 export type {QuoteOption, NewQuoteOption} from './schema/quote-options';
+
+export {customerStageEnum, paymentStatusEnum, customers} from './schema/customers';
+export type {Customer, NewCustomer} from './schema/customers';
+
+export {incidentSeverityEnum, incidentStatusEnum, incidents} from './schema/incidents';
+export type {Incident, NewIncident} from './schema/incidents';
+
+export {alertSeverityEnum, portfolioAlerts} from './schema/portfolio-alerts';
+export type {PortfolioAlert, NewPortfolioAlert} from './schema/portfolio-alerts';
+
+export {actionStatusEnum, actions} from './schema/actions';
+export type {Action, NewAction} from './schema/actions';
+
+export {notifications} from './schema/notifications';
+export type {Notification, NewNotification} from './schema/notifications';
+
+export {commsTypeEnum, commsChannelEnum, commsSequences} from './schema/comms-sequences';
+export type {CommsSequence, NewCommsSequence} from './schema/comms-sequences';
+
+export {serviceCategoryEnum, serviceStatusEnum, apiServices} from './schema/api-services';
+export type {ApiService, NewApiService} from './schema/api-services';
+
+export {serviceHealthLogs} from './schema/service-health-logs';
+export type {ServiceHealthLog, NewServiceHealthLog} from './schema/service-health-logs';
+
+export {funnelEvents} from './schema/funnel-events';
+export type {FunnelEvent, NewFunnelEvent} from './schema/funnel-events';
+
+export {behaviourMetrics} from './schema/behaviour-metrics';
+export type {BehaviourMetric, NewBehaviourMetric} from './schema/behaviour-metrics';
+
+export {signalCategoryEnum, signalSeverityEnum, externalSignals} from './schema/external-signals';
+export type {ExternalSignal, NewExternalSignal} from './schema/external-signals';
+
+export {triggerTypeEnum, triggerStatusEnum, midtermTriggers} from './schema/midterm-triggers';
+export type {MidtermTrigger, NewMidtermTrigger} from './schema/midterm-triggers';
+
+export {peerBenchmarks} from './schema/peer-benchmarks';
+export type {PeerBenchmark, NewPeerBenchmark} from './schema/peer-benchmarks';
+
+export {platformCorrelations} from './schema/platform-correlations';
+export type {PlatformCorrelation, NewPlatformCorrelation} from './schema/platform-correlations';
