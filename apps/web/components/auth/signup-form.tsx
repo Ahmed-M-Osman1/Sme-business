@@ -14,6 +14,7 @@ export function SignupForm({onSuccess}: SignupFormProps) {
   const {t} = useI18n();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +32,7 @@ export function SignupForm({onSuccess}: SignupFormProps) {
 
     try {
       // Register the user
-      await api.user.register({email, password, name});
+      await api.user.register({email, password, name, phone: phone || undefined});
 
       // Auto sign-in
       const result = await signIn('credentials', {
@@ -86,6 +87,20 @@ export function SignupForm({onSuccess}: SignupFormProps) {
           className="w-full rounded-xl border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           disabled={isLoading}
           required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-900 mb-1.5">
+          {t.auth?.phone || 'Phone (optional)'}
+        </label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder={t.auth?.phonePlaceholder || '55 123 4567'}
+          className="w-full rounded-xl border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          disabled={isLoading}
         />
       </div>
 

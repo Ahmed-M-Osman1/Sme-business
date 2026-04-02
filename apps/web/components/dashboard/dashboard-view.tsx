@@ -2,6 +2,8 @@
 
 import {useState} from 'react';
 import {useI18n} from '@/lib/i18n';
+import {PolicyDetailSheet} from './policy-detail-sheet';
+import {SettingsTab} from './settings-tab';
 import {
   calculateMonthlyPrice,
   formatPriceWithCurrency,
@@ -17,6 +19,7 @@ interface DashboardViewProps {
 export function DashboardView({user, policies, stats}: DashboardViewProps) {
   const {t, locale} = useI18n();
   const [activeTab, setActiveTab] = useState<DashboardTab>('policies');
+  const [selectedPolicy, setSelectedPolicy] = useState<EnrichedPolicy | null>(null);
 
   const activePolicies = policies.filter((p) => p.status === 'active');
 
@@ -93,7 +96,8 @@ export function DashboardView({user, policies, stats}: DashboardViewProps) {
               activePolicies.map((policy) => (
                 <div
                   key={policy.id}
-                  className="rounded-xl border border-border bg-white p-6 hover:shadow-md transition-shadow"
+                  onClick={() => setSelectedPolicy(policy)}
+                  className="rounded-xl border border-border bg-white p-6 hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -126,8 +130,8 @@ export function DashboardView({user, policies, stats}: DashboardViewProps) {
                         )}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">{t.common.perMonth}</p>
-                      <button className="mt-4 text-red-500 text-sm font-semibold hover:underline">
-                        {t.dashboard?.makeClaim || 'Make claim'}
+                      <button className="mt-4 text-primary text-sm font-semibold hover:underline">
+                        {t.dashboard?.viewPolicy || 'View Details'}
                       </button>
                     </div>
                   </div>
@@ -158,22 +162,11 @@ export function DashboardView({user, policies, stats}: DashboardViewProps) {
           </div>
         )}
 
-        {activeTab === 'settings' && (
-          <div className="rounded-xl border border-border bg-white p-6 max-w-md">
-            <h3 className="font-semibold text-gray-900 mb-4">Account Settings</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-500 mb-1">Name</label>
-                <p className="text-gray-900">{user.name}</p>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-500 mb-1">Email</label>
-                <p className="text-gray-900">{user.email}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'settings' && <SettingsTab />}
       </div>
+
+      {/* Policy Detail Modal */}
+      <PolicyDetailSheet policy={selectedPolicy} onClose={() => setSelectedPolicy(null)} />
     </div>
   );
 }

@@ -66,9 +66,18 @@ export function Confirmation() {
     });
   }
 
-  // Persist policy to database on mount
+  // Persist policy to database on mount (only once when session is ready)
   useEffect(() => {
-    if (hasSaved.current || !session?.user?.id || !session?.user?.email) return;
+    // Guard: only save once
+    if (hasSaved.current) return;
+
+    // Guard: wait for session to be fully loaded
+    if (!session?.user?.id || !session?.user?.email) {
+      console.log('⏳ Waiting for session to load...');
+      return;
+    }
+
+    // Mark as saved IMMEDIATELY to prevent any re-runs
     hasSaved.current = true;
 
     console.log('💾 Persisting policy with email:', session.user.email);
@@ -88,8 +97,11 @@ export function Confirmation() {
         licenseNumber,
         employees,
       }, session.user.email!)
-      .catch(console.error); // silent fail, don't block UI
-  }, [session?.user?.id]);
+      .then(() => console.log('✅ Policy saved successfully'))
+      .catch((err) => {
+        console.error('❌ Policy save failed:', err);
+      });
+  }, []); // Empty array: run only once on mount
 
   const [downloadingCert, setDownloadingCert] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);

@@ -176,5 +176,19 @@ export const api = {
       fetchApi<{activePolicies: number; annualSpend: number; daysToRenewal: number | null}>('/user/stats', {
         headers: {Authorization: `Bearer ${token}`},
       }),
+
+    profile: {
+      get: (token: string) =>
+        fetchApi<{id: string; name: string; email: string; phone: string | null}>('/user/profile', {
+          headers: {Authorization: `Bearer ${token}`},
+        }),
+
+      update: (data: {name?: string; phone?: string}, token: string) =>
+        fetchApi<{id: string; name: string; email: string; phone: string | null}>('/user/profile', {
+          method: 'PATCH',
+          headers: {Authorization: `Bearer ${token}`},
+          body: JSON.stringify(data),
+        }),
+    },
   },
 };

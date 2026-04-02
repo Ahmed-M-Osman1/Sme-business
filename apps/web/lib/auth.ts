@@ -9,7 +9,7 @@ async function hashPassword(password: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const config = {
+export const {handlers, signIn, signOut, auth} = (NextAuth as any)({
   providers: [
     Credentials({
       credentials: {
@@ -37,7 +37,7 @@ const config = {
           }
 
           const user = await response.json();
-          return {id: user.id, email: user.email, name: user.name};
+          return {id: user.id, email: user.email, name: user.name, apiToken: user.apiToken || user.email};
         } catch {
           return null;
         }
@@ -52,7 +52,7 @@ const config = {
       if (token.sub) session.user.id = token.sub;
       if (typeof token.email === 'string') {
         session.user.email = token.email;
-        (session.user as unknown as Record<string, unknown>).apiToken = token.email;
+        session.user.apiToken = token.email;
       }
       return session;
     },
@@ -63,6 +63,4 @@ const config = {
       return token;
     },
   },
-};
-
-export const {handlers, signIn, signOut, auth} = NextAuth(config);
+});

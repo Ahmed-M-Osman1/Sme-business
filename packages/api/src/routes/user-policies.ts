@@ -161,6 +161,36 @@ userPoliciesRouter.get('/policies/:id', async (c) => {
   return c.json(userPolicy);
 });
 
+// GET /user/profile
+userPoliciesRouter.get('/profile', async (c) => {
+  const webUser = c.get('webUser') as WebUser;
+  return c.json({id: webUser.id, name: webUser.name, email: webUser.email, phone: webUser.phone ?? null});
+});
+
+// PATCH /user/profile
+userPoliciesRouter.patch('/profile', async (c) => {
+  try {
+    const webUser = c.get('webUser') as WebUser;
+    const body = await c.req.json();
+    const schema = z.object({
+      name: z.string().min(2).optional(),
+      phone: z.string().optional(),
+    });
+    const data = schema.parse(body);
+
+    const [updated] = await db
+      .update(webUsers)
+      .set({...data, updatedAt: new Date()} as any)
+      .where(eq(webUsers.id, webUser.id))
+      .returning();
+
+    return c.json({id: updated.id, name: updated.name, email: updated.email, phone: updated.phone ?? null});
+  } catch (e) {
+    if (e instanceof ZodError) return handleZodError(c, e);
+    throw e;
+  }
+});
+
 // GET /user/stats — dashboard stats
 userPoliciesRouter.get('/stats', async (c) => {
   const webUser = c.get('webUser') as WebUser;
