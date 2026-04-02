@@ -164,13 +164,13 @@ export function Checkout() {
 
             {/* Company */}
             {companyVerified && businessName && (
-              <div className="flex items-center gap-2 bg-green-50 rounded-lg px-3 py-2 text-sm">
+              <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-2 text-sm">
                 <svg
                   width="14"
                   height="14"
                   viewBox="0 0 14 14"
                   fill="none"
-                  className="text-green-600"
+                  className="text-primary"
                 >
                   <path
                     d="M3.5 7.5L6 10L10.5 4.5"
@@ -181,7 +181,7 @@ export function Checkout() {
                   />
                 </svg>
                 <span className="text-text font-medium">{businessName}</span>
-                <span className="text-xs text-green-600">verified</span>
+                <span className="text-xs text-primary">verified</span>
               </div>
             )}
 

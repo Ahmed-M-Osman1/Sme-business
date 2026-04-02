@@ -26,7 +26,7 @@ export const ACTIVITIES = [
 
 function ConfidenceDot({level}: {level: OcrField['confidence']}) {
   const colors = {
-    high: 'bg-green-500',
+    high: 'bg-primary',
     medium: 'bg-amber-500',
     low: 'bg-red-500',
   };
@@ -184,10 +184,10 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
       <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={handleConfirm}
-          className="w-7 h-7 rounded-md bg-green-100 hover:bg-green-200 flex items-center justify-center transition-colors"
+          className="w-7 h-7 rounded-md bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
           title="Confirm"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-green-700">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
             <path d="M3.5 7.5L6 10L10.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>

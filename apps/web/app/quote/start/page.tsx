@@ -28,7 +28,7 @@ const OTHER_METHODS = [
       'Choose from 8 UAE business types — instant quote, no forms',
     badge: {
       label: 'Fastest',
-      className: 'bg-green-100 text-green-700',
+      className: 'bg-primary/10 text-primary',
     },
     href: '/quote/business-type',
   },

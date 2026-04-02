@@ -35,7 +35,7 @@ export function QuoteCard({
     <div
       className={`rounded-xl border bg-white p-5 transition-all duration-200 hover:shadow-md ${
         isBestPrice
-          ? 'border-green-300 shadow-sm'
+          ? 'border-primary/40 shadow-sm'
           : 'border-gray-200 hover:border-gray-300'
       }`}
     >
@@ -43,7 +43,7 @@ export function QuoteCard({
       {(isBestPrice || insurer.shariahCompliant) && (
         <div className="flex items-center gap-2 mb-3">
           {isBestPrice && (
-            <Badge className="bg-green-100 text-green-700 border-green-200 text-xs font-medium gap-1">
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium gap-1">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path
                   d="M6 1L7.545 4.15L11 4.66L8.5 7.1L9.09 10.54L6 8.92L2.91 10.54L3.5 7.1L1 4.66L4.455 4.15L6 1Z"
@@ -120,7 +120,7 @@ export function QuoteCard({
                     height="16"
                     viewBox="0 0 16 16"
                     fill="none"
-                    className="text-green-500 shrink-0"
+                    className="text-primary shrink-0"
                   >
                     <path
                       d="M3.333 8L6.667 11.333L12.667 4.667"

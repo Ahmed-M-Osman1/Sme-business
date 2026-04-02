@@ -283,8 +283,8 @@ export function Confirmation() {
               <p className="text-xs text-gray-500 mt-0.5">{businessType.title} · {emirate}</p>
             </div>
             <div className="shrink-0">
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 text-xs font-medium px-3 py-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs font-medium px-3 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                 {t.confirmation.active}
               </span>
             </div>
