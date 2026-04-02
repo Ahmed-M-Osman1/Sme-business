@@ -76,7 +76,7 @@ export default function QuoteStartPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-text text-base sm:text-lg">
+                  <span className="font-bold text-text text-xl sm:text-2xl">
                     {t.start.aiAdvisor}
                   </span>
                   <Badge
@@ -120,26 +120,25 @@ export default function QuoteStartPage() {
           {OTHER_METHODS.map((method) => (
             <Link key={method.id} href={method.href}>
               <Card className="rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer h-full">
-                <CardContent className="flex flex-col gap-3 p-4">
-                  <div className="flex items-center justify-between">
+                <CardContent className="flex flex-col gap-3 p-4 relative">
+                  {method.badge && (
+                    <div className="absolute -top-2.5 inset-s-3">
+                      <span className={`text-[10px] px-3 py-0.5 rounded-full font-bold shadow-sm ${method.badge.className}`}>
+                        {t.start.fastest}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 mt-1">
                     <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-lg shrink-0">
                       {method.icon}
                     </div>
-                    {method.badge && (
-                      <Badge
-                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${method.badge.className}`}>
-                        {t.start.fastest}
-                      </Badge>
-                    )}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-text text-sm leading-tight">
+                    <span className="font-semibold text-text text-sm sm:text-base leading-tight">
                       {method.id === 'pre-configured' ? t.start.preConfigured : method.id === 'upload' ? t.start.uploadLicence : t.start.manual}
                     </span>
-                    <p className="text-[11px] sm:text-xs text-text-muted mt-1 leading-relaxed">
-                      {method.id === 'pre-configured' ? t.start.preConfiguredDesc : method.id === 'upload' ? t.start.uploadLicenceDesc : t.start.manualDesc}
-                    </p>
                   </div>
+                  <p className="text-[11px] sm:text-xs text-text-muted leading-relaxed">
+                    {method.id === 'pre-configured' ? t.start.preConfiguredDesc : method.id === 'upload' ? t.start.uploadLicenceDesc : t.start.manualDesc}
+                  </p>
                 </CardContent>
               </Card>
             </Link>

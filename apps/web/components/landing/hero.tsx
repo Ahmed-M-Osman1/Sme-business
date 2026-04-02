@@ -107,7 +107,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
 }
 
 export function Hero() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
     'personal',
   );
@@ -126,12 +126,12 @@ export function Hero() {
         </h1>
 
         {/* Tab Toggle */}
-        <div className="relative mt-8 inline-flex rounded-full border border-gray-200 bg-gray-50 p-1">
+        <div className="relative mt-8 inline-flex rounded-full border border-gray-200 bg-gray-50 p-1" key={locale}>
           <div
             className="absolute top-1 bottom-1 rounded-full bg-gray-900 transition-all duration-300 ease-in-out"
             style={{
               width: 'calc(50% - 4px)',
-              left: activeTab === 'personal' ? '4px' : 'calc(50% + 0px)',
+              insetInlineStart: activeTab === 'personal' ? '4px' : 'calc(50%)',
             }}
           />
           <button

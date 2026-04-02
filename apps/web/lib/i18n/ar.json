@@ -27,25 +27,25 @@
     "optional": "اختياري"
   },
   "nav": {
-    "personal": "أفراد",
-    "business": "أعمال",
-    "company": "الشركة",
+    "personal": "التأمين الشخصي",
+    "business": "تأمين الأعمال",
+    "company": "عن الشركة",
     "help": "المساعدة",
     "dashboard": "لوحة التحكم",
     "switchLang": "English"
   },
   "landing": {
     "heroTitle": "أفضل شركات التأمين.\nأفضل الأسعار.\nتطبيق واحد.",
-    "heroSubtitle": "قارن واشترِ التأمين من أفضل شركات التأمين في الإمارات — سيارات، صحة، منزل، أعمال، وأكثر.",
-    "getQuote": "احصل على عرض سعر",
-    "learnMore": "اعرف أكثر",
-    "tabPersonal": "أفراد",
-    "tabBusiness": "أعمال",
+    "heroSubtitle": "قارن واشترِ التأمين في الإمارات",
+    "getQuote": "احصل على عرض أسعار",
+    "learnMore": "اعرف المزيد",
+    "tabPersonal": "التأمين الشخصي",
+    "tabBusiness": "تأمين الأعمال",
     "smeCard": "تأمين الشركات الصغيرة والمتوسطة",
     "smeCardDesc": "احمِ شركتك",
-    "statsTitle": "موثوق من قبل الشركات في جميع أنحاء الإمارات",
-    "ctaTitle": "جاهز لحماية شركتك؟",
-    "ctaSubtitle": "احصل على عرض سعر مخصص في أقل من ٣ دقائق",
+    "statsTitle": "أكثر من مليون عميل اختاروا التأمين مع شوري.",
+    "ctaTitle": "شراء التأمين",
+    "ctaSubtitle": "نقدم لك أفضل شركات التأمين، أفضل الأسعار، وتغطية فورية، كل ذلك في تطبيق واحد.",
     "ctaButton": "ابدأ الآن"
   },
   "start": {
@@ -243,11 +243,31 @@
     "generating": "جاري التجهيز..."
   },
   "footer": {
-    "personalInsurance": "تأمين الأفراد",
+    "personalInsurance": "التأمين الشخصي",
     "corporateInsurance": "تأمين الشركات",
-    "companyAndHelp": "الشركة والمساعدة",
+    "companyAndHelp": "عن الشركة والمساعدة",
     "downloadApp": "حمّل تطبيقنا",
-    "allRightsReserved": "جميع الحقوق محفوظة.",
-    "licensedBy": "مرخصة ومنظمة من قبل هيئة التأمين الإماراتية"
+    "allRightsReserved": "شوري. جميع الحقوق محفوظة.",
+    "licensedBy": "مرخصة ومنظمة من قبل مصرف الإمارات العربية المتحدة المركزي بترخيص رقم 287",
+    "carInsurance": "تأمين السيارات",
+    "nonUaeVehicles": "تأمين المركبات غير الإماراتية",
+    "healthInsurance": "التأمين الصحي",
+    "homeInsurance": "تأمين المنازل",
+    "petInsurance": "تأمين الحيوانات الأليفة",
+    "smeInsurance": "تأمين الشركات الصغيرة والمتوسطة",
+    "travelInsurance": "تأشيرة الزيارة للوكالات",
+    "helpAndSupport": "المساعدة والدعم",
+    "blogs": "المدونة",
+    "newsroom": "غرفة الأخبار",
+    "sitemap": "خريطة الموقع",
+    "legal": "المثائق القانونية",
+    "aboutUs": "معلومات عنا",
+    "contactUs": "تواصل معنا",
+    "wereHiring": "انضم إلى فريقنا",
+    "download": "حمّل تطبيق",
+    "shoryApp": "شوري",
+    "callUsAt": "اتصل بنا على",
+    "callHours": "الاثنين - الأحد: 08:00 صباحاً - 10:00 مساءً",
+    "callNumber": "800 SHORY (74679)"
   }
 }

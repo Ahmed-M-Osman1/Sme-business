@@ -139,7 +139,7 @@ export default function UploadPage() {
           }}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
             <path d="M10 12.667L5.333 8L10 3.333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           {t.common.back}
@@ -290,7 +290,7 @@ export default function UploadPage() {
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
               {t.common.continue}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>
@@ -410,7 +410,7 @@ export default function UploadPage() {
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
               {t.upload.getMyQuotes}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>

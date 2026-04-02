@@ -1,19 +1,8 @@
 import type {Metadata} from 'next';
-import {Geist, Geist_Mono} from 'next/font/google';
 import {Navbar} from '@/components/layout/navbar';
 import {Footer} from '@/components/layout/footer';
 import {I18nProvider} from '@/lib/i18n';
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin', 'latin-ext'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Shory — Compare and Buy Insurance in the UAE',
@@ -27,9 +16,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col" style={{fontFamily: "'BlissPro', 'PingARLT', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"}}>
         <I18nProvider>
           <Navbar />
           {children}

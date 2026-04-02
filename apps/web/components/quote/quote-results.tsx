@@ -150,7 +150,7 @@ export function QuoteResults() {
           onClick={handleBack}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
             <path
               d="M10 12.667L5.333 8L10 3.333"
               stroke="currentColor"
@@ -298,7 +298,7 @@ export function QuoteResults() {
                 onClick={() => setShowFilters((prev) => !prev)}
                 className="text-primary hover:bg-primary/5 text-sm gap-1.5"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
                   <path
                     d="M2 4.667h12M4.667 8h6.666M6.667 11.333h2.666"
                     stroke="currentColor"

@@ -371,7 +371,7 @@ function ChatBubble({message, onCtaClick, isLatest}: {message: Message; onCtaCli
               className="mt-3 w-full rounded-xl bg-primary text-white py-3 font-semibold hover:bg-primary/90 transition-colors gap-2"
             >
               {message.cta.label}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>

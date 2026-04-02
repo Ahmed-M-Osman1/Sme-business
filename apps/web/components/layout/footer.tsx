@@ -4,109 +4,78 @@ import Link from 'next/link';
 import {Badge} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
 
-const PERSONAL_LINKS = [
-  'Car Insurance',
-  'Non-UAE Vehicles Insurance',
-  'Health insurance',
-  'Home Insurance',
-  'Pet insurance',
-] as const;
-
-const CORPORATE_LINKS = [
-  {label: 'SME Business Insurance', href: '/quote/start'},
-  {label: 'Travel Insurance for Agencies', href: '#'},
-] as const;
-
-const COMPANY_LINKS = [
-  'Help and Support',
-  'Blogs',
-  'Newsroom',
-  'Sitemap',
-  'Legal',
-  'About Us',
-  'Contact us',
-] as const;
-
-const SOCIAL_ICONS = ['f', '📷', '𝕏', 'in', '💬'] as const;
-
 export function Footer() {
   const {t} = useI18n();
+
+  const personalLinks = [
+    t.footer.carInsurance,
+    t.footer.nonUaeVehicles,
+    t.footer.healthInsurance,
+    t.footer.homeInsurance,
+    t.footer.petInsurance,
+  ];
+
+  const corporateLinks = [
+    {label: t.footer.smeInsurance, href: '/quote/start'},
+    {label: t.footer.travelInsurance, href: '#'},
+  ];
+
+  const companyLinks = [
+    t.footer.helpAndSupport,
+    t.footer.blogs,
+    t.footer.newsroom,
+    t.footer.sitemap,
+    t.footer.legal,
+    t.footer.aboutUs,
+    t.footer.contactUs,
+  ];
+
   return (
     <footer className="bg-white border-t border-border">
-      {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {/* Personal Insurance */}
           <div>
-            <h4 className="text-sm font-semibold text-text mb-4">
-              {t.footer.personalInsurance}
-            </h4>
+            <h4 className="text-sm font-semibold text-text mb-4">{t.footer.personalInsurance}</h4>
             <ul className="space-y-2">
-              {PERSONAL_LINKS.map((label) => (
+              {personalLinks.map((label) => (
                 <li key={label}>
-                  <Link
-                    href="#"
-                    className="text-sm text-text-muted hover:text-text transition-colors duration-200"
-                  >
-                    {label}
-                  </Link>
+                  <Link href="#" className="text-sm text-text-muted hover:text-text transition-colors duration-200">{label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Corporate Insurance */}
           <div>
-            <h4 className="text-sm font-semibold text-text mb-4">
-              {t.footer.corporateInsurance}
-            </h4>
+            <h4 className="text-sm font-semibold text-text mb-4">{t.footer.corporateInsurance}</h4>
             <ul className="space-y-2">
-              {CORPORATE_LINKS.map((item) => (
+              {corporateLinks.map((item) => (
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-text-muted hover:text-text transition-colors duration-200"
-                  >
-                    {item.label}
-                  </Link>
+                  <Link href={item.href} className="text-sm text-text-muted hover:text-text transition-colors duration-200">{item.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Company & Help */}
           <div>
-            <h4 className="text-sm font-semibold text-text mb-4">
-              {t.footer.companyAndHelp}
-            </h4>
+            <h4 className="text-sm font-semibold text-text mb-4">{t.footer.companyAndHelp}</h4>
             <ul className="space-y-2">
-              {COMPANY_LINKS.map((label) => (
+              {companyLinks.map((label) => (
                 <li key={label}>
-                  <Link
-                    href="#"
-                    className="text-sm text-text-muted hover:text-text transition-colors duration-200"
-                  >
-                    {label}
-                  </Link>
+                  <Link href="#" className="text-sm text-text-muted hover:text-text transition-colors duration-200">{label}</Link>
                 </li>
               ))}
               <li>
-                <Badge className="bg-primary text-white text-xs rounded-full px-3 py-1">
-                  We&apos;re Hiring
-                </Badge>
+                <Badge className="bg-primary text-white text-xs rounded-full px-3 py-1">{t.footer.wereHiring}</Badge>
               </li>
             </ul>
           </div>
 
-          {/* Download & Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-text mb-4">
-              {t.footer.downloadApp}
-            </h4>
+            <h4 className="text-sm font-semibold text-text mb-4">{t.footer.downloadApp}</h4>
             <div className="flex items-center gap-3 mb-6">
               <div className="bg-text text-white rounded-lg px-4 py-2 text-xs font-medium">
-                <p>Download</p>
-                <p className="font-bold">Shory App</p>
+                <p>{t.footer.download}</p>
+                <p className="font-bold">{t.footer.shoryApp}</p>
               </div>
               <div className="w-16 h-16 bg-surface rounded-lg flex items-center justify-center">
                 <span className="text-xs text-text-muted">QR</span>
@@ -115,69 +84,31 @@ export function Footer() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">📞</span>
-                <span className="text-sm font-semibold text-text">
-                  Call us at
-                </span>
+                <span className="text-sm font-semibold text-text">{t.footer.callUsAt}</span>
               </div>
               <div className="border border-border rounded-lg px-4 py-3 text-center">
-                <p className="text-xs text-text-muted">
-                  Mon - Sun: 08:00 AM - 10:00 PM
-                </p>
-                <p className="text-sm font-semibold text-primary mt-1">
-                  800 SHORY (74679)
-                </p>
+                <p className="text-xs text-text-muted">{t.footer.callHours}</p>
+                <p className="text-sm font-semibold text-primary mt-1" dir="ltr">{t.footer.callNumber}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <span className="text-xl font-black italic text-text">Shory.</span>
             <div className="flex items-center gap-4">
-              {SOCIAL_ICONS.map((icon, i) => (
-                <Link
-                  key={i}
-                  href="#"
-                  className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-muted hover:text-text text-xs transition-colors duration-200"
-                >
-                  {icon}
-                </Link>
+              {['f', '📷', '𝕏', 'in', '💬'].map((icon, i) => (
+                <Link key={i} href="#" className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-muted hover:text-text text-xs transition-colors duration-200">{icon}</Link>
               ))}
             </div>
           </div>
-
           <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="text-[10px] text-text-muted leading-relaxed max-w-2xl">
-              <p>
-                {t.footer.licensedBy}
-              </p>
-              <p>
-                Shory Insurance Brokers LLC is located in 29th Floor Al Khatem
-                Tower, Al Maryah Island, Abu Dhabi, UAE &copy; 2026 Shory. {t.footer.allRightsReserved}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex gap-1">
-                {['MC', 'V', 'AP', 'AE', 'TB', 'MP'].map((pay) => (
-                  <div
-                    key={pay}
-                    className="w-8 h-5 bg-surface rounded text-[8px] flex items-center justify-center text-text-muted"
-                  >
-                    {pay}
-                  </div>
-                ))}
-              </div>
-              <div className="w-12 h-12 bg-surface rounded-full flex items-center justify-center">
-                <span className="text-[6px] text-text-muted text-center leading-tight">
-                  Central
-                  <br />
-                  Bank
-                </span>
-              </div>
+              <p>{t.footer.licensedBy}</p>
+              <p>&copy; 2026 {t.footer.allRightsReserved}</p>
             </div>
           </div>
         </div>

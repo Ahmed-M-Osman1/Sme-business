@@ -1,6 +1,7 @@
 'use client';
 
 import {cn} from '@shory/ui';
+import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 
 interface BusinessType {
@@ -20,6 +21,7 @@ export function BusinessTypeTags({
   onSelect,
   disabled = false,
 }: BusinessTypeTagsProps) {
+  const {t} = useI18n();
   return (
     <div className="w-full">
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -45,7 +47,7 @@ export function BusinessTypeTags({
         })}
       </div>
       <p className="text-xs text-text-muted mt-2">
-        Or describe your business below
+        {t.ai.orDescribeBelow}
       </p>
     </div>
   );

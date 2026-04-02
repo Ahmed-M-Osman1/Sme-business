@@ -2,15 +2,7 @@
 
 import {useRouter} from 'next/navigation';
 import {cn} from '@shory/ui';
-
-const STEPS = [
-  {label: 'Start', path: '/quote/start'},
-  {label: 'Business', path: '/quote/business-type'},
-  {label: 'Quotes', path: '/quote/results'},
-  {label: 'Company', path: '/quote/company-details'},
-  {label: 'Checkout', path: '/quote/checkout'},
-  {label: 'Confirmed', path: null},
-];
+import {useI18n} from '@/lib/i18n';
 
 interface ProgressIndicatorProps {
   currentStep: number;
@@ -23,7 +15,18 @@ export function ProgressIndicator({
   totalSteps,
   label,
 }: ProgressIndicatorProps) {
+  const {t} = useI18n();
   const router = useRouter();
+
+  const STEPS = [
+    {label: t.progress.chooseMethod, path: '/quote/start'},
+    {label: t.progress.business, path: '/quote/business-type'},
+    {label: t.progress.quotes, path: '/quote/results'},
+    {label: t.progress.company, path: '/quote/company-details'},
+    {label: t.progress.checkout, path: '/quote/checkout'},
+    {label: t.progress.confirmed, path: null},
+  ];
+
   const total = totalSteps ?? STEPS.length;
   const steps = STEPS.slice(0, total);
 
@@ -39,7 +42,7 @@ export function ProgressIndicator({
     <div className="w-full max-w-3xl mx-auto px-4">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-text-muted">
-          Step {currentStep} of {total}
+          {t.progress.step} {currentStep} {t.common.of} {total}
           {label ? ` · ${label}` : ''}
         </span>
       </div>
