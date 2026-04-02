@@ -28,7 +28,9 @@
     "optional": "Optional",
     "comingSoon": "Coming Soon",
     "comingSoonDesc": "Personal insurance products are launching soon. Stay tuned for car, health, home, and pet insurance.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "email": "Email",
+    "password": "Password"
   },
   "nav": {
     "personal": "Personal",
@@ -37,6 +39,21 @@
     "help": "Help",
     "dashboard": "Dashboard",
     "switchLang": "عربي"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "createAccount": "Create Account",
+    "fullName": "Full Name",
+    "passwordMin8": "Password (min. 8 characters)",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "signingIn": "Signing in...",
+    "creatingAccount": "Creating account...",
+    "invalidCredentials": "Invalid email or password",
+    "emailAlreadyRegistered": "Email already registered",
+    "registrationFailed": "Registration failed",
+    "accountCreatedSignIn": "Account created but failed to sign in. Please try logging in."
   },
   "landing": {
     "heroTitle": "Top insurers. Best prices. One app.",
@@ -486,7 +503,23 @@
     "supportTitle": "Need help?",
     "supportDescription": "Our support team is available Sunday to Thursday, 9 AM - 6 PM GST.",
     "supportEmail": "support@shory.ae",
-    "supportPhone": "+971 4 123 4567"
+    "supportPhone": "+971 4 123 4567",
+    "goToDashboard": "Go to My Dashboard"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "addCover": "+ Add Cover",
+    "activePolicies": "Active Policies",
+    "annualSpend": "Annual Spend",
+    "nextRenewal": "Next Renewal",
+    "days": "days",
+    "policies": "My Policies",
+    "claims": "Claims",
+    "documents": "Documents",
+    "settings": "Settings",
+    "makeClaim": "Make claim",
+    "noPolicies": "No policies yet",
+    "noPoliciesDesc": "Complete a quote to see your policies here"
   },
   "footer": {
     "personalInsurance": "Personal Insurance",

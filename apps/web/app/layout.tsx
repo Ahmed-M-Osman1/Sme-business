@@ -4,6 +4,7 @@ import {Navbar} from '@/components/layout/navbar';
 import {Footer} from '@/components/layout/footer';
 import {ErrorBoundary} from '@/components/error-boundary';
 import {I18nProvider} from '@/lib/i18n';
+import {SessionProviderWrapper} from '@/components/layout/session-provider-wrapper';
 import './globals.css';
 
 const blissPro = localFont({
@@ -73,11 +74,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ErrorBoundary>
-          <I18nProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </I18nProvider>
+          <SessionProviderWrapper>
+            <I18nProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </I18nProvider>
+          </SessionProviderWrapper>
         </ErrorBoundary>
       </body>
     </html>

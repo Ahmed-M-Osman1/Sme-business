@@ -28,7 +28,9 @@
     "optional": "اختياري",
     "comingSoon": "قريباً",
     "comingSoonDesc": "منتجات التأمين الشخصي قريباً. ترقبوا تأمين السيارات والصحة والمنازل والحيوانات الأليفة.",
-    "backToHome": "العودة للرئيسية"
+    "backToHome": "العودة للرئيسية",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور"
   },
   "nav": {
     "personal": "التأمين الشخصي",
@@ -37,6 +39,21 @@
     "help": "المساعدة",
     "dashboard": "لوحة التحكم",
     "switchLang": "English"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "createAccount": "إنشاء حساب جديد",
+    "fullName": "الاسم الكامل",
+    "passwordMin8": "كلمة المرور (8 أحرف على الأقل)",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "signingIn": "جاري تسجيل الدخول...",
+    "creatingAccount": "جاري إنشاء الحساب...",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "emailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل",
+    "registrationFailed": "فشل التسجيل",
+    "accountCreatedSignIn": "تم إنشاء الحساب لكن فشل تسجيل الدخول. يرجى محاولة تسجيل الدخول."
   },
   "landing": {
     "heroTitle": "أفضل شركات التأمين.أفضل الأسعار. تطبيق واحد.",
@@ -486,7 +503,23 @@
     "supportTitle": "تحتاج مساعدة؟",
     "supportDescription": "فريق الدعم متاح من الأحد إلى الخميس، ٩ صباحاً - ٦ مساءً بتوقيت الخليج.",
     "supportEmail": "support@shory.ae",
-    "supportPhone": "+971 4 123 4567"
+    "supportPhone": "+971 4 123 4567",
+    "goToDashboard": "اذهب إلى لوحة التحكم"
+  },
+  "dashboard": {
+    "welcome": "أهلاً بعودتك",
+    "addCover": "+ إضافة تغطية",
+    "activePolicies": "الوثائق النشطة",
+    "annualSpend": "الإنفاق السنوي",
+    "nextRenewal": "التجديد التالي",
+    "days": "أيام",
+    "policies": "وثائقي",
+    "claims": "المطالبات",
+    "documents": "المستندات",
+    "settings": "الإعدادات",
+    "makeClaim": "تقديم مطالبة",
+    "noPolicies": "لا توجد وثائق بعد",
+    "noPoliciesDesc": "أكمل عرض أسعار لعرض وثائقك هنا"
   },
   "footer": {
     "personalInsurance": "التأمين الشخصي",

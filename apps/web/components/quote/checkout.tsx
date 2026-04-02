@@ -2,8 +2,10 @@
 
 import {useState} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
+import {useSession} from 'next-auth/react';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
+import {AuthModal} from '@/components/auth/auth-modal';
 import {
   calculateMonthlyPrice,
   formatPrice,
@@ -28,6 +30,7 @@ const PAYMENT_PROCESSING_MS = 2000;
 
 export function Checkout() {
   const {t, locale} = useI18n();
+  const {data: session} = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -53,12 +56,13 @@ export function Checkout() {
 
   const eidName = searchParams.get('eidName') ?? '';
   const [form, setForm] = useState<ContactForm>({
-    fullName: eidName,
-    email: '',
+    fullName: session?.user?.name || eidName,
+    email: session?.user?.email || '',
     phone: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -85,8 +89,7 @@ export function Checkout() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handlePay() {
-    if (!validate()) return;
+  function proceedWithPayment() {
     setIsProcessing(true);
     setTimeout(() => {
       const params = new URLSearchParams({
@@ -108,6 +111,15 @@ export function Checkout() {
       window.scrollTo({top: 0, behavior: 'smooth'});
       router.push(`/quote/confirmation?${params.toString()}`);
     }, PAYMENT_PROCESSING_MS);
+  }
+
+  function handlePay() {
+    if (!validate()) return;
+    if (!session?.user) {
+      setShowAuthModal(true);
+      return;
+    }
+    proceedWithPayment();
   }
 
   function clearError(field: string) {
@@ -403,6 +415,12 @@ export function Checkout() {
             />
           </svg>
         </Button>
+
+        <AuthModal
+          open={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => proceedWithPayment()}
+        />
       </div>
     </div>
   );

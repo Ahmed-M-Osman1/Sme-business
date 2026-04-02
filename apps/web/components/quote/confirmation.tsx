@@ -1,9 +1,10 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {useSearchParams} from 'next/navigation';
+import {useSession} from 'next-auth/react';
 import Link from 'next/link';
-import {Card, CardContent} from '@shory/ui';
+import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {
@@ -13,6 +14,7 @@ import {
 } from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
+import {api} from '@/lib/api-client';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -24,7 +26,9 @@ const IFRAME_RENDER_DELAY_MS = 800;
 
 export function Confirmation() {
   const {t, locale} = useI18n();
+  const {data: session} = useSession();
   const searchParams = useSearchParams();
+  const hasSaved = useRef(false);
 
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
@@ -61,6 +65,30 @@ export function Confirmation() {
       year: 'numeric',
     });
   }
+
+  // Persist policy to database on mount
+  useEffect(() => {
+    if (hasSaved.current || !session?.user?.id || !session?.user?.email) return;
+    hasSaved.current = true;
+
+    api.user.policies
+      .create({
+        userId: session.user.id!,
+        businessName,
+        emirate,
+        typeId,
+        insurerId,
+        products: productIds,
+        limits,
+        total,
+        name,
+        email,
+        phone,
+        licenseNumber,
+        employees,
+      }, session.user.email!)
+      .catch(console.error); // silent fail, don't block UI
+  }, [session?.user?.id]);
 
   const [downloadingCert, setDownloadingCert] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
@@ -781,6 +809,15 @@ export function Confirmation() {
             )}
           </button>
         </div>
+
+        {/* Go to Dashboard button */}
+        {session?.user && (
+          <Link href="/dashboard" className="w-full">
+            <Button className="w-full rounded-xl border-2 border-primary text-primary bg-white hover:bg-primary/5 py-3.5 text-sm font-semibold">
+              {t.confirmation.goToDashboard}
+            </Button>
+          </Link>
+        )}
 
         {/* Support contact */}
         <Card className="rounded-xl border border-gray-200 bg-gray-50">

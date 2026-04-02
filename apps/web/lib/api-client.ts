@@ -103,4 +103,78 @@ export const api = {
 
     quoteOption: (id: string) => fetchApi<unknown>(`/catalog/quote-options/${id}`),
   },
+
+  user: {
+    register: (data: {email: string; password: string; name: string; phone?: string; company?: string}) =>
+      fetchApi<{id: string; email: string; name: string}>('/user/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    login: (data: {email: string; password: string}) =>
+      fetchApi<{id: string; email: string; name: string; apiToken: string}>('/user/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    policies: {
+      create: (data: {
+        userId: string;
+        businessName: string;
+        emirate: string;
+        typeId: string;
+        insurerId: string;
+        products: string[];
+        limits: Record<string, string>;
+        total: number;
+        name: string;
+        email: string;
+        phone: string;
+        licenseNumber?: string;
+        employees?: string;
+      }, token: string) =>
+        fetchApi<{policyNumber: string; policyId: string}>('/user/policies', {
+          method: 'POST',
+          headers: {Authorization: `Bearer ${token}`},
+          body: JSON.stringify(data),
+        }),
+
+      list: (token: string) =>
+        fetchApi<Array<{
+          id: string;
+          policyNumber: string;
+          status: string;
+          startDate: string;
+          endDate: string;
+          products: string[];
+          businessName: string;
+          providerId: string;
+          providerName: string;
+          annualPremium: string;
+        }>>('/user/policies', {
+          headers: {Authorization: `Bearer ${token}`},
+        }),
+
+      get: (id: string, token: string) =>
+        fetchApi<{
+          id: string;
+          policyNumber: string;
+          status: string;
+          startDate: string;
+          endDate: string;
+          products: string[];
+          businessName: string;
+          providerId: string;
+          providerName: string;
+          annualPremium: string;
+        }>(`/user/policies/${id}`, {
+          headers: {Authorization: `Bearer ${token}`},
+        }),
+    },
+
+    stats: (token: string) =>
+      fetchApi<{activePolicies: number; annualSpend: number; daysToRenewal: number | null}>('/user/stats', {
+        headers: {Authorization: `Bearer ${token}`},
+      }),
+  },
 };
