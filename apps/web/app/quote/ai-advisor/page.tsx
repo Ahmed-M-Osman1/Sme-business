@@ -443,7 +443,7 @@ function ChatBubble({message, onCtaClick, isLatest}: {message: ChatMessage; onCt
       )}
 
       <div className={`max-w-[80%] ${isAi ? '' : 'order-first flex justify-end w-full'}`}>
-        {isAi && isLatest && <p className="text-[11px] text-gray-400 mb-1 ml-1">{t.ai.shoryAi}</p>}
+        {isAi && isLatest && <p className="text-[11px] text-gray-400 mb-1 ms-1">{t.ai.shoryAi}</p>}
 
         <div className={`rounded-2xl px-4 py-3 ${isAi ? 'bg-white border border-gray-100 shadow-sm rounded-tl-md' : 'bg-primary text-white rounded-tr-md'}`}>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderContent(message.content)}</p>
@@ -462,7 +462,7 @@ function ChatBubble({message, onCtaClick, isLatest}: {message: ChatMessage; onCt
         </div>
 
         {isLatest && (
-          <p className={`text-[10px] text-gray-300 mt-1 ${isAi ? 'ml-1' : 'text-right mr-1'}`}>
+          <p className={`text-[10px] text-gray-300 mt-1 ${isAi ? 'ms-1' : 'text-end me-1'}`}>
             {new Date().toLocaleTimeString('en-AE', {hour: '2-digit', minute: '2-digit'})}
           </p>
         )}

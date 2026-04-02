@@ -332,7 +332,7 @@ export default function UploadPage() {
                   <button
                     key={band.value}
                     onClick={() => setRevenue(band.value)}
-                    className={`w-full text-left rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                    className={`w-full text-start rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
                       revenue === band.value
                         ? 'bg-primary/5 text-primary border-primary'
                         : 'bg-white text-gray-700 border-gray-200 hover:border-primary/40'
@@ -356,7 +356,7 @@ export default function UploadPage() {
                     <div key={asset.id}>
                       <button
                         onClick={() => toggleAsset(asset.id)}
-                        className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-200 ${
+                        className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-start transition-all duration-200 ${
                           isSelected
                             ? 'bg-primary/5 border-primary'
                             : 'bg-white border-gray-200 hover:border-primary/40'
@@ -384,7 +384,7 @@ export default function UploadPage() {
                         </div>
                       </button>
                       {isSelected && (
-                        <div className="mt-1 ml-10 mr-4">
+                        <div className="mt-1 ms-10 me-4">
                           <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
                             <span className="text-xs text-gray-400 font-medium">AED</span>
                             <input

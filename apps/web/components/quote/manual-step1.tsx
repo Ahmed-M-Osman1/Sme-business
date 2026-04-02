@@ -274,7 +274,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                     key={bt.id}
                     type="button"
                     onClick={() => handleSelectType(bt)}
-                    className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-left hover:border-primary hover:bg-primary/5 transition-all duration-200"
+                    className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-start hover:border-primary hover:bg-primary/5 transition-all duration-200"
                   >
                     <span className="text-xl">{bt.icon}</span>
                     <div className="flex-1">
@@ -377,7 +377,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                 key={band.value}
                 type="button"
                 onClick={() => onChange({...data, revenue: band.value})}
-                className={`rounded-xl border px-4 py-3 text-sm text-left font-medium transition-all duration-200 ${
+                className={`rounded-xl border px-4 py-3 text-sm text-start font-medium transition-all duration-200 ${
                   data.revenue === band.value
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'bg-white text-text border-border hover:border-primary/50'

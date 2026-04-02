@@ -424,7 +424,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
               className="w-full rounded-xl bg-amber-500 text-white py-3.5 text-base font-semibold hover:bg-amber-600 transition-all duration-200 shadow-sm"
             >
               Request specialist quote
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ml-2 inline">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ms-2 inline rtl:rotate-180">
                 <path d="M3 9H15M15 9L10.5 4.5M15 9L10.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>
@@ -438,7 +438,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
           >
             Get my quotes
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ml-2 inline">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ms-2 inline rtl:rotate-180">
               <path d="M6.75 3.75L12 9L6.75 14.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Button>

@@ -301,7 +301,7 @@ export function QuoteResults() {
                         height="12"
                         viewBox="0 0 12 12"
                         fill="none"
-                        className="ml-0.5"
+                        className="ms-0.5"
                       >
                         <path
                           d="M2.5 6.5L5 9L9.5 3.5"

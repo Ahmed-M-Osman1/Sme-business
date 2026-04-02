@@ -203,7 +203,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
                   <button
                     type="button"
                     onClick={() => toggleAsset(asset.id)}
-                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-200 ${
+                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-start transition-all duration-200 ${
                       selected
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-white hover:border-primary/50'
@@ -225,7 +225,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
                     </span>
                   </button>
                   {selected && (
-                    <div className="mt-2 ml-10 mr-4 flex items-center gap-2 animate-in slide-in-from-top-1 duration-200">
+                    <div className="mt-2 ms-10 me-4 flex items-center gap-2 animate-in slide-in-from-top-1 duration-200">
                       <span className="text-xs text-text-muted whitespace-nowrap">AED</span>
                       <input
                         type="text"

@@ -57,10 +57,10 @@ export function Checkout() {
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
     if (!form.fullName || form.fullName.length < 2) {
-      newErrors.fullName = 'Full name is required (min 2 characters)';
+      newErrors.fullName = t.checkout.fullNameRequired;
     }
     if (!form.email || !EMAIL_REGEX.test(form.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t.checkout.invalidEmail;
     }
     if (!form.phone || !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))) {
       newErrors.phone = t.checkout.invalidPhone;
@@ -188,7 +188,7 @@ export function Checkout() {
                   />
                 </svg>
                 <span className="text-text font-medium">{businessName}</span>
-                <span className="text-xs text-primary">verified</span>
+                <span className="text-xs text-primary">{t.companyDetails.verified}</span>
               </div>
             )}
 
@@ -219,11 +219,11 @@ export function Checkout() {
             <div className="h-px bg-border" />
 
             <div className="flex items-center justify-between">
-              <span className="font-bold text-text">Total Premium</span>
+              <span className="font-bold text-text">{t.checkout.totalPremium}</span>
               <span className="font-bold text-primary text-xl">
                 AED {formatPrice(total)}
                 <span className="text-xs font-normal text-text-muted">
-                  /yr
+                  {t.checkout.perYearShort}
                 </span>
               </span>
             </div>
@@ -288,7 +288,7 @@ export function Checkout() {
               <div className={`flex items-center rounded-xl border bg-white overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent ${
                 errors.phone ? 'border-red-500' : 'border-border'
               }`}>
-                <div className="flex items-center gap-1.5 pl-4 pr-2 py-3 border-r border-gray-100 shrink-0 bg-gray-50">
+                <div className="flex items-center gap-1.5 ps-4 pe-2 py-3 border-e border-gray-100 shrink-0 bg-gray-50">
                   <span className="text-base">🇦🇪</span>
                   <span className="text-sm text-gray-500 font-medium">+971</span>
                 </div>
@@ -330,7 +330,7 @@ export function Checkout() {
             height="16"
             viewBox="0 0 16 16"
             fill="none"
-            className="ml-2 inline"
+            className="ms-2 inline rtl:rotate-180"
           >
             <path
               d="M6 3.333L10.667 8L6 12.667"

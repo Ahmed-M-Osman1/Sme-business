@@ -87,8 +87,8 @@ export function CompanyDetails() {
 
   const verifyManual = async () => {
     const e: Record<string, string> = {};
-    if (!form.companyName.trim()) e.companyName = 'Company name required';
-    if (!form.licenseNumber.trim()) e.licenseNumber = 'License number required';
+    if (!form.companyName.trim()) e.companyName = t.companyDetails.companyNameRequired;
+    if (!form.licenseNumber.trim()) e.licenseNumber = t.companyDetails.licenseNumberRequired;
     setErrs(e);
     if (Object.keys(e).length) return;
     setVerifying(true);
@@ -244,8 +244,8 @@ export function CompanyDetails() {
               onClick={proceed}
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm"
             >
-              Continue
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 inline">
+              {t.common.continue}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ms-2 inline rtl:rotate-180">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>
@@ -262,7 +262,7 @@ export function CompanyDetails() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
                   <path d="M2 8C2 4.686 4.686 2 8 2C10.21 2 12.117 3.273 13.064 5.143M14 8C14 11.314 11.314 14 8 14C5.79 14 3.883 12.727 2.936 10.857M2 8V4M2 8H6M14 8V12M14 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Re-upload document
+                {t.companyDetails.reUploadDocument}
               </button>
               <button
                 onClick={() => setMode('manual')}
@@ -271,7 +271,7 @@ export function CompanyDetails() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
                   <path d="M11.333 2L14 4.667M1.333 14.667L2.067 11.72L10.067 3.72C10.333 3.453 10.733 3.453 11 3.72L12.333 5.053C12.6 5.32 12.6 5.72 12.333 5.987L4.333 13.987L1.333 14.667Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Enter manually instead
+                {t.companyDetails.enterManuallyInstead}
               </button>
             </div>
           </>
@@ -287,13 +287,13 @@ export function CompanyDetails() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M8.75 10.5L5.25 7L8.75 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Back
+                {t.common.back}
               </button>
             </div>
             <CardContent className="flex flex-col gap-4 p-5">
               {[
-                {k: 'companyName', label: 'Company name', ph: 'Al Noor Trading LLC'},
-                {k: 'licenseNumber', label: 'Trade license No.', ph: 'e.g. 1234567'},
+                {k: 'companyName', label: t.companyDetails.companyName, ph: t.companyDetails.companyNamePlaceholder},
+                {k: 'licenseNumber', label: t.companyDetails.tradeLicenseNo, ph: t.companyDetails.licensePlaceholder},
               ].map(({k, label, ph}) => (
                 <div key={k}>
                   <label className="block text-sm font-medium text-text mb-1.5">{label}</label>
@@ -311,13 +311,13 @@ export function CompanyDetails() {
               ))}
 
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">Business activity</label>
+                <label className="block text-sm font-medium text-text mb-1.5">{t.companyDetails.businessActivity}</label>
                 <select
                   value={form.activity}
                   onChange={(e) => setF('activity', e.target.value)}
                   className="w-full rounded-lg border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none transition-all duration-200"
                 >
-                  <option value="">Select activity</option>
+                  <option value="">{t.companyDetails.selectActivity}</option>
                   {ACTIVITIES.map((a) => (
                     <option key={a} value={a}>{a}</option>
                   ))}
@@ -325,12 +325,12 @@ export function CompanyDetails() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">License expiry date</label>
+                <label className="block text-sm font-medium text-text mb-1.5">{t.companyDetails.licenseExpiryDate}</label>
                 <input
                   type="text"
                   value={form.expiryDate}
                   onChange={(e) => setF('expiryDate', formatDateInput(e.target.value))}
-                  placeholder="DD/MM/YYYY"
+                  placeholder={t.companyDetails.datePlaceholder}
                   maxLength={10}
                   className={`w-full rounded-lg border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
                     errs.expiryDate ? 'border-red-500' : 'border-border'
@@ -340,7 +340,7 @@ export function CompanyDetails() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">Emirate</label>
+                <label className="block text-sm font-medium text-text mb-1.5">{t.confirmation.emirate}</label>
                 <select
                   value={form.emirate}
                   onChange={(e) => setF('emirate', e.target.value)}
@@ -357,9 +357,9 @@ export function CompanyDetails() {
                 disabled={verifying}
                 className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold disabled:opacity-50 shadow-sm"
               >
-                {verifying ? 'Verifying with UAE govt...' : 'Verify & Continue'}
+                {verifying ? t.companyDetails.verifyingWithGovt : t.companyDetails.verifyAndContinue}
                 {!verifying && (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 inline">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ms-2 inline rtl:rotate-180">
                     <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
