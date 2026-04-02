@@ -13,6 +13,9 @@ type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
 
 const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
 
+/** Simulated government API verification delay. */
+const VERIFY_DELAY_MS = 1200;
+
 const FIELD_META: Array<{key: keyof OcrResult['fields']; label: string}> = [
   {key: 'companyName', label: 'Company Name'},
   {key: 'licenseNumber', label: 'License Number'},
@@ -89,7 +92,7 @@ export function CompanyDetails() {
     setErrs(e);
     if (Object.keys(e).length) return;
     setVerifying(true);
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, VERIFY_DELAY_MS));
     setVerifying(false);
     setOcrResult({
       success: true,
@@ -151,8 +154,8 @@ export function CompanyDetails() {
       <ProgressIndicator currentStep={6} label={t.progress.company} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
-        <h1 className="text-2xl sm:text-3xl font-bold text-text">Company details</h1>
-        <p className="mt-1 text-sm text-text-muted">Required by the insurer to issue your policy</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-text">{t.companyDetails.title}</h1>
+        <p className="mt-1 text-sm text-text-muted">{t.companyDetails.subtitle}</p>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
@@ -160,15 +163,15 @@ export function CompanyDetails() {
           <>
             <DragDropZone onFile={processFile} fileRef={fileRef} />
 
-            <button onClick={() => setMode('manual')} className="w-full text-left">
+            <button onClick={() => setMode('manual')} className="w-full text-start">
               <Card className="rounded-xl border border-border bg-white shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer">
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center text-xl shrink-0">
                     {'\u270F\uFE0F'}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-text">Enter details manually</p>
-                    <p className="text-xs text-text-muted mt-0.5">We&apos;ll verify with UAE government database</p>
+                    <p className="font-semibold text-text">{t.companyDetails.manualEntry}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{t.companyDetails.manualDesc}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -178,7 +181,7 @@ export function CompanyDetails() {
               onClick={proceed}
               className="w-full py-3 rounded-xl text-sm font-medium text-text-muted border-2 border-dashed border-border hover:border-primary/40 transition-colors"
             >
-              Skip for now — I&apos;ll provide these later
+              {t.companyDetails.skipForNow}
             </button>
           </>
         )}
@@ -214,10 +217,10 @@ export function CompanyDetails() {
                 </svg>
                 <span className="text-xs font-medium text-primary">
                   {activeResult.scenario === 'manual'
-                    ? 'Verified via UAE government API'
+                    ? t.companyDetails.verifiedVia
                     : activeResult.scenario === 'prefilled'
-                      ? 'From trade license'
-                      : 'Extracted from trade license'}
+                      ? t.companyDetails.fromLicense
+                      : t.companyDetails.extractedFrom}
                 </span>
               </div>
               <CardContent className="flex flex-col gap-2 p-4">

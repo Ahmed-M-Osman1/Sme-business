@@ -10,26 +10,10 @@ import type {ProductInfo} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
 import {api} from '@/lib/api-client';
+import type {BusinessType, Insurer} from '@/types/quote';
 
-interface BusinessType {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  riskLevel: string;
-  riskFactor: number;
-  products: string[];
-}
-
-interface Insurer {
-  id: string;
-  name: string;
-  logo: string;
-  rating: number;
-  reviewCount: number;
-  shariahCompliant: boolean;
-  priceMultiplier: number;
-}
+/** Delay before navigating to the next page after selecting a quote. */
+const NAVIGATION_DELAY_MS = 800;
 
 export function QuoteResults() {
   const {t} = useI18n();
@@ -191,7 +175,7 @@ export function QuoteResults() {
 
     setTimeout(() => {
       router.push(destination);
-    }, 800);
+    }, NAVIGATION_DELAY_MS);
   }
 
   function handleBack() {
@@ -212,7 +196,7 @@ export function QuoteResults() {
         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
           <div className="animate-spin w-7 h-7 border-2 border-primary border-t-transparent rounded-full" />
         </div>
-        <p className="text-base font-semibold text-gray-900">Preparing your quote...</p>
+        <p className="text-base font-semibold text-gray-900">{t.results.preparingQuote}</p>
         <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full animate-[loading_0.8s_ease-in-out]" />
         </div>
@@ -243,7 +227,7 @@ export function QuoteResults() {
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t.results.title}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {businessType?.title} &middot; {emirate} &middot; {employeeBand} employees
+          {businessType?.title} &middot; {emirate} &middot; {employeeBand} {t.results.employees}
         </p>
       </div>
 
@@ -259,23 +243,23 @@ export function QuoteResults() {
               </h2>
               <div className="mt-3 space-y-2 text-sm text-gray-600">
                 <div className="flex justify-between">
-                  <span>Industry</span>
+                  <span>{t.results.industry}</span>
                   <span className="font-medium text-gray-900">
                     {businessType?.title}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Emirate</span>
+                  <span>{t.results.emirate}</span>
                   <span className="font-medium text-gray-900">{emirate}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Employees</span>
+                  <span>{t.results.employees}</span>
                   <span className="font-medium text-gray-900">
                     {employeeBand}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Coverage</span>
+                  <span>{t.results.coverage}</span>
                   <span className="font-medium text-gray-900">
                     {coverageType}
                   </span>
@@ -291,7 +275,7 @@ export function QuoteResults() {
             </p>
             {selectedQuote && (
               <p className="text-xs text-gray-400 mb-2">
-                Coverage available for {selectedQuote.name}. Adjust to update all quotes.
+                {t.results.coverageAvailableFor} {selectedQuote.name}. {t.results.adjustToUpdate}
               </p>
             )}
             <div className="flex flex-wrap gap-2">
@@ -515,7 +499,7 @@ export function QuoteResults() {
             )}
           {/* Indicative pricing disclaimer */}
           <p className="text-xs text-gray-400 text-center mt-2">
-            All prices shown are indicative and subject to final underwriting review.
+            {t.results.pricingDisclaimer}
           </p>
           </div>
         </div>
@@ -531,7 +515,7 @@ export function QuoteResults() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">
-                  {t.common.continue} with {selectedQuote.name}
+                  {t.results.continueWith} {selectedQuote.name}
                 </p>
                 <p className="text-xs text-gray-500">
                   AED {formatPrice(selectedQuote.total)}{t.common.perYear}
@@ -543,7 +527,7 @@ export function QuoteResults() {
               className="rounded-xl bg-primary text-white px-6 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm shrink-0"
             >
               {t.common.continue}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-1.5 inline rtl:rotate-180">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ms-1.5 inline rtl:rotate-180">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>

@@ -100,8 +100,8 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <span className="text-xl font-black italic text-text">Shory.</span>
             <div className="flex items-center gap-4">
-              {['f', '📷', '𝕏', 'in', '💬'].map((icon, i) => (
-                <Link key={i} href="#" className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-muted hover:text-text text-xs transition-colors duration-200">{icon}</Link>
+              {['f', '📷', '𝕏', 'in', '💬'].map((icon) => (
+                <Link key={icon} href="#" className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-text-muted hover:text-text text-xs transition-colors duration-200">{icon}</Link>
               ))}
             </div>
           </div>

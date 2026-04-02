@@ -4,6 +4,9 @@ import {useEffect, useRef, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 
+/** Duration of the route-transition loading spinner. */
+const ROUTE_TRANSITION_MS = 1200;
+
 export default function QuoteLayout({
   children,
 }: Readonly<{children: React.ReactNode}>) {
@@ -15,7 +18,7 @@ export default function QuoteLayout({
     if (pathname !== prevPath.current) {
       prevPath.current = pathname;
       setLoading(true);
-      const t = setTimeout(() => setLoading(false), 1200);
+      const t = setTimeout(() => setLoading(false), ROUTE_TRANSITION_MS);
       return () => clearTimeout(t);
     }
   }, [pathname]);

@@ -8,39 +8,24 @@ import {BusinessTypeTags} from '@/components/quote/business-type-tags';
 import {useI18n} from '@/lib/i18n';
 import {findScriptedResponse} from '@/lib/ai-demo-responses';
 import quoteOptions from '@/config/quote-options.json';
-
-// --- Types ---
-
-interface Message {
-  role: 'ai' | 'user';
-  content: string;
-  cta?: {label: string; href: string};
-  chips?: {label: string; value: string}[];
-  chipKey?: string;
-  fallback?: boolean;
-}
-
-type ConvoStep = 'business' | 'employees' | 'revenue' | 'emirate' | 'done';
-
-interface ConvoState {
-  step: ConvoStep;
-  businessType: string;
-  businessLabel: string;
-  employees: string;
-  revenue: string;
-  emirate: string;
-}
+import type {ChatMessage, ConvoState, ChipOption} from '@/types/quote';
 
 // --- Constants ---
 
 const SESSION_KEY = 'shory-ai-conversation';
+/** Delay before scrolling chat to the bottom after a new message. */
+const SCROLL_DELAY_MS = 100;
+/** Simulated AI "thinking" delay. */
+const AI_THINKING_MS = 600;
+/** Simulated text classification delay. */
+const CLASSIFICATION_MS = 800;
 const EMPLOYEE_CHIPS = quoteOptions.employeeBands.map((b) => ({label: b.label, value: b.value}));
 const REVENUE_CHIPS = quoteOptions.revenueBands.map((b) => ({label: b.label, value: b.value}));
 const EMIRATE_CHIPS = quoteOptions.emirates.map((e) => ({label: e, value: e}));
 
 // --- Session helpers ---
 
-function saveSession(messages: Message[], convo: ConvoState, selectedTagId: string | null) {
+function saveSession(messages: ChatMessage[], convo: ConvoState, selectedTagId: string | null) {
   try {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({messages, convo, selectedTagId}));
   } catch {
@@ -48,11 +33,11 @@ function saveSession(messages: Message[], convo: ConvoState, selectedTagId: stri
   }
 }
 
-function loadSession(): {messages: Message[]; convo: ConvoState; selectedTagId: string | null} | null {
+function loadSession(): {messages: ChatMessage[]; convo: ConvoState; selectedTagId: string | null} | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as {messages: Message[]; convo: ConvoState; selectedTagId: string | null};
+    return JSON.parse(raw) as {messages: ChatMessage[]; convo: ConvoState; selectedTagId: string | null};
   } catch {
     return null;
   }
@@ -77,7 +62,7 @@ export default function AiAdvisorPage() {
   // Restore from sessionStorage on mount (back-navigation)
   const restored = useRef(loadSession());
 
-  const [messages, setMessages] = useState<Message[]>(
+  const [messages, setChatMessages] = useState<ChatMessage[]>(
     restored.current?.messages ?? [{role: 'ai', content: t.ai.openingMessage}],
   );
   const [input, setInput] = useState('');
@@ -105,7 +90,7 @@ export default function AiAdvisorPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       chatEndRef.current?.scrollIntoView({behavior: 'smooth', block: 'end'});
-    }, 100);
+    }, SCROLL_DELAY_MS);
     return () => clearTimeout(timer);
   }, [messages.length]);
 
@@ -117,11 +102,11 @@ export default function AiAdvisorPage() {
 
   // --- Handlers ---
 
-  const addMessages = useCallback((...msgs: Message[]) => {
-    setMessages((prev) => [...prev, ...msgs]);
+  const addChatMessages = useCallback((...msgs: ChatMessage[]) => {
+    setChatMessages((prev) => [...prev, ...msgs]);
   }, []);
 
-  function simulateDelay(ms: number): Promise<void> {
+  function simulateDelay(ms: number = AI_THINKING_MS): Promise<void> {
     return new Promise((r) => setTimeout(r, ms));
   }
 
@@ -139,24 +124,24 @@ export default function AiAdvisorPage() {
   async function advanceConvo(nextState: ConvoState) {
     setConvo(nextState);
     setIsProcessing(true);
-    await simulateDelay(600);
+    await simulateDelay(AI_THINKING_MS);
 
     if (nextState.step === 'employees') {
-      addMessages({
+      addChatMessages({
         role: 'ai',
         content: t.ai.askEmployees,
         chips: EMPLOYEE_CHIPS,
         chipKey: 'employees',
       });
     } else if (nextState.step === 'revenue') {
-      addMessages({
+      addChatMessages({
         role: 'ai',
         content: t.ai.askRevenue,
         chips: REVENUE_CHIPS,
         chipKey: 'revenue',
       });
     } else if (nextState.step === 'emirate') {
-      addMessages({
+      addChatMessages({
         role: 'ai',
         content: t.ai.askEmirate,
         chips: EMIRATE_CHIPS,
@@ -164,7 +149,7 @@ export default function AiAdvisorPage() {
       });
     } else if (nextState.step === 'done') {
       const url = buildResultsUrl(nextState);
-      addMessages({
+      addChatMessages({
         role: 'ai',
         content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${nextState.employees}\n• **${t.ai.summaryRevenue}:** ${quoteOptions.revenueBands.find((b) => b.value === nextState.revenue)?.label ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${nextState.emirate}\n\n${t.ai.summaryReady}`,
         cta: {label: t.ai.seeMyQuotes, href: url},
@@ -176,7 +161,7 @@ export default function AiAdvisorPage() {
 
   function handleChipSelect(value: string, label: string) {
     if (isProcessing || convo.step === 'done') return;
-    addMessages({role: 'user', content: label});
+    addChatMessages({role: 'user', content: label});
 
     if (convo.step === 'employees') {
       advanceConvo({...convo, employees: value, step: 'revenue'});
@@ -196,7 +181,7 @@ export default function AiAdvisorPage() {
     }
 
     setSelectedTagId(bt.id);
-    addMessages({
+    addChatMessages({
       role: 'ai',
       content: `${t.ai.greatChoice} — **${bt.title}**! ${t.ai.quickQuestions}`,
     });
@@ -208,22 +193,22 @@ export default function AiAdvisorPage() {
     e.preventDefault();
     if (!input.trim() || isProcessing) return;
 
-    const userMessage = input.trim();
+    const userChatMessage = input.trim();
     setInput('');
 
     if (convo.step === 'business') {
-      addMessages({role: 'user', content: userMessage});
+      addChatMessages({role: 'user', content: userChatMessage});
       setIsProcessing(true);
 
       setTimeout(() => {
-        const analysis = analyzeInput(userMessage, t.ai.needMore);
+        const analysis = analyzeInput(userChatMessage, t.ai.needMore);
 
         if (analysis.needsMore) {
           // Try scripted fallback for short input
-          const scripted = findScriptedResponse(userMessage);
+          const scripted = findScriptedResponse(userChatMessage);
           if (scripted) {
             setSelectedTagId(scripted.businessType);
-            addMessages({role: 'ai', content: scripted.response});
+            addChatMessages({role: 'ai', content: scripted.response});
             setIsProcessing(false);
             advanceConvo({
               ...convo,
@@ -233,14 +218,14 @@ export default function AiAdvisorPage() {
             });
             return;
           }
-          addMessages({role: 'ai', content: analysis.response});
+          addChatMessages({role: 'ai', content: analysis.response});
           setIsProcessing(false);
           inputRef.current?.focus();
           return;
         }
 
         setSelectedTagId(analysis.businessType);
-        addMessages({
+        addChatMessages({
           role: 'ai',
           content: `${t.ai.classifiedAs} **${analysis.label}**. ${t.ai.quickQuestions}`,
         });
@@ -252,17 +237,17 @@ export default function AiAdvisorPage() {
           businessLabel: analysis.label,
           step: 'employees',
         });
-      }, 800);
+      }, CLASSIFICATION_MS);
     } else {
-      addMessages({role: 'user', content: userMessage});
+      addChatMessages({role: 'user', content: userChatMessage});
       if (convo.step === 'employees') {
-        const match = EMPLOYEE_CHIPS.find((c) => userMessage.includes(c.value) || userMessage.includes(c.label));
+        const match = EMPLOYEE_CHIPS.find((c) => userChatMessage.includes(c.value) || userChatMessage.includes(c.label));
         advanceConvo({...convo, employees: match?.value ?? '2-5', step: 'revenue'});
       } else if (convo.step === 'revenue') {
-        const match = REVENUE_CHIPS.find((c) => userMessage.toLowerCase().includes(c.value));
+        const match = REVENUE_CHIPS.find((c) => userChatMessage.toLowerCase().includes(c.value));
         advanceConvo({...convo, revenue: match?.value ?? '500k-1m', step: 'emirate'});
       } else if (convo.step === 'emirate') {
-        const match = EMIRATE_CHIPS.find((c) => userMessage.toLowerCase().includes(c.label.toLowerCase()));
+        const match = EMIRATE_CHIPS.find((c) => userChatMessage.toLowerCase().includes(c.label.toLowerCase()));
         advanceConvo({...convo, emirate: match?.value ?? 'Dubai', step: 'done'});
       }
     }
@@ -270,7 +255,7 @@ export default function AiAdvisorPage() {
 
   function handleReset() {
     clearSession();
-    setMessages([{role: 'ai', content: t.ai.openingMessage}]);
+    setChatMessages([{role: 'ai', content: t.ai.openingMessage}]);
     setSelectedTagId(null);
     setConvo({step: 'business', businessType: '', businessLabel: '', employees: '', revenue: '', emirate: ''});
     setInput('');
@@ -281,7 +266,7 @@ export default function AiAdvisorPage() {
   /** Called when AI API call fails — show graceful fallback */
   function handleApiFallback() {
     setApiFailed(true);
-    addMessages({
+    addChatMessages({
       role: 'ai',
       content: t.ai.unavailable,
       fallback: true,
@@ -311,7 +296,7 @@ export default function AiAdvisorPage() {
       <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
         <div className="max-w-3xl mx-auto w-full px-4 py-6 flex flex-col gap-4 mt-0 mb-auto">
           {messages.map((msg, i) => (
-            <ChatBubble key={i} message={msg} onCtaClick={(href) => router.push(href)} isLatest={i === messages.length - 1} />
+            <ChatBubble key={`${msg.role}-${i}`} message={msg} onCtaClick={(href) => router.push(href)} isLatest={i === messages.length - 1} />
           ))}
           {isProcessing && <TypingIndicator />}
           <div ref={chatEndRef} />
@@ -443,7 +428,7 @@ export default function AiAdvisorPage() {
 
 // --- Chat bubble ---
 
-function ChatBubble({message, onCtaClick, isLatest}: {message: Message; onCtaClick: (href: string) => void; isLatest: boolean}) {
+function ChatBubble({message, onCtaClick, isLatest}: {message: ChatMessage; onCtaClick: (href: string) => void; isLatest: boolean}) {
   const {t} = useI18n();
   const isAi = message.role === 'ai';
 
@@ -517,7 +502,7 @@ function renderContent(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+      return <strong key={`bold-${part}`} className="font-semibold">{part.slice(2, -2)}</strong>;
     }
     return part;
   });

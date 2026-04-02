@@ -35,14 +35,14 @@ export function TrustBadges() {
 
         {/* Google Rating */}
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-[#4285F4]">G</span>
+          <span className="text-2xl font-bold text-blue-500">G</span>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-gray-900">4.9</span>
               <div className="flex">
                 {Array.from({length: 5}).map((_, i) => (
                   <svg
-                    key={i}
+                    key={`star-${i}`}
                     className="h-4 w-4 text-yellow-400"
                     viewBox="0 0 20 20"
                     fill="currentColor"

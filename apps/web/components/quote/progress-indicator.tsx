@@ -56,7 +56,7 @@ export function ProgressIndicator({
 
           return (
             <button
-              key={i}
+              key={step.label}
               onClick={() => handleStepClick(i)}
               disabled={!isClickable}
               aria-label={`Step ${stepNum}: ${step.label}`}
@@ -82,7 +82,7 @@ export function ProgressIndicator({
 
           return (
             <span
-              key={i}
+              key={step.label}
               onClick={() => isClickable && handleStepClick(i)}
               className={cn(
                 'flex-1 text-[10px] text-center transition-colors',

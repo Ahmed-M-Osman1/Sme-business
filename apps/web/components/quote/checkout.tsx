@@ -9,6 +9,7 @@ import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
+import type {ContactForm} from '@/types/quote';
 
 type ProductId = keyof typeof productsConfig;
 
@@ -16,11 +17,10 @@ type ProductId = keyof typeof productsConfig;
 const UAE_PHONE_REGEX = /^5\d{8}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-interface ContactForm {
-  fullName: string;
-  email: string;
-  phone: string;
-}
+/** Delay for scrolling to validation errors after form submit. */
+const SCROLL_TO_ERROR_DELAY_MS = 50;
+/** Simulated payment processing time before redirect. */
+const PAYMENT_PROCESSING_MS = 2000;
 
 export function Checkout() {
   const {t} = useI18n();
@@ -69,7 +69,7 @@ export function Checkout() {
     if (Object.keys(newErrors).length > 0) {
       setTimeout(() => {
         document.querySelector('[data-error]')?.scrollIntoView({behavior: 'smooth', block: 'center'});
-      }, 50);
+      }, SCROLL_TO_ERROR_DELAY_MS);
     }
     return Object.keys(newErrors).length === 0;
   }
@@ -96,7 +96,7 @@ export function Checkout() {
       if (employees) params.set('employees', employees);
       window.scrollTo({top: 0, behavior: 'smooth'});
       router.push(`/quote/confirmation?${params.toString()}`);
-    }, 2000);
+    }, PAYMENT_PROCESSING_MS);
   }
 
   function clearError(field: string) {

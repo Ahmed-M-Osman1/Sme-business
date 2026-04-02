@@ -28,23 +28,12 @@ export function CtaSection() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 text-left">
+        <div className="flex-1 text-start">
           <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
             {t.landing.ctaTitle}
           </h2>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-500">
-            We&apos;re here for you every step of the way to help you find your
-            ideal insurance plan. Whether you&apos;re getting insurance or
-            filing claims, Shory is with you to meet your personal and business
-            insurance requirements. You can use our website and app to explore
-            personal insurance options or drop us an email at{' '}
-            <a
-              href="mailto:corporate@shory.com"
-              className="text-primary hover:underline"
-            >
-              corporate@shory.com
-            </a>{' '}
-            for corporate insurance and we&apos;ll get in touch with you.
+            {t.landing.ctaDescription}
           </p>
           <Button
             asChild

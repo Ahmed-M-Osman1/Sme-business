@@ -15,6 +15,9 @@ import insurers from '@/config/insurers.json';
 
 type ProductId = keyof typeof productsConfig;
 
+/** Wait for iframe content to render before capturing to canvas. */
+const IFRAME_RENDER_DELAY_MS = 800;
+
 export function Confirmation() {
   const {t} = useI18n();
   const searchParams = useSearchParams();
@@ -220,7 +223,7 @@ export function Confirmation() {
     iframeDoc.close();
 
     // Wait for content + images to load
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, IFRAME_RENDER_DELAY_MS));
 
     try {
       const {default: html2canvas} = await import('html2canvas');

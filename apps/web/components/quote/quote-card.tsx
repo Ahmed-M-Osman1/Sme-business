@@ -44,10 +44,20 @@ export function QuoteCard({
 
   // Deterministic color from insurer name
   const INITIALS_COLORS = [
-    'bg-blue-600', 'bg-emerald-600', 'bg-violet-600', 'bg-amber-600',
-    'bg-rose-600', 'bg-cyan-600', 'bg-indigo-600', 'bg-teal-600',
+    'bg-blue-600',
+    'bg-emerald-600',
+    'bg-violet-600',
+    'bg-amber-600',
+    'bg-rose-600',
+    'bg-cyan-600',
+    'bg-indigo-600',
+    'bg-teal-600',
   ];
-  const colorIndex = insurer.name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % INITIALS_COLORS.length;
+  const colorIndex =
+    insurer.name
+      .split('')
+      .reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+    INITIALS_COLORS.length;
   const initialsColor = INITIALS_COLORS[colorIndex];
 
   return (
@@ -97,8 +107,11 @@ export function QuoteCard({
                 onError={() => setLogoError(true)}
               />
             ) : (
-              <div className={`w-full h-full rounded-lg ${initialsColor} flex items-center justify-center`}>
-                <span className="text-white text-sm font-bold">{initials}</span>
+              <div
+                className={`w-full h-full rounded-lg ${initialsColor} flex items-center justify-center`}>
+                <span className="text-white text-sm font-bold">
+                  {initials}
+                </span>
               </div>
             )}
           </div>
@@ -192,7 +205,7 @@ export function QuoteCard({
               ? 'bg-primary/10 text-primary border border-primary hover:bg-primary/20'
               : 'bg-primary text-white hover:bg-primary/90'
           }`}>
-          {isSelected ? 'Selected' : t.common.select}
+          {isSelected ? t.results.selected : t.common.select}
         </Button>
       </div>
     </div>

@@ -5,15 +5,11 @@ import {Button, Card, CardContent, Badge} from '@shory/ui';
 import businessTypes from '@/config/business-types.json';
 import quoteOptions from '@/config/quote-options.json';
 
-interface BusinessType {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  riskLevel: string;
-  riskFactor: number;
-  products: string[];
-}
+import type {BusinessType} from '@/types/quote';
+
+/** Simulated classification delay. */
+const CLASSIFICATION_DELAY_MS = 1500;
+
 
 interface Step1Data {
   classifiedType: string;
@@ -197,7 +193,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
         onChange({...data, classifiedType: bt.id});
       }
       setClassifying(false);
-    }, 1500);
+    }, CLASSIFICATION_DELAY_MS);
   }
 
   function handleConfirm() {
