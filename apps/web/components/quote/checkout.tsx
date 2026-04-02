@@ -187,7 +187,9 @@ export function Checkout() {
                   ] || insurer.name}
                 </p>
                 <p className="text-xs text-text-muted">
-                  {businessType.title} · {emirate}
+                  {(t.businessType as Record<string, string>)[
+                    businessType.id
+                  ] || businessType.title} · {(t.options.emirates as Record<string, string>)[emirate] || emirate}
                 </p>
               </div>
             </div>
@@ -233,11 +235,17 @@ export function Checkout() {
                     <div className="flex items-center gap-2">
                       <span>{product.icon}</span>
                       <span className="text-text">
-                        {product.name}
+                        {(t.products as Record<string, {name: string; shortName: string}>)[productId]?.name || product.name}
                       </span>
                     </div>
                     <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
-                      AED {limit}
+                      {limit === '1M'
+                        ? t.results.coverageLimit1m
+                        : limit === '2M'
+                          ? t.results.coverageLimit2m
+                          : limit === '5M'
+                            ? t.results.coverageLimit5m
+                            : `AED ${limit}`}
                     </span>
                   </div>
                 );

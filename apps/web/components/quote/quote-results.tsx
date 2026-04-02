@@ -665,13 +665,6 @@ export function QuoteResults() {
                 </p>
               </div>
 
-              <p className="text-center text-xs text-gray-500">
-                {t.results.finwallPrefix}{' '}
-                <span className="font-semibold text-gray-700">
-                  {t.results.finwallBrand}
-                </span>
-              </p>
-
               {activeTab === 'individual' && showFilters && (
                 <Card className="animate-in slide-in-from-top-2 rounded-[24px] border border-gray-200 bg-white duration-200">
                   <CardContent className="space-y-4 p-4">
@@ -836,7 +829,7 @@ export function QuoteResults() {
         </div>
       </div>
 
-      {selectedQuote && activeTab === 'individual' && (
+      {selectedQuote && (activeTab === 'individual' || selectedBundle) && (
         <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-lg">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -849,7 +842,9 @@ export function QuoteResults() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-gray-900">
-                  {t.results.continueWith} {selectedQuote.name}
+                  {t.results.continueWith} {(t.insurers as Record<string, string>)[
+                    selectedQuote.id.toLowerCase()
+                  ] || selectedQuote.name}
                 </p>
                 <p className="text-xs text-gray-500">
                   {formatMonthlyTotal(selectedQuote.total)} · {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
