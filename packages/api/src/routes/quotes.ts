@@ -1,5 +1,6 @@
 import {Hono} from 'hono';
 import {db, quotes, quoteResults, policies} from '@shory/db';
+import type {NewQuote} from '@shory/db';
 import {createQuoteSchema, updateQuoteSchema, acceptQuoteSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler';
@@ -12,7 +13,7 @@ export const quotesRouter = new Hono();
 quotesRouter.post('/', async (c) => {
   try {
     const body = await c.req.json();
-    const data = createQuoteSchema.parse(body);
+    const data = createQuoteSchema.parse(body) as NewQuote;
     const [quote] = await db.insert(quotes).values(data).returning();
     return c.json(quote, 201);
   } catch (e) {
