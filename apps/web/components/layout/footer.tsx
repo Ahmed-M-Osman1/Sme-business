@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import {Badge} from '@shory/ui';
+import {useI18n} from '@/lib/i18n';
 
 const PERSONAL_LINKS = [
   'Car Insurance',
@@ -27,6 +30,7 @@ const COMPANY_LINKS = [
 const SOCIAL_ICONS = ['f', '📷', '𝕏', 'in', '💬'] as const;
 
 export function Footer() {
+  const {t} = useI18n();
   return (
     <footer className="bg-white border-t border-border">
       {/* Main Footer */}
@@ -35,7 +39,7 @@ export function Footer() {
           {/* Personal Insurance */}
           <div>
             <h4 className="text-sm font-semibold text-text mb-4">
-              Personal Insurance
+              {t.footer.personalInsurance}
             </h4>
             <ul className="space-y-2">
               {PERSONAL_LINKS.map((label) => (
@@ -54,7 +58,7 @@ export function Footer() {
           {/* Corporate Insurance */}
           <div>
             <h4 className="text-sm font-semibold text-text mb-4">
-              Corporate Insurance
+              {t.footer.corporateInsurance}
             </h4>
             <ul className="space-y-2">
               {CORPORATE_LINKS.map((item) => (
@@ -73,7 +77,7 @@ export function Footer() {
           {/* Company & Help */}
           <div>
             <h4 className="text-sm font-semibold text-text mb-4">
-              Company &amp; Help
+              {t.footer.companyAndHelp}
             </h4>
             <ul className="space-y-2">
               {COMPANY_LINKS.map((label) => (
@@ -97,7 +101,7 @@ export function Footer() {
           {/* Download & Contact */}
           <div>
             <h4 className="text-sm font-semibold text-text mb-4">
-              Download our app
+              {t.footer.downloadApp}
             </h4>
             <div className="flex items-center gap-3 mb-6">
               <div className="bg-text text-white rounded-lg px-4 py-2 text-xs font-medium">
@@ -149,13 +153,11 @@ export function Footer() {
           <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="text-[10px] text-text-muted leading-relaxed max-w-2xl">
               <p>
-                Shory Insurance Brokers LLC is authorized, regulated and
-                licensed by the Central Bank of the UAE with License Number 287.
+                {t.footer.licensedBy}
               </p>
               <p>
                 Shory Insurance Brokers LLC is located in 29th Floor Al Khatem
-                Tower, Al Maryah Island, Abu Dhabi, UAE &copy; 2026 Shory. All
-                rights reserved.
+                Tower, Al Maryah Island, Abu Dhabi, UAE &copy; 2026 Shory. {t.footer.allRightsReserved}
               </p>
             </div>
             <div className="flex items-center gap-3">

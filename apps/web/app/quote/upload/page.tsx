@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
 import {EditableField} from '@/components/quote/company-details-fields';
+import {useI18n} from '@/lib/i18n';
 import quoteOptions from '@/config/quote-options.json';
 import businessTypes from '@/config/business-types.json';
 
@@ -21,6 +22,7 @@ const FIELD_META: Array<{key: keyof OcrResult['fields']; label: string}> = [
 ];
 
 export default function UploadPage() {
+  const {t} = useI18n();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -140,17 +142,17 @@ export default function UploadPage() {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 12.667L5.333 8L10 3.333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Back
+          {t.common.back}
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          {step === 'upload' ? 'Upload trade licence' : step === 'review' ? 'Review your details' : 'A few more details'}
+          {step === 'upload' ? t.upload.title : step === 'review' ? t.upload.titleReview : t.upload.titleDetails}
         </h1>
         <p className="mt-1 text-sm text-gray-500">
           {step === 'upload'
-            ? "We'll read your document and extract your business info automatically"
+            ? t.upload.subtitleUpload
             : step === 'review'
-              ? 'Check the details below — tap any field to edit'
-              : 'Almost there — we need a couple more things to generate your quotes'}
+              ? t.upload.subtitleReview
+              : t.upload.subtitleDetails}
         </p>
       </div>
 
@@ -175,24 +177,24 @@ export default function UploadPage() {
                 </svg>
               </div>
               <div className="text-center">
-                <p className="text-base font-semibold text-gray-900">Drop your trade licence here</p>
+                <p className="text-base font-semibold text-gray-900">{t.upload.dropHere}</p>
                 <p className="text-sm text-gray-500 mt-1">
-                  or <span className="text-primary font-medium underline underline-offset-2">browse files</span>
+                  or <span className="text-primary font-medium underline underline-offset-2">{t.upload.browseFiles}</span>
                 </p>
               </div>
-              <p className="text-xs text-gray-400">PDF, PNG, or JPG — max 10 MB</p>
+              <p className="text-xs text-gray-400">{t.upload.fileHint}</p>
               <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
             </div>
 
             {/* What happens next */}
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">What happens next</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t.upload.whatHappens}</p>
               <div className="flex flex-col gap-3">
                 {[
-                  {icon: '📤', text: 'Your document is uploaded securely'},
-                  {icon: '🔍', text: 'AI reads your trade licence details'},
-                  {icon: '✏️', text: 'You review and confirm the extracted info'},
-                  {icon: '📊', text: 'We generate personalised insurance quotes'},
+                  {icon: '📤', text: t.upload.stepUpload},
+                  {icon: '🔍', text: t.upload.stepRead},
+                  {icon: '✏️', text: t.upload.stepReview},
+                  {icon: '📊', text: t.upload.stepGenerate},
                 ].map((s) => (
                   <div key={s.text} className="flex items-center gap-3">
                     <span className="text-base">{s.icon}</span>
@@ -208,13 +210,13 @@ export default function UploadPage() {
                 onClick={() => router.push('/quote/ai-advisor')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
               >
-                🤖 Try AI Advisor instead
+                🤖 {t.upload.tryAi}
               </button>
               <button
                 onClick={() => router.push('/quote/manual')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
               >
-                ✏️ Enter details manually
+                ✏️ {t.upload.enterManually}
               </button>
             </div>
           </>
@@ -241,7 +243,7 @@ export default function UploadPage() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
                   <path d="M3.5 7.5L6 10L10.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="text-xs font-medium text-primary">Extracted from trade licence</span>
+                <span className="text-xs font-medium text-primary">{t.upload.extractedFrom}</span>
               </div>
               <div className="flex flex-col gap-2 p-4">
                 {FIELD_META.map(({key, label}) => {
@@ -263,7 +265,7 @@ export default function UploadPage() {
             {/* Employees — not from OCR, collect here */}
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1.5">
-                Number of employees <span className="text-gray-400 font-normal">(including yourself)</span>
+                {t.upload.employees} <span className="text-gray-400 font-normal">{t.upload.includingYourself}</span>
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {quoteOptions.employeeBands.map((band) => (
@@ -287,7 +289,7 @@ export default function UploadPage() {
               disabled={!employees}
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
-              Continue
+              {t.common.continue}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -301,7 +303,7 @@ export default function UploadPage() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
                   <path d="M2 8C2 4.686 4.686 2 8 2C10.21 2 12.117 3.273 13.064 5.143M14 8C14 11.314 11.314 14 8 14C5.79 14 3.883 12.727 2.936 10.857M2 8V4M2 8H6M14 8V12M14 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Re-upload document
+                {t.upload.reUpload}
               </button>
               <button
                 onClick={() => router.push('/quote/manual')}
@@ -310,7 +312,7 @@ export default function UploadPage() {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-primary">
                   <path d="M11.333 2L14 4.667M1.333 14.667L2.067 11.72L10.067 3.72C10.333 3.453 10.733 3.453 11 3.72L12.333 5.053C12.6 5.32 12.6 5.72 12.333 5.987L4.333 13.987L1.333 14.667Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Enter manually instead
+                {t.upload.enterManuallyInstead}
               </button>
             </div>
           </>
@@ -322,9 +324,9 @@ export default function UploadPage() {
             {/* Estimated revenue */}
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1.5">
-                Estimated annual revenue <span className="text-gray-400 font-normal">(next 12 months)</span>
+                {t.upload.estimatedRevenue} <span className="text-gray-400 font-normal">{t.upload.next12Months}</span>
               </p>
-              <p className="text-xs text-gray-400 mb-3">Used to calculate your Business Interruption and Liability limits</p>
+              <p className="text-xs text-gray-400 mb-3">{t.upload.revenueHelper}</p>
               <div className="flex flex-col gap-2">
                 {quoteOptions.revenueBands.map((band) => (
                   <button
@@ -345,7 +347,7 @@ export default function UploadPage() {
             {/* High-value assets */}
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1.5">
-                High-value assets <span className="text-gray-400 font-normal">— tick any over AED 5,000</span>
+                {t.upload.highValueAssets} <span className="text-gray-400 font-normal">{t.upload.tickOver5k}</span>
               </p>
               <div className="flex flex-col gap-2">
                 {quoteOptions.highValueAssets.map((asset) => {
@@ -389,7 +391,7 @@ export default function UploadPage() {
                               type="text"
                               value={selectedAssets[asset.id]}
                               onChange={(e) => setAssetValue(asset.id, e.target.value.replace(/[^0-9,]/g, ''))}
-                              placeholder="Estimated value"
+                              placeholder={t.upload.estimatedValue}
                               className="flex-1 text-sm text-gray-900 bg-transparent outline-none placeholder:text-gray-300"
                             />
                           </div>
@@ -407,7 +409,7 @@ export default function UploadPage() {
               disabled={!employees || !revenue}
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
-              Get my quotes
+              {t.upload.getMyQuotes}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

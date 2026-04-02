@@ -2,11 +2,12 @@ import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import {Navbar} from '@/components/layout/navbar';
 import {Footer} from '@/components/layout/footer';
+import {I18nProvider} from '@/lib/i18n';
 import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
 });
 
 const geistMono = Geist_Mono({
@@ -29,9 +30,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <Navbar />
-        {children}
-        <Footer />
+        <I18nProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </I18nProvider>
       </body>
     </html>
   );

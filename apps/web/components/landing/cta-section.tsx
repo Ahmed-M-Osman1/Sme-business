@@ -1,7 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import {Button} from '@shory/ui';
+import {useI18n} from '@/lib/i18n';
 
 export function CtaSection() {
+  const {t} = useI18n();
   return (
     <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 sm:px-6 lg:flex-row lg:px-8">
@@ -26,7 +30,7 @@ export function CtaSection() {
         {/* Content */}
         <div className="flex-1 text-left">
           <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
-            Buy Insurance Online
+            {t.landing.ctaTitle}
           </h2>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-500">
             We&apos;re here for you every step of the way to help you find your
@@ -47,7 +51,7 @@ export function CtaSection() {
             size="lg"
             className="mt-6 rounded-full bg-primary px-8 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-hover"
           >
-            <Link href="/quote/start">Get started</Link>
+            <Link href="/quote/start">{t.landing.ctaButton}</Link>
           </Button>
         </div>
       </div>

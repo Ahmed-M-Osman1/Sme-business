@@ -3,6 +3,7 @@
 import {useState} from 'react';
 import {Button, Badge} from '@shory/ui';
 import {formatPrice} from '@/lib/pricing';
+import {useI18n} from '@/lib/i18n';
 
 interface QuoteCardProps {
   insurer: {
@@ -27,6 +28,7 @@ export function QuoteCard({
   isBestPrice,
   onSelect,
 }: QuoteCardProps) {
+  const {t} = useI18n();
   const [showDetails, setShowDetails] = useState(false);
 
   return (
@@ -48,12 +50,12 @@ export function QuoteCard({
                   fill="currentColor"
                 />
               </svg>
-              Best Price
+              {t.results.bestPrice}
             </Badge>
           )}
           {insurer.shariahCompliant && (
             <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-xs font-medium">
-              Shariah-compliant
+              {t.results.shariahCompliant}
             </Badge>
           )}
         </div>
@@ -92,7 +94,7 @@ export function QuoteCard({
               {formatPrice(insurer.total)}
             </span>
           </div>
-          <p className="text-[11px] text-gray-400">/year incl. tax</p>
+          <p className="text-[11px] text-gray-400">{t.common.perYearInclTax}</p>
           <p className="text-[11px] text-gray-400 mt-0.5">
             Or AED {formatPrice(Math.ceil(insurer.total / 4))}/quarter
           </p>
@@ -103,7 +105,7 @@ export function QuoteCard({
       {showDetails && (
         <div className="mt-4 bg-gray-50 rounded-lg p-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-            What&apos;s included
+            {t.results.whatsIncluded}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {benefits
@@ -143,14 +145,14 @@ export function QuoteCard({
           onClick={() => setShowDetails((prev) => !prev)}
           className="rounded-lg text-primary border-primary hover:bg-primary/5 text-sm px-4"
         >
-          {showDetails ? 'Hide Details' : 'Show Details'}
+          {showDetails ? t.results.hideDetails : t.results.showDetails}
         </Button>
         <Button
           size="sm"
           onClick={() => onSelect(insurer.id, insurer.total)}
           className="rounded-lg bg-primary text-white hover:bg-primary/90 text-sm px-6"
         >
-          Select
+          {t.common.select}
         </Button>
       </div>
     </div>

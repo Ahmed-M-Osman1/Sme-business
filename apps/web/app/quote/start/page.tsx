@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
+import {useI18n} from '@/lib/i18n';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 const FEATURED = {
   id: 'ai-advisor',
@@ -51,16 +52,17 @@ const OTHER_METHODS = [
 ] as const;
 
 export default function QuoteStartPage() {
+  const {t} = useI18n();
   return (
     <div className="flex flex-col gap-8">
-      <ProgressIndicator currentStep={1} label="Choose method" />
+      <ProgressIndicator currentStep={1} label={t.progress.chooseMethod} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
-          How would you like to start?
+          {t.start.title}
         </h1>
         <p className="mt-2 text-text-muted">
-          Get insured in under 3 minutes
+          {t.start.subtitle}
         </p>
       </div>
 
@@ -75,15 +77,15 @@ export default function QuoteStartPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-text text-base sm:text-lg">
-                    {FEATURED.title}
+                    {t.start.aiAdvisor}
                   </span>
                   <Badge
                     className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${FEATURED.badge.className}`}>
-                    {FEATURED.badge.label}
+                    {t.start.recommended}
                   </Badge>
                 </div>
                 <p className="text-sm text-text-muted mt-1 leading-relaxed">
-                  {FEATURED.description}
+                  {t.start.aiAdvisorDesc}
                 </p>
               </div>
               <svg
@@ -108,7 +110,7 @@ export default function QuoteStartPage() {
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-border" />
           <span className="text-xs text-text-muted">
-            or choose another way
+            {t.start.orChooseAnother}
           </span>
           <div className="flex-1 h-px bg-border" />
         </div>
@@ -126,16 +128,16 @@ export default function QuoteStartPage() {
                     {method.badge && (
                       <Badge
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${method.badge.className}`}>
-                        {method.badge.label}
+                        {t.start.fastest}
                       </Badge>
                     )}
                   </div>
                   <div>
                     <span className="font-semibold text-text text-sm leading-tight">
-                      {method.title}
+                      {method.id === 'pre-configured' ? t.start.preConfigured : method.id === 'upload' ? t.start.uploadLicence : t.start.manual}
                     </span>
                     <p className="text-[11px] sm:text-xs text-text-muted mt-1 leading-relaxed">
-                      {method.description}
+                      {method.id === 'pre-configured' ? t.start.preConfiguredDesc : method.id === 'upload' ? t.start.uploadLicenceDesc : t.start.manualDesc}
                     </p>
                   </div>
                 </CardContent>

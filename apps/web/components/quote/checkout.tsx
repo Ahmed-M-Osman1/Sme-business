@@ -5,6 +5,7 @@ import {useSearchParams, useRouter} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {formatPrice} from '@/lib/pricing';
+import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -22,6 +23,7 @@ interface ContactForm {
 }
 
 export function Checkout() {
+  const {t} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -60,7 +62,7 @@ export function Checkout() {
       newErrors.email = 'Please enter a valid email address';
     }
     if (!form.phone || !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Please enter a valid UAE mobile number';
+      newErrors.phone = t.checkout.invalidPhone;
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -107,13 +109,13 @@ export function Checkout() {
           <span className="text-3xl">💳</span>
         </div>
         <p className="text-lg font-semibold text-text">
-          Processing your payment...
+          {t.checkout.processing}
         </p>
         <div className="w-56 h-2 bg-border rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full animate-[loading_2s_ease-in-out]" />
         </div>
         <p className="text-xs text-text-muted">
-          This will only take a moment
+          {t.checkout.processingDesc}
         </p>
       </div>
     );
@@ -121,14 +123,14 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={5} label="Checkout" />
+      <ProgressIndicator currentStep={5} label={t.progress.checkout} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
-          Review & Pay
+          {t.checkout.title}
         </h1>
         <p className="mt-1 text-sm text-text-muted">
-          Review your order and complete the purchase
+          {t.checkout.subtitle}
         </p>
       </div>
 
@@ -137,7 +139,7 @@ export function Checkout() {
         <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
           <div className="bg-surface px-5 py-2.5">
             <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-              Order summary
+              {t.checkout.orderSummary}
             </p>
           </div>
           <CardContent className="flex flex-col gap-4 p-5">
@@ -225,22 +227,22 @@ export function Checkout() {
         <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
           <div className="bg-surface px-5 py-2.5">
             <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-              Your contact details
+              {t.checkout.contactDetails}
             </p>
           </div>
           <CardContent className="flex flex-col gap-4 p-5">
             {[
               {
                 key: 'fullName',
-                label: 'Full Name',
+                label: t.checkout.fullName,
                 type: 'text',
-                placeholder: 'Enter your full name',
+                placeholder: t.checkout.namePlaceholder,
               },
               {
                 key: 'email',
-                label: 'Email Address',
+                label: t.checkout.email,
                 type: 'email',
-                placeholder: 'you@example.com',
+                placeholder: t.checkout.emailPlaceholder,
               },
             ].map((field) => (
               <div key={field.key}>
@@ -274,7 +276,7 @@ export function Checkout() {
             {/* Phone with UAE flag + auto-formatting */}
             <div>
               <label className="block text-sm font-medium text-text mb-1.5">
-                Phone Number <span className="text-red-500 text-xs">*</span>
+                {t.checkout.phone} <span className="text-red-500 text-xs">*</span>
               </label>
               <div className={`flex items-center rounded-xl border bg-white overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent ${
                 errors.phone ? 'border-red-500' : 'border-border'
@@ -298,7 +300,7 @@ export function Checkout() {
                     setForm((prev) => ({...prev, phone: formatted}));
                     clearError('phone');
                   }}
-                  placeholder="55 123 4567"
+                  placeholder={t.checkout.phonePlaceholder}
                   maxLength={12}
                   className="flex-1 px-3 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none tracking-wide"
                 />
@@ -315,7 +317,7 @@ export function Checkout() {
           onClick={handlePay}
           className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
         >
-          Pay Now — AED {formatPrice(total)}
+          {t.checkout.payNow} — AED {formatPrice(total)}
           <svg
             width="16"
             height="16"

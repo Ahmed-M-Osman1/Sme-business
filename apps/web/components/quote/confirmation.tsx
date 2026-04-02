@@ -8,6 +8,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {formatPrice} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
+import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -15,6 +16,7 @@ import insurers from '@/config/insurers.json';
 type ProductId = keyof typeof productsConfig;
 
 export function Confirmation() {
+  const {t} = useI18n();
   const searchParams = useSearchParams();
 
   const typeId = searchParams.get('type') ?? 'general-trading';
@@ -244,7 +246,7 @@ export function Confirmation() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={6} label="Confirmed" />
+      <ProgressIndicator currentStep={6} label={t.progress.confirmed} />
 
       {/* Success hero */}
       <div className="max-w-3xl mx-auto px-4 w-full py-4">
@@ -254,10 +256,10 @@ export function Confirmation() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              You&apos;re all set!
+              {t.confirmation.title}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Your policy is active and a confirmation has been sent to{' '}
+              {t.confirmation.subtitle}{' '}
               <span className="font-medium text-gray-900">{email}</span>
             </p>
           </div>
@@ -283,7 +285,7 @@ export function Confirmation() {
             <div className="shrink-0">
               <span className="inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 text-xs font-medium px-3 py-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Active
+                {t.confirmation.active}
               </span>
             </div>
           </div>
@@ -291,13 +293,13 @@ export function Confirmation() {
           <CardContent className="p-5 flex flex-col gap-5">
             {/* Policy details */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Policy</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.policy}</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  {label: 'Policy Number', value: policyNumber},
-                  {label: 'Effective Date', value: formatDate(today)},
-                  {label: 'Expiry Date', value: formatDate(expiryDate)},
-                  {label: 'Risk Level', value: businessType.riskLevel.charAt(0).toUpperCase() + businessType.riskLevel.slice(1)},
+                  {label: t.confirmation.policyNumber, value: policyNumber},
+                  {label: t.confirmation.effectiveDate, value: formatDate(today)},
+                  {label: t.confirmation.expiryDate, value: formatDate(expiryDate)},
+                  {label: t.confirmation.riskLevel, value: businessType.riskLevel.charAt(0).toUpperCase() + businessType.riskLevel.slice(1)},
                 ].map((f) => (
                   <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
                     <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
@@ -309,13 +311,13 @@ export function Confirmation() {
 
             {/* Policy holder */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Policy Holder</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.policyHolder}</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  {label: 'Full Name', value: name},
-                  {label: 'Email', value: email},
-                  {label: 'Phone', value: phone ? `+971 ${phone}` : '—'},
-                  {label: 'Emirate', value: emirate},
+                  {label: t.confirmation.fullName, value: name},
+                  {label: t.confirmation.email, value: email},
+                  {label: t.confirmation.phone, value: phone ? `+971 ${phone}` : '—'},
+                  {label: t.confirmation.emirate, value: emirate},
                 ].filter((f) => f.value).map((f) => (
                   <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
                     <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
@@ -328,13 +330,13 @@ export function Confirmation() {
             {/* Business */}
             {(businessName || licenseNumber) && (
               <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Business</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.business}</p>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    {label: 'Business Name', value: businessName},
-                    {label: 'Business Type', value: businessType.title},
-                    {label: 'License Number', value: licenseNumber},
-                    {label: 'Employees', value: employees},
+                    {label: t.confirmation.businessName, value: businessName},
+                    {label: t.confirmation.businessType, value: businessType.title},
+                    {label: t.confirmation.licenseNumber, value: licenseNumber},
+                    {label: t.confirmation.employees, value: employees},
                   ].filter((f) => f.value).map((f) => (
                     <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
                       <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
@@ -349,7 +351,7 @@ export function Confirmation() {
 
             {/* Coverage */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Coverage</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.coverage}</p>
               <div className="flex flex-col gap-2.5">
                 {productIds
                   .filter((id) => productsConfig[id])
@@ -379,8 +381,8 @@ export function Confirmation() {
             {/* Total */}
             <div className="flex items-center justify-between bg-primary rounded-xl px-5 py-4 -mx-1">
               <div>
-                <p className="text-sm font-semibold text-white">Total Annual Premium</p>
-                <p className="text-xs text-white/70 mt-0.5">Incl. VAT · 12-month policy</p>
+                <p className="text-sm font-semibold text-white">{t.confirmation.totalPremium}</p>
+                <p className="text-xs text-white/70 mt-0.5">{t.confirmation.inclVat}</p>
               </div>
               <p className="text-2xl font-bold text-white">
                 AED {formatPrice(total)}
@@ -401,14 +403,14 @@ export function Confirmation() {
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary animate-spin">
                   <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                Generating...
+                {t.confirmation.generating}
               </>
             ) : (
               <>
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
                   <path d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Download PDF
+                {t.confirmation.downloadPdf}
               </>
             )}
           </button>
@@ -419,7 +421,7 @@ export function Confirmation() {
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
               <path d="M4.5 6.75V2.25h9v4.5M4.5 13.5H3a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 3 7.5h12A1.5 1.5 0 0 1 16.5 9v3a1.5 1.5 0 0 1-1.5 1.5h-1.5m-9 0h9v3h-9v-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Print
+            {t.confirmation.print}
           </button>
         </div>
 
@@ -428,7 +430,7 @@ export function Confirmation() {
           href="/quote/start"
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
         >
-          Start a new quote
+          {t.confirmation.startNewQuote}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

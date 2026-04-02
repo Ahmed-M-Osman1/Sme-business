@@ -4,6 +4,7 @@ import {useState} from 'react';
 import Link from 'next/link';
 import {Button} from '@shory/ui';
 import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
+import {useI18n} from '@/lib/i18n';
 
 type ProductCard = {
   title: string;
@@ -61,6 +62,7 @@ const BUSINESS_PRODUCTS: ProductCard[] = [
 ];
 
 function ProductCardItem({product}: {product: ProductCard}) {
+  const {t} = useI18n();
   return (
     <div className="relative flex flex-col items-center rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
       {product.comingSoon && (
@@ -89,7 +91,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
           size="sm"
           className="mt-4 w-full rounded-full bg-primary text-white text-xs font-medium hover:bg-primary-hover transition-all duration-200"
         >
-          <Link href={product.href}>Get a quote</Link>
+          <Link href={product.href}>{t.landing.getQuote}</Link>
         </Button>
       ) : (
         <Button
@@ -97,7 +99,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
           disabled
           className="mt-4 w-full rounded-full bg-gray-100 text-gray-400 text-xs font-medium cursor-not-allowed"
         >
-          Get a quote
+          {t.landing.getQuote}
         </Button>
       )}
     </div>
@@ -105,6 +107,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
 }
 
 export function Hero() {
+  const {t} = useI18n();
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
     'personal',
   );
@@ -116,10 +119,10 @@ export function Hero() {
     <section className="pb-8 pt-12 text-center">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <p className="mb-3 text-sm font-semibold text-gray-500">
-          Compare and buy insurance in the UAE
+          {t.landing.heroSubtitle}
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-          Top insurers. Best prices. One app.
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl whitespace-pre-line">
+          {t.landing.heroTitle}
         </h1>
 
         {/* Tab Toggle */}
@@ -137,7 +140,7 @@ export function Hero() {
               activeTab === 'personal' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            Personal
+            {t.landing.tabPersonal}
           </button>
           <button
             onClick={() => setActiveTab('business')}
@@ -145,7 +148,7 @@ export function Hero() {
               activeTab === 'business' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            Business
+            {t.landing.tabBusiness}
           </button>
         </div>
 

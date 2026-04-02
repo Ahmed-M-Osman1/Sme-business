@@ -1,3 +1,7 @@
+'use client';
+
+import {useI18n} from '@/lib/i18n';
+
 const STATS = [
   {
     value: '50B+',
@@ -43,15 +47,15 @@ const STATS = [
 ] as const;
 
 export function StatsSection() {
+  const {t} = useI18n();
   return (
     <section className="bg-gray-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
-          Trusted by over 1 million customers.
+          {t.landing.statsTitle}
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-500">
-          We bring you leading insurers, great prices, and instant cover, all in
-          one seamless app.
+          {t.landing.ctaSubtitle}
         </p>
 
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">

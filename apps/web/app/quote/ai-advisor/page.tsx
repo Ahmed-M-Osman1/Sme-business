@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeTags} from '@/components/quote/business-type-tags';
+import {useI18n} from '@/lib/i18n';
 import quoteOptions from '@/config/quote-options.json';
 
 // --- Types ---
@@ -37,6 +38,7 @@ const EMIRATE_CHIPS = quoteOptions.emirates.map((e) => ({label: e, value: e}));
 // --- Component ---
 
 export default function AiAdvisorPage() {
+  const {t} = useI18n();
   const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +46,7 @@ export default function AiAdvisorPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'ai',
-      content: "Hi! Tell me about your business and I'll find the right coverage for you — or just tap your business type below to get started instantly.",
+      content: t.ai.openingMessage,
     },
   ]);
   const [input, setInput] = useState('');
@@ -103,21 +105,21 @@ export default function AiAdvisorPage() {
     if (nextState.step === 'employees') {
       addMessages({
         role: 'ai',
-        content: 'How many people work in your business (including yourself)?',
+        content: t.ai.askEmployees,
         chips: EMPLOYEE_CHIPS,
         chipKey: 'employees',
       });
     } else if (nextState.step === 'revenue') {
       addMessages({
         role: 'ai',
-        content: "What's your estimated annual revenue for the next 12 months?",
+        content: t.ai.askRevenue,
         chips: REVENUE_CHIPS,
         chipKey: 'revenue',
       });
     } else if (nextState.step === 'emirate') {
       addMessages({
         role: 'ai',
-        content: 'Which emirate is your business based in?',
+        content: t.ai.askEmirate,
         chips: EMIRATE_CHIPS,
         chipKey: 'emirate',
       });
@@ -125,8 +127,8 @@ export default function AiAdvisorPage() {
       const url = buildResultsUrl(nextState);
       addMessages({
         role: 'ai',
-        content: `Here's what I've got:\n\n• **Business:** ${nextState.businessLabel}\n• **Team size:** ${nextState.employees}\n• **Revenue:** ${quoteOptions.revenueBands.find((b) => b.value === nextState.revenue)?.label ?? nextState.revenue}\n• **Location:** ${nextState.emirate}\n\nI've prepared personalised quotes based on your profile.`,
-        cta: {label: 'See my quotes', href: url},
+        content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${nextState.employees}\n• **${t.ai.summaryRevenue}:** ${quoteOptions.revenueBands.find((b) => b.value === nextState.revenue)?.label ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${nextState.emirate}\n\n${t.ai.summaryReady}`,
+        cta: {label: t.ai.seeMyQuotes, href: url},
       });
     }
 
@@ -159,7 +161,7 @@ export default function AiAdvisorPage() {
     setSelectedTagId(bt.id);
     addMessages({
       role: 'ai',
-      content: `Great choice — **${bt.title}**! Let me ask a few quick questions to personalise your quote.`,
+      content: `${t.ai.greatChoice} — **${bt.title}**! ${t.ai.quickQuestions}`,
     });
 
     advanceConvo({...convo, businessType: bt.id, businessLabel: bt.title, step: 'employees'});
@@ -177,7 +179,7 @@ export default function AiAdvisorPage() {
       setIsProcessing(true);
 
       setTimeout(() => {
-        const analysis = analyzeInput(userMessage);
+        const analysis = analyzeInput(userMessage, t.ai.needMore);
 
         if (analysis.needsMore) {
           addMessages({role: 'ai', content: analysis.response});
@@ -189,7 +191,7 @@ export default function AiAdvisorPage() {
         setSelectedTagId(analysis.businessType);
         addMessages({
           role: 'ai',
-          content: `I'd classify your business as **${analysis.label}**. Let me ask a few quick questions to personalise your quote.`,
+          content: `${t.ai.classifiedAs} **${analysis.label}**. ${t.ai.quickQuestions}`,
         });
 
         setIsProcessing(false);
@@ -220,7 +222,7 @@ export default function AiAdvisorPage() {
     setMessages([
       {
         role: 'ai',
-        content: "Hi! Tell me about your business and I'll find the right coverage for you — or just tap your business type below to get started instantly.",
+        content: t.ai.openingMessage,
       },
     ]);
     setSelectedTagId(null);
@@ -237,7 +239,7 @@ export default function AiAdvisorPage() {
       {/* Fixed header */}
       <div className="shrink-0">
         <div className="pt-4 pb-2">
-          <ProgressIndicator currentStep={2} label="AI Advisor" />
+          <ProgressIndicator currentStep={2} label={t.ai.title} />
         </div>
         <div className="max-w-3xl mx-auto px-4 w-full py-2 border-b border-gray-100">
           <BusinessTypeTags
@@ -283,14 +285,14 @@ export default function AiAdvisorPage() {
           <div className="px-3 py-2 pb-3">
             {hasCta ? (
               <div className="flex items-center justify-between px-1">
-                <p className="text-sm text-gray-500">Not what you expected?</p>
+                <p className="text-sm text-gray-500">{t.ai.notExpected}</p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleReset}
                   className="rounded-full text-sm text-primary border-primary hover:bg-primary/5"
                 >
-                  Start over
+                  {t.common.startOver}
                 </Button>
               </div>
             ) : (
@@ -312,8 +314,8 @@ export default function AiAdvisorPage() {
                   }}
                   placeholder={
                     convo.step === 'business'
-                      ? 'Describe your business...'
-                      : 'Type your answer...'
+                      ? t.ai.inputPlaceholder
+                      : t.ai.typeAnswer
                   }
                   rows={1}
                   className="flex-1 resize-none rounded-3xl border border-gray-200 bg-gray-100 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all duration-200 leading-5 min-h-10 max-h-30"
@@ -344,6 +346,7 @@ export default function AiAdvisorPage() {
 // --- Chat bubble ---
 
 function ChatBubble({message, onCtaClick, isLatest}: {message: Message; onCtaClick: (href: string) => void; isLatest: boolean}) {
+  const {t} = useI18n();
   const isAi = message.role === 'ai';
 
   return (
@@ -357,7 +360,7 @@ function ChatBubble({message, onCtaClick, isLatest}: {message: Message; onCtaCli
       )}
 
       <div className={`max-w-[80%] ${isAi ? '' : 'order-first flex justify-end w-full'}`}>
-        {isAi && isLatest && <p className="text-[11px] text-gray-400 mb-1 ml-1">Shory AI</p>}
+        {isAi && isLatest && <p className="text-[11px] text-gray-400 mb-1 ml-1">{t.ai.shoryAi}</p>}
 
         <div className={`rounded-2xl px-4 py-3 ${isAi ? 'bg-white border border-gray-100 shadow-sm rounded-tl-md' : 'bg-primary text-white rounded-tr-md'}`}>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderContent(message.content)}</p>
@@ -424,7 +427,7 @@ function renderContent(text: string) {
 
 // --- Classification ---
 
-function analyzeInput(text: string): {response: string; businessType: string; label: string; needsMore?: boolean} {
+function analyzeInput(text: string, needMoreText: string): {response: string; businessType: string; label: string; needsMore?: boolean} {
   const lower = text.toLowerCase();
 
   const mappings: Array<{keywords: string[]; type: string; label: string}> = [
@@ -443,7 +446,7 @@ function analyzeInput(text: string): {response: string; businessType: string; la
   const match = mappings.find((m) => m.keywords.some((kw) => lower.includes(kw) || text.includes(kw)));
 
   if (!match && text.trim().split(/\s+/).length < 3) {
-    return {response: "Could you tell me a bit more? For example, what products or services does your business offer?", businessType: '', label: '', needsMore: true};
+    return {response: needMoreText, businessType: '', label: '', needsMore: true};
   }
 
   if (match) {

@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
 import {calculateTotalPremium, getSizeFactor, formatPrice} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
+import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -14,6 +15,7 @@ import insurers from '@/config/insurers.json';
 type ProductId = keyof typeof productsConfig;
 
 export function QuoteResults() {
+  const {t} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -140,7 +142,7 @@ export function QuoteResults() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={3} label="Your quotes" />
+      <ProgressIndicator currentStep={3} label={t.progress.quotes} />
 
       {/* Back + Title */}
       <div className="max-w-6xl mx-auto px-4 w-full">
@@ -157,9 +159,9 @@ export function QuoteResults() {
               strokeLinejoin="round"
             />
           </svg>
-          Back
+          {t.common.back}
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Quotes</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t.results.title}</h1>
         <p className="text-sm text-gray-500 mt-1">
           {businessType.title} &middot; {emirate} &middot; {employeeBand} employees
         </p>
@@ -205,7 +207,7 @@ export function QuoteResults() {
           {/* Product Toggles */}
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Included covers
+              {t.results.includedCovers}
             </p>
             <div className="flex flex-wrap gap-2">
               {initialProducts.map((productId) => {
@@ -249,7 +251,7 @@ export function QuoteResults() {
           {/* Coverage Limit Selectors */}
           <div className="space-y-2">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Coverage limits
+              {t.results.coverageLimits}
             </p>
             <div className="space-y-2">
               {Array.from(activeProducts).map((productId) => {
@@ -304,7 +306,7 @@ export function QuoteResults() {
                     strokeLinecap="round"
                   />
                 </svg>
-                Filter
+                {t.results.filterLabel}
                 {activeFilterCount > 0 && (
                   <span className="bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {activeFilterCount}
@@ -316,12 +318,12 @@ export function QuoteResults() {
                 onChange={(e) => setSortBy(e.target.value as 'price' | 'rating')}
                 className="text-sm text-gray-600 border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
               >
-                <option value="price">Sort: Lowest price</option>
-                <option value="rating">Sort: Highest rating</option>
+                <option value="price">{t.results.sortLowest}</option>
+                <option value="rating">{t.results.sortRating}</option>
               </select>
             </div>
             <p className="text-sm text-gray-500 font-medium">
-              {insurerQuotes.length} of {allQuotes.length} Quotes
+              {insurerQuotes.length} {t.common.of} {allQuotes.length} {t.results.quotes}
             </p>
           </div>
 
@@ -330,7 +332,7 @@ export function QuoteResults() {
             <Card className="rounded-xl border border-gray-200 bg-white animate-in slide-in-from-top-2 duration-200">
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-900">Filters</p>
+                  <p className="text-sm font-semibold text-gray-900">{t.results.filters}</p>
                   <button
                     onClick={() => {
                       setShariahOnly(false);
@@ -338,15 +340,15 @@ export function QuoteResults() {
                     }}
                     className="text-xs text-primary hover:underline"
                   >
-                    Clear all
+                    {t.common.clearAll}
                   </button>
                 </div>
 
                 {/* Shariah Compliant */}
                 <label className="flex items-center justify-between cursor-pointer">
                   <div>
-                    <p className="text-sm text-gray-700">Shariah-compliant only</p>
-                    <p className="text-xs text-gray-400">Show Takaful providers</p>
+                    <p className="text-sm text-gray-700">{t.results.shariahOnly}</p>
+                    <p className="text-xs text-gray-400">{t.results.shariahDesc}</p>
                   </div>
                   <button
                     onClick={() => setShariahOnly((prev) => !prev)}
@@ -365,10 +367,10 @@ export function QuoteResults() {
                 {/* Max Price Slider */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm text-gray-700">Max annual price</p>
+                    <p className="text-sm text-gray-700">{t.results.maxPrice}</p>
                     <p className="text-sm font-semibold text-gray-900">
                       {maxPrice === null
-                        ? 'Any'
+                        ? t.results.any
                         : `AED ${formatPrice(maxPrice)}`}
                     </p>
                   </div>
@@ -398,7 +400,7 @@ export function QuoteResults() {
             {insurerQuotes.length === 0 ? (
               <Card className="rounded-xl border border-gray-200 bg-white">
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500 text-sm">No quotes match your filters.</p>
+                  <p className="text-gray-500 text-sm">{t.results.noQuotes}</p>
                   <button
                     onClick={() => {
                       setShariahOnly(false);
@@ -406,7 +408,7 @@ export function QuoteResults() {
                     }}
                     className="text-primary text-sm mt-2 hover:underline"
                   >
-                    Clear filters
+                    {t.results.clearFilters}
                   </button>
                 </CardContent>
               </Card>

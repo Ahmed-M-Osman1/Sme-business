@@ -1,4 +1,9 @@
+'use client';
+
+import {useI18n} from '@/lib/i18n';
+
 export function TrustBadges() {
+  const {t} = useI18n();
   return (
     <section className="py-6">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-4 sm:flex-row sm:gap-16 sm:px-6 lg:px-8">
@@ -21,9 +26,7 @@ export function TrustBadges() {
             </svg>
           </div>
           <p className="text-xs leading-tight text-gray-500">
-            Licensed by the Central Bank
-            <br />
-            with License Number 287
+            {t.footer.licensedBy}
           </p>
         </div>
 
