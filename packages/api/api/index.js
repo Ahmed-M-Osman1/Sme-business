@@ -43814,7 +43814,7 @@ app.route("/admin", adminRouter);
 app.route("/catalog", catalogRouter);
 var app_default = app;
 
-// api/index.ts
+// api/entry.ts
 var runtime = "nodejs";
 var GET = handle(app_default);
 var POST = handle(app_default);
