@@ -1,0 +1,32 @@
+[
+  {
+    "id": "R1",
+    "label": "Has employees",
+    "conditionKey": "hasEmployees",
+    "productId": "workers-comp"
+  },
+  {
+    "id": "R2",
+    "label": "Customer interaction = Yes",
+    "conditionKey": "customerInteraction",
+    "productId": "public-liability"
+  },
+  {
+    "id": "R3",
+    "label": "Advisory services = Yes",
+    "conditionKey": "advisoryServices",
+    "productId": "professional-indemnity"
+  },
+  {
+    "id": "R4",
+    "label": "Business assets = Yes",
+    "conditionKey": "businessAssets",
+    "productId": "property"
+  },
+  {
+    "id": "R5",
+    "label": "Business vehicles = Yes",
+    "conditionKey": "businessVehicles",
+    "productId": "fleet"
+  }
+]

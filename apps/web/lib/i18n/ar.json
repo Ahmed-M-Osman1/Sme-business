@@ -223,7 +223,42 @@
     "estimatedValue": "القيمة التقديرية"
   },
   "results": {
-    "title": "عروض الأسعار",
+    "title": "عروضك",
+    "summaryFrom": "ابتداءً من",
+    "individualTab": "العروض الفردية",
+    "bundleTab": "الباقات",
+    "bundleCount": "باقات مختارة",
+    "filterSummary": "عروض متاحة",
+    "paymentCadence": "طريقة الدفع",
+    "quarterlyPlan": "خطة ربع سنوية",
+    "annualTotal": "الإجمالي السنوي",
+    "saveAmountPrefix": "وفّر",
+    "coverageLimit1m": "د.إ 1 مليون",
+    "coverageLimit2m": "د.إ 2 مليون",
+    "coverageLimit5m": "د.إ 5 مليون",
+    "finwallPrefix": "الدفعات الشهرية مدعومة من",
+    "finwallBrand": "FINWALL",
+    "mostPopular": "الأكثر طلباً",
+    "showingBundleQuotes": "عرض أسعار {bundle}",
+    "matchingBundleInsurers": "يتم عرض شركات التأمين التي تقدم هذه الباقة فقط.",
+    "backToBundles": "العودة إلى الباقات",
+    "bundleContent": {
+      "starterPack": {
+        "title": "باقة البداية",
+        "description": "تغطية قانونية أساسية للشركات الجديدة",
+        "cta": "عرض أسعار باقة البداية"
+      },
+      "growthPack": {
+        "title": "باقة النمو",
+        "description": "تغطية متكاملة للشركات المستقرة",
+        "cta": "عرض أسعار باقة النمو"
+      },
+      "professionalPack": {
+        "title": "الباقة الاحترافية",
+        "description": "حماية شاملة للفرق الخدمية المتقدمة",
+        "cta": "عرض أسعار الباقة الاحترافية"
+      }
+    },
     "filterLabel": "تصفية",
     "sortLowest": "ترتيب: الأقل سعراً",
     "sortRating": "ترتيب: الأعلى تقييماً",

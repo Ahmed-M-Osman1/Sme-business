@@ -223,7 +223,42 @@
     "estimatedValue": "Estimated value"
   },
   "results": {
-    "title": "Your Quotes",
+    "title": "Your quotes",
+    "summaryFrom": "From",
+    "individualTab": "Individual quotes",
+    "bundleTab": "Bundle deals",
+    "bundleCount": "curated bundles",
+    "filterSummary": "available quotes",
+    "paymentCadence": "Payment cadence",
+    "quarterlyPlan": "Quarterly plan",
+    "annualTotal": "Annual total",
+    "saveAmountPrefix": "Save",
+    "coverageLimit1m": "AED 1M",
+    "coverageLimit2m": "AED 2M",
+    "coverageLimit5m": "AED 5M",
+    "finwallPrefix": "Monthly payments powered by",
+    "finwallBrand": "FINWALL",
+    "mostPopular": "Most popular",
+    "showingBundleQuotes": "Showing {bundle} quotes",
+    "matchingBundleInsurers": "Only insurers offering this bundle are shown.",
+    "backToBundles": "Back to bundles",
+    "bundleContent": {
+      "starterPack": {
+        "title": "Starter Pack",
+        "description": "Essential legal cover for new businesses",
+        "cta": "See Starter quotes"
+      },
+      "growthPack": {
+        "title": "Growth Pack",
+        "description": "Complete cover for established businesses",
+        "cta": "See Growth quotes"
+      },
+      "professionalPack": {
+        "title": "Professional Pack",
+        "description": "Full-spectrum protection for service-led teams",
+        "cta": "See Professional quotes"
+      }
+    },
     "filterLabel": "Filter",
     "sortLowest": "Sort: Lowest price",
     "sortRating": "Sort: Highest rating",

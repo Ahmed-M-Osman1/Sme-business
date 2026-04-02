@@ -1,0 +1,29 @@
+[
+  {
+    "id": "starter-pack",
+    "copyKey": "starterPack",
+    "productIds": ["workers-comp", "public-liability"],
+    "annualPrice": 1527,
+    "benchmarkAnnualPrice": 1697,
+    "featured": false,
+    "eligibleInsurerIds": ["salama", "watania", "yas-takaful", "sukoon", "afnic"]
+  },
+  {
+    "id": "growth-pack",
+    "copyKey": "growthPack",
+    "productIds": ["workers-comp", "public-liability", "property"],
+    "annualPrice": 2298,
+    "benchmarkAnnualPrice": 2611,
+    "featured": true,
+    "eligibleInsurerIds": ["salama", "watania", "sukoon", "dubai-insurance", "qic", "adnic"]
+  },
+  {
+    "id": "professional-pack",
+    "copyKey": "professionalPack",
+    "productIds": ["workers-comp", "public-liability", "property", "professional-indemnity"],
+    "annualPrice": 3184,
+    "benchmarkAnnualPrice": 3620,
+    "featured": false,
+    "eligibleInsurerIds": ["watania", "sukoon", "qic", "adnic", "orient", "orient-takaful"]
+  }
+]

@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {Button, Badge} from '@shory/ui';
-import {formatPrice} from '@/lib/pricing';
+import {calculateQuarterlyPrice, formatPrice} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 
 interface QuoteCardProps {
@@ -66,14 +66,14 @@ export function QuoteCard({
         isSelected
           ? 'border-primary ring-2 ring-primary/20 shadow-md'
           : isBestPrice
-            ? 'border-2 border-primary shadow-sm'
+            ? 'border-2 border-emerald-500 shadow-sm'
             : 'border-gray-200 hover:border-gray-300'
       }`}>
       {/* Badges row */}
       {(isBestPrice || insurer.shariahCompliant) && (
         <div className="flex items-center gap-2 mb-3">
           {isBestPrice && (
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium gap-1">
+            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-medium gap-1">
               <svg
                 width="12"
                 height="12"
@@ -135,19 +135,15 @@ export function QuoteCard({
           </div>
         </div>
         <div className="text-end shrink-0">
-          <div className="flex items-baseline gap-1 justify-end">
-            <span className="text-sm font-semibold text-gray-500">
-              AED
-            </span>
-            <span className="text-2xl font-bold text-gray-900">
-              {formatPrice(insurer.total)}
-            </span>
-          </div>
+          <p className="text-2xl font-bold text-gray-900">
+            {t.common.currency} {formatPrice(insurer.total)}
+          </p>
           <p className="text-[11px] text-gray-400">
             {t.common.perYearInclTax}
           </p>
           <p className="text-[11px] text-gray-400 mt-0.5">
-            Or AED {formatPrice(Math.ceil(insurer.total / 4))}/quarter
+            {t.common.or} {t.common.currency} {formatPrice(calculateQuarterlyPrice(insurer.total))}
+            {t.common.perQuarter}
           </p>
         </div>
       </div>

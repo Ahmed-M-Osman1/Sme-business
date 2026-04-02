@@ -13,6 +13,7 @@ const COVERAGE_MULTIPLIERS: Record<string, number> = {
 };
 
 const SIZE_FACTORS: Record<string, number> = {
+  '1': 1.0,
   solo: 1.0,
   '2-5': 1.1,
   '6-20': 1.2,
@@ -61,6 +62,10 @@ export function calculateTotalPremium(
 
 export function getSizeFactor(employeeBand: string): number {
   return SIZE_FACTORS[employeeBand] ?? 1.0;
+}
+
+export function calculateQuarterlyPrice(annualPrice: number): number {
+  return Math.round(annualPrice / 4);
 }
 
 const priceFormatter = new Intl.NumberFormat('en-AE', {

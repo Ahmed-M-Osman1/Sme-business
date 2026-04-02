@@ -29,6 +29,30 @@ export interface InsurerQuote extends Insurer {
   total: number;
 }
 
+export type RecommendationConditionKey =
+  | 'hasEmployees'
+  | 'customerInteraction'
+  | 'advisoryServices'
+  | 'businessAssets'
+  | 'businessVehicles';
+
+export interface RecommendationRule {
+  id: string;
+  label: string;
+  conditionKey: RecommendationConditionKey;
+  productId: string;
+}
+
+export interface BundleDeal {
+  id: string;
+  copyKey: 'starterPack' | 'growthPack' | 'professionalPack';
+  productIds: string[];
+  annualPrice: number;
+  benchmarkAnnualPrice: number;
+  featured: boolean;
+  eligibleInsurerIds: string[];
+}
+
 export interface ContactForm {
   fullName: string;
   email: string;
