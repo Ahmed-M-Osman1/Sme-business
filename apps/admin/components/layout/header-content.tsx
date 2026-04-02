@@ -2,6 +2,7 @@
 
 import {useState, useEffect, useRef} from 'react';
 import Link from 'next/link';
+import {signOut} from 'next-auth/react';
 import {useI18n} from '@/lib/i18n';
 import {StatusDot} from '@/components/shared/status-dot';
 import {AlertTray} from './alert-tray';
@@ -37,6 +38,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
   const [degradedCount, setDegradedCount] = useState(0);
   const [alertCounts, setAlertCounts] = useState<AlertSummary>({criticalCount: 0, highCount: 0});
   const [trayOpen, setTrayOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const bellRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -85,6 +87,11 @@ export function HeaderContent({session, token}: HeaderContentProps) {
   const totalAlertBadge = alertCounts.criticalCount + alertCounts.highCount;
   const isHealthy = degradedCount === 0;
   const initials = getInitials(session?.user?.name);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await signOut({callbackUrl: '/login'});
+  }
 
   return (
     <>
@@ -149,14 +156,14 @@ export function HeaderContent({session, token}: HeaderContentProps) {
         </div>
 
         {/* Sign out */}
-        <form action="/api/auth/signout" method="POST">
-          <button
-            type="submit"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            {t.header.signOut}
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={signingOut}
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {signingOut ? `${t.header.signOut}...` : t.header.signOut}
+        </button>
       </div>
     </>
   );

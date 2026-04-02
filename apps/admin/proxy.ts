@@ -1,14 +1,15 @@
+import {NextResponse} from 'next/server';
 import {auth} from '@/lib/auth';
-import type {NextRequest} from 'next/server';
 
-export async function proxy(request: NextRequest) {
-  const session = await auth();
-
-  if (!session) {
-    const loginUrl = new URL('/login', request.url);
-    return Response.redirect(loginUrl);
+export default auth((request) => {
+  if (request.auth) {
+    return NextResponse.next();
   }
-}
+
+  const loginUrl = new URL('/login', request.url);
+  loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+  return NextResponse.redirect(loginUrl);
+});
 
 export const config = {
   matcher: [
