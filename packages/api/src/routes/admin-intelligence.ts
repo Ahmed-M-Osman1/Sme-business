@@ -33,10 +33,7 @@ adminIntelligenceRouter.post('/signals', async (c) => {
 
   const [signal] = await db
     .insert(externalSignals)
-    .values({
-      ...result.data,
-      revenueImpact: result.data.revenueImpact.toString(),
-    })
+    .values(result.data as any)
     .returning();
 
   return c.json(signal, 201);
