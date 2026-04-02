@@ -185,7 +185,16 @@
     "actionSendReQuoteLink": "إرسال رابط إعادة تسعير",
     "actionSendWhatsAppReminder": "إرسال تذكير واتساب",
     "actionGenerateReport": "إنشاء تقرير",
-    "actionSuppressCard": "إخفاء البطاقة"
+    "actionSuppressCard": "إخفاء البطاقة",
+    "actionSendRenewalReminder": "إرسال تذكير التجديد",
+    "actionSendRetentionEmail": "إرسال بريد الاحتفاظ",
+    "actionApplyDiscount": "تطبيق خصم الولاء",
+    "actionScheduleUrgentCall": "جدولة مكالمة عاجلة",
+    "actionPrepareUpsell": "إعداد عرض ترقية",
+    "actionEscalate": "تصعيد",
+    "actionEscalateToManager": "تصعيد للمدير",
+    "actionSendEmail": "إرسال بريد إلكتروني",
+    "actionSendWhatsApp": "إرسال واتساب"
   },
   "platform": {
     "title": "صحة المنصة",

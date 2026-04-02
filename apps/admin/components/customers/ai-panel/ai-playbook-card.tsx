@@ -13,15 +13,17 @@ interface AiPlaybookCardProps {
 }
 
 const ACTION_LABEL_MAP: Record<string, string> = {
-  send_email: 'actionSendRenewalOffer',
-  apply_discount: 'actionApplyLoyaltyDiscount',
+  send_email: 'actionSendEmail',
+  send_renewal_reminder: 'actionSendRenewalReminder',
+  send_retention_email: 'actionSendRetentionEmail',
+  apply_discount: 'actionApplyDiscount',
   schedule_call: 'actionScheduleCall',
-  escalate: 'actionEscalateRetention',
-  send_coverage_rec: 'actionSendCoverageRec',
+  schedule_urgent_call: 'actionScheduleUrgentCall',
+  prepare_upsell_proposal: 'actionPrepareUpsell',
+  escalate: 'actionEscalate',
+  escalate_to_manager: 'actionEscalateToManager',
   send_compliance_notice: 'actionSendComplianceNotice',
-  send_re_quote_link: 'actionSendReQuoteLink',
-  send_whatsapp: 'actionSendWhatsAppReminder',
-  generate_report: 'actionGenerateReport',
+  send_whatsapp: 'actionSendWhatsApp',
   suppress_card: 'actionSuppressCard',
 };
 

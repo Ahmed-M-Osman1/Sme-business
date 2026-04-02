@@ -185,7 +185,16 @@
     "actionSendReQuoteLink": "Send re-quote link",
     "actionSendWhatsAppReminder": "Send WhatsApp reminder",
     "actionGenerateReport": "Generate report",
-    "actionSuppressCard": "Suppress card"
+    "actionSuppressCard": "Suppress card",
+    "actionSendRenewalReminder": "Send Renewal Reminder",
+    "actionSendRetentionEmail": "Send Retention Email",
+    "actionApplyDiscount": "Apply Loyalty Discount",
+    "actionScheduleUrgentCall": "Schedule Urgent Call",
+    "actionPrepareUpsell": "Prepare Upsell Proposal",
+    "actionEscalate": "Escalate",
+    "actionEscalateToManager": "Escalate to Manager",
+    "actionSendEmail": "Send Email",
+    "actionSendWhatsApp": "Send WhatsApp"
   },
   "platform": {
     "title": "Platform Health",

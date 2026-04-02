@@ -1,25 +1,38 @@
 import {auth} from '@/lib/auth';
 import {adminApi} from '@/lib/api-client';
 import {PlatformTabs} from './platform-tabs';
+import type {ApiService, BehaviourMetric, PlatformCorrelation, Incident} from '@shory/db';
+import type {FunnelStep} from '@/lib/api-client';
+
+function unwrapData<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === 'object' && 'data' in res) return (res as {data: T[]}).data;
+  return [];
+}
 
 export default async function PlatformPage() {
   const session = await auth();
   const token = session?.user?.email ?? '';
 
-  let services: Awaited<ReturnType<typeof adminApi.platform.services>> = [];
-  let funnel: Awaited<ReturnType<typeof adminApi.platform.funnel>> = [];
-  let behaviour: Awaited<ReturnType<typeof adminApi.platform.behaviour>> = [];
-  let correlations: Awaited<ReturnType<typeof adminApi.platform.correlations>> = [];
-  let incidents: Awaited<ReturnType<typeof adminApi.incidents.list>> = [];
+  let services: ApiService[] = [];
+  let funnel: FunnelStep[] = [];
+  let behaviour: BehaviourMetric[] = [];
+  let correlations: PlatformCorrelation[] = [];
+  let incidents: Incident[] = [];
 
   try {
-    [services, funnel, behaviour, correlations, incidents] = await Promise.all([
+    const [sRes, fRes, bRes, cRes, iRes] = await Promise.all([
       adminApi.platform.services(token),
       adminApi.platform.funnel(token),
       adminApi.platform.behaviour(token),
       adminApi.platform.correlations(token),
       adminApi.incidents.list(token),
     ]);
+    services = unwrapData<ApiService>(sRes);
+    funnel = unwrapData<FunnelStep>(fRes);
+    behaviour = unwrapData<BehaviourMetric>(bRes);
+    correlations = unwrapData<PlatformCorrelation>(cRes);
+    incidents = unwrapData<Incident>(iRes);
   } catch {
     // API might not be running — show empty state
   }
