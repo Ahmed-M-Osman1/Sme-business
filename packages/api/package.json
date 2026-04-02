@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
     "build": "echo 'API is bundled via Next.js — no standalone build needed'",
     "start": "node dist/index.js",
     "lint": "eslint"
