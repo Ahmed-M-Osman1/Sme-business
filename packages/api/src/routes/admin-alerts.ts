@@ -54,11 +54,7 @@ adminAlertsRouter.post('/', async (c) => {
       title,
       body: alertBody,
       timeLabel,
-      customerId,
-      isPlatform,
-      isProactive,
-      signalId,
-    })
+    } as any)
     .returning();
 
   return c.json(alert, 201);
@@ -70,7 +66,7 @@ adminAlertsRouter.patch('/:id/read', async (c) => {
 
   const [alert] = await db
     .update(portfolioAlerts)
-    .set({isRead: true})
+    .set({isRead: true} as any)
     .where(eq(portfolioAlerts.id, id))
     .returning();
 
