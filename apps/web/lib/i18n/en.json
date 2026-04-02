@@ -38,7 +38,7 @@
     "switchLang": "عربي"
   },
   "landing": {
-    "heroTitle": "Top insurers.\nBest prices.\nOne app.",
+    "heroTitle": "Top insurers. Best prices. One app.",
     "heroSubtitle": "Compare and buy insurance from leading insurers in the UAE — car, health, home, business, and more.",
     "heroCards": {
       "carInsurance": "Car Insurance",
@@ -109,7 +109,7 @@
     "requestSpecialistQuote": "Request specialist quote",
     "specialistRequired": "requires specialist underwriting. We will connect you with a dedicated advisor.",
     "requestSubmitted": "Request submitted",
-    "specialistContactMsg": "Our specialist team will contact you within 1 business day.",
+    "specialistContactMsg": "specialist team will contact you within 1 business day.",
     "close": "Close",
     "specialistLeaveDetails": "businesses require specialist underwriting. Leave your details and we will get back to you.",
     "fullName": "Full name",
@@ -119,6 +119,11 @@
     "tellUsAboutBusiness": "Tell us about your business...",
     "submitRequest": "Submit request",
     "yourNamePlaceholder": "Your name",
+    "quickOverview": "Quick overview",
+    "typicalEmployees": "Typical employees",
+    "annualRevenue": "Annual revenue",
+    "likelyApplies": "Likely applies",
+    "usuallyNotNeeded": "Usually not needed",
     "cafe-restaurant": "Café / Restaurant",
     "law-firm": "Law Firm / Legal",
     "retail-trading": "Retail / Trading",
@@ -251,9 +256,9 @@
     "quarterlyPlan": "Quarterly plan",
     "annualTotal": "Annual total",
     "saveAmountPrefix": "Save",
-    "coverageLimit1m": "AED 1M",
-    "coverageLimit2m": "AED 2M",
-    "coverageLimit5m": "AED 5M",
+    "coverageLimit1m": "AED 1 million",
+    "coverageLimit2m": "AED 2 million",
+    "coverageLimit5m": "AED 5 million",
     "finwallPrefix": "Monthly payments powered by",
     "finwallBrand": "FINWALL",
     "mostPopular": "Most popular",
@@ -354,9 +359,9 @@
     },
     "revenueBands": {
       "under-500k": "Under AED 500,000",
-      "500k-1m": "AED 500K - 1 million",
-      "1m-5m": "AED 1M - 5 million",
-      "5m-10m": "AED 5M - 10 million",
+      "500k-1m": "AED 500 thousand - 1 million",
+      "1m-5m": "AED 1 million - 5 million",
+      "5m-10m": "AED 5 million - 10 million",
       "over-10m": "Over AED 10 million"
     },
     "coverageAreas": {
@@ -506,5 +511,27 @@
     "minutesAgo": "{count}m ago",
     "hoursAgo": "{count}h ago",
     "daysAgo": "{count}d ago"
+  },
+  "products": {
+    "workers-comp": {
+      "name": "Workers Compensation",
+      "shortName": "Workers"
+    },
+    "public-liability": {
+      "name": "Public Liability",
+      "shortName": "Public"
+    },
+    "professional-indemnity": {
+      "name": "Professional Indemnity",
+      "shortName": "Professional"
+    },
+    "property": {
+      "name": "Property Insurance",
+      "shortName": "Property"
+    },
+    "fleet": {
+      "name": "Fleet Insurance",
+      "shortName": "Fleet"
+    }
   }
 }

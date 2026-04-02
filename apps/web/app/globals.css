@@ -1,56 +1,13 @@
 @import "../../../tooling/tailwind/globals.css";
 
-/* Shory Fonts — English */
-@font-face {
-  font-family: 'BlissPro';
-  src: url('/fonts/BlissProRegular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'BlissPro';
-  src: url('/fonts/BlissProMedium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'BlissPro';
-  src: url('/fonts/BlissProLight.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'BlissPro';
-  src: url('/fonts/BlissProExtraBold.otf') format('opentype');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
+body {
+  font-family: var(--font-bliss-pro), var(--font-ping-arlt), -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Shory Fonts — Arabic */
-@font-face {
-  font-family: 'PingARLT';
-  src: url('/fonts/PingARLTRegular.woff2') format('woff2'), url('/fonts/PingARLTRegular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'PingARLT';
-  src: url('/fonts/PingARLTMedium.woff2') format('woff2'), url('/fonts/PingARLTMedium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'PingARLT';
-  src: url('/fonts/PingARLTBold.woff2') format('woff2'), url('/fonts/PingARLTBold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+html[dir='rtl'] body {
+  font-family: var(--font-ping-arlt), var(--font-bliss-pro), -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Currency font */
@@ -60,4 +17,9 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+}
+
+/* RTL chevron direction */
+html[dir='rtl'] .chevron-right {
+  transform: scaleX(-1);
 }

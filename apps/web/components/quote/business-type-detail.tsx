@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge, Button} from '@shory/ui';
 import {api} from '@/lib/api-client';
+import {useI18n} from '@/lib/i18n';
 
 interface ProductInfo {
   id: string;
@@ -44,12 +45,39 @@ const RISK_BADGE_STYLES: Record<string, string> = {
 interface Props {
   businessType: BusinessType;
   onCollapse: () => void;
+  helpData?: {
+    typicalEmployees: string;
+    annualRevenue: string;
+  };
 }
 
-export function BusinessTypeDetail({businessType, onCollapse}: Props) {
+export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) {
   const router = useRouter();
-  const [employees, setEmployees] = useState('2-5');
-  const [revenue, setRevenue] = useState('500k-1m');
+  const {t} = useI18n();
+
+  // Parse help data to determine initial selection (always lowest value)
+  const getInitialEmployees = () => {
+    if (!helpData?.typicalEmployees) return '2-5';
+    const emp = helpData.typicalEmployees.toLowerCase();
+    if (emp.includes('21')) return '21-50';
+    if (emp.includes('6-')) return '6-20';
+    if (emp.includes('2-5')) return '2-5';
+    if (emp.includes('just') || emp.includes('1')) return '1';
+    return '2-5';
+  };
+
+  const getInitialRevenue = () => {
+    if (!helpData?.annualRevenue) return '500k-1m';
+    const rev = helpData.annualRevenue.toLowerCase();
+    if (rev.includes('5,000,000')) return '5m-10m';
+    if (rev.includes('1,000,000') || rev.includes('1 million')) return '1m-5m';
+    if (rev.includes('500') && rev.includes('1 million')) return '500k-1m';
+    if (rev.includes('500')) return 'under-500k';
+    return '500k-1m';
+  };
+
+  const [employees, setEmployees] = useState(getInitialEmployees());
+  const [revenue, setRevenue] = useState(getInitialRevenue());
   const [emirate, setEmirate] = useState('Dubai');
   const [coverageArea, setCoverageArea] = useState('UAE only');
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
@@ -62,8 +90,8 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
   const [productsMap, setProductsMap] = useState<Record<string, ProductInfo>>({});
   const [employeeOptions, setEmployeeOptions] = useState<OptionItem[]>([]);
   const [revenueOptions, setRevenueOptions] = useState<OptionItem[]>([]);
-  const [emirates, setEmirates] = useState<string[]>([]);
-  const [coverageAreas, setCoverageAreas] = useState<string[]>([]);
+  const [emirates, setEmirates] = useState<Array<{label: string; value: string}>>([]);
+  const [coverageAreas, setCoverageAreas] = useState<Array<{label: string; value: string}>>([]);
   const [assetTypes, setAssetTypes] = useState<AssetItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -85,10 +113,16 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         setRevenueOptions(revData as OptionItem[]);
 
         const emirateItems = emirData as Array<{label?: string; value?: string} | string>;
-        setEmirates(emirateItems.map((e) => (typeof e === 'string' ? e : (e.label ?? e.value ?? ''))));
+        setEmirates(emirateItems.map((e) => {
+          if (typeof e === 'string') return {label: e, value: e};
+          return {label: e.label ?? e.value ?? '', value: e.value ?? e.label ?? ''};
+        }));
 
         const covItems = covData as Array<{label?: string; value?: string} | string>;
-        setCoverageAreas(covItems.map((c) => (typeof c === 'string' ? c : (c.label ?? c.value ?? ''))));
+        setCoverageAreas(covItems.map((c) => {
+          if (typeof c === 'string') return {label: c, value: c};
+          return {label: c.label ?? c.value ?? '', value: c.value ?? c.label ?? ''};
+        }));
 
         setAssetTypes((assetData as AssetItem[]).map((a) => ({
           id: a.id,
@@ -178,7 +212,11 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                 RISK_BADGE_STYLES[businessType.riskLevel]
               }`}
             >
-              {businessType.riskLevel} risk
+              {businessType.riskLevel === 'low'
+                ? t.businessType.lowRisk
+                : businessType.riskLevel === 'medium'
+                  ? t.businessType.mediumRisk
+                  : t.businessType.highRisk}
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-text-muted mt-0.5">
@@ -212,19 +250,20 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         {/* Recommended Covers */}
         <div>
           <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2">
-            Recommended Covers
+            {t.businessType.recommendedCovers}
           </p>
           <div className="flex flex-wrap gap-2">
             {businessType.products.map((productId) => {
               const product = productsMap[productId];
               if (!product) return null;
+              const productTranslation = (t.products as Record<string, {name: string; shortName: string}>)[productId];
               return (
                 <span
                   key={productId}
                   className="inline-flex items-center gap-1.5 text-xs bg-primary/5 text-primary border border-primary/15 rounded-full px-3 py-1.5 font-medium"
                 >
                   <span>{product.icon}</span>
-                  <span>{product.shortName}</span>
+                  <span>{productTranslation?.shortName || product.shortName}</span>
                 </span>
               );
             })}
@@ -235,7 +274,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
 
         {/* Employees */}
         <div>
-          <p className="text-sm font-medium text-text mb-2.5">Employees</p>
+          <p className="text-sm font-medium text-text mb-2.5">{t.businessType.employees}</p>
           <div className="grid grid-cols-3 gap-2">
             {employeeOptions.map((opt) => (
               <button
@@ -247,7 +286,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                     : 'bg-white text-text border border-border hover:border-primary/40'
                 }`}
               >
-                {opt.label}
+                {(t.options.employeeBands as Record<string, string>)[opt.value] || opt.label}
               </button>
             ))}
           </div>
@@ -256,7 +295,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         {/* Estimated Annual Revenue */}
         <div>
           <p className="text-sm font-medium text-text mb-2.5">
-            Estimated annual revenue
+            {t.businessType.estimatedAnnualRevenue}
           </p>
           <div className="flex flex-col gap-2">
             {revenueOptions.map((opt) => (
@@ -269,7 +308,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                     : 'border border-border bg-white text-text hover:border-primary/40'
                 }`}
               >
-                <span>{opt.label}</span>
+                <span>{(t.options.revenueBands as Record<string, string>)[opt.value] || opt.label}</span>
                 {revenue === opt.value && (
                   <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                     <svg
@@ -296,22 +335,22 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         {/* Emirate & Coverage Area */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-sm font-medium text-text mb-1.5">Emirate</p>
+            <p className="text-sm font-medium text-text mb-1.5">{t.businessType.emirate}</p>
             <select
               value={emirate}
               onChange={(e) => setEmirate(e.target.value)}
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
               {emirates.map((e) => (
-                <option key={e} value={e}>
-                  {e}
+                <option key={e.value} value={e.value}>
+                  {(t.options.emirates as Record<string, string>)[e.value] || (t.options.emirates as Record<string, string>)[e.label] || e.label}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <p className="text-sm font-medium text-text mb-1.5">
-              Coverage area
+              {t.businessType.coverageArea}
             </p>
             <select
               value={coverageArea}
@@ -319,8 +358,8 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
               {coverageAreas.map((ca) => (
-                <option key={ca} value={ca}>
-                  {ca}
+                <option key={ca.value} value={ca.value}>
+                  {(t.options.coverageAreas as Record<string, string>)[ca.value] || (t.options.coverageAreas as Record<string, string>)[ca.label] || ca.label}
                 </option>
               ))}
             </select>
@@ -330,9 +369,9 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         {/* High-Value Assets */}
         <div>
           <p className="text-sm font-medium text-text mb-0.5">
-            High-value assets{' '}
+            {t.businessType.highValueAssets}{' '}
             <span className="text-text-muted font-normal text-xs">
-              — tick any over AED 5,000
+              {t.businessType.tickOver5k}
             </span>
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2.5">
@@ -352,10 +391,10 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                     <span className="text-2xl shrink-0">{asset.icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-text leading-tight">
-                        {asset.label}
+                        {(t.options.highValueAssets as Record<string, {label: string; description: string}>)[asset.id]?.label || asset.label}
                       </p>
                       <p className="text-[10px] text-text-muted mt-0.5">
-                        {asset.description}
+                        {(t.options.highValueAssets as Record<string, {label: string; description: string}>)[asset.id]?.description || asset.description}
                       </p>
                     </div>
                     <span
@@ -407,7 +446,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                   </div>
                   {assetErrors.has(asset.id) && (
                     <p className="text-[10px] text-red-500 -mt-1">
-                      Enter a value
+                      {t.businessType.enterAValue}
                     </p>
                   )}
                 </div>
@@ -423,13 +462,13 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
               onClick={() => setShowSpecialistModal(true)}
               className="w-full rounded-xl bg-amber-500 text-white py-3.5 text-base font-semibold hover:bg-amber-600 transition-all duration-200 shadow-sm"
             >
-              Request specialist quote
+              {t.businessType.requestSpecialistQuote}
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ms-2 inline rtl:rotate-180">
                 <path d="M3 9H15M15 9L10.5 4.5M15 9L10.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Button>
             <p className="text-xs text-amber-600 text-center -mt-2">
-              {emirate} requires specialist underwriting. We will connect you with a dedicated advisor.
+              {emirate} {t.businessType.specialistRequired}
             </p>
           </>
         ) : (
@@ -437,7 +476,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             onClick={handleGetQuotes}
             className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
           >
-            Get my quotes
+            {t.businessType.getMyQuotes}
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ms-2 inline rtl:rotate-180">
               <path d="M6.75 3.75L12 9L6.75 14.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -455,29 +494,29 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                       <path d="M7 14.5L12 19.5L21 9.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <p className="text-lg font-semibold text-text">Request submitted</p>
+                  <p className="text-lg font-semibold text-text">{t.businessType.requestSubmitted}</p>
                   <p className="text-sm text-text-muted text-center">
-                    Our {emirate} specialist team will contact you within 1 business day.
+                    Our {emirate} {t.businessType.specialistContactMsg}
                   </p>
                   <Button
                     onClick={() => { setShowSpecialistModal(false); setSpecialistSubmitted(false); }}
                     className="rounded-xl bg-primary text-white px-6 py-2.5 text-sm font-semibold mt-2"
                   >
-                    Close
+                    {t.businessType.close}
                   </Button>
                 </div>
               ) : (
                 <>
                   <div>
-                    <h3 className="text-lg font-bold text-text">Request specialist quote</h3>
+                    <h3 className="text-lg font-bold text-text">{t.businessType.requestSpecialistQuote}</h3>
                     <p className="text-sm text-text-muted mt-1">
-                      {emirate} businesses require specialist underwriting. Leave your details and we will get back to you.
+                      {emirate} {t.businessType.specialistLeaveDetails}
                     </p>
                   </div>
                   {[
-                    {key: 'name', label: 'Full name', type: 'text', placeholder: 'Your name'},
-                    {key: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com'},
-                    {key: 'phone', label: 'Phone', type: 'tel', placeholder: '+971 55 123 4567'},
+                    {key: 'name', label: t.businessType.fullName, type: 'text', placeholder: t.businessType.yourNamePlaceholder},
+                    {key: 'email', label: t.businessType.emailLabel, type: 'email', placeholder: 'you@example.com'},
+                    {key: 'phone', label: t.businessType.phoneLabel, type: 'tel', placeholder: '+971 55 123 4567'},
                   ].map((field) => (
                     <div key={field.key}>
                       <label className="block text-sm font-medium text-text mb-1">{field.label}</label>
@@ -491,11 +530,11 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                     </div>
                   ))}
                   <div>
-                    <label className="block text-sm font-medium text-text mb-1">Message (optional)</label>
+                    <label className="block text-sm font-medium text-text mb-1">{t.businessType.messageOptional}</label>
                     <textarea
                       value={specialistForm.message}
                       onChange={(e) => setSpecialistForm((prev) => ({...prev, message: e.target.value}))}
-                      placeholder="Tell us about your business..."
+                      placeholder={t.businessType.tellUsAboutBusiness}
                       rows={3}
                       className="w-full rounded-xl border border-border px-4 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 resize-none"
                     />
@@ -506,14 +545,14 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                       onClick={() => setShowSpecialistModal(false)}
                       className="flex-1 rounded-xl py-2.5"
                     >
-                      Cancel
+                      {t.common.cancel}
                     </Button>
                     <Button
                       onClick={() => { if (specialistForm.name && specialistForm.email) setSpecialistSubmitted(true); }}
                       disabled={!specialistForm.name || !specialistForm.email}
                       className="flex-1 rounded-xl bg-primary text-white py-2.5 font-semibold disabled:opacity-50"
                     >
-                      Submit request
+                      {t.businessType.submitRequest}
                     </Button>
                   </div>
                 </>

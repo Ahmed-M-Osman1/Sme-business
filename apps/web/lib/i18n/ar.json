@@ -38,7 +38,7 @@
     "switchLang": "English"
   },
   "landing": {
-    "heroTitle": "أفضل شركات التأمين.\nأفضل الأسعار.\nتطبيق واحد.",
+    "heroTitle": "أفضل شركات التأمين.أفضل الأسعار. تطبيق واحد.",
     "heroSubtitle": "قارن واشترِ التأمين في الإمارات",
     "heroCards": {
       "carInsurance": "تأمين السيارات",
@@ -92,7 +92,7 @@
     "subtitle": "اختر نوع شركتك عشان نعرض لك التغطية المناسبة",
     "popularInUae": "الأكثر شيوعاً في الإمارات",
     "allTypes": "كل أنواع الشركات",
-    "notListed": "نوع شركتي مب موجود — أبي أعبّي يدوي",
+    "notListed": "نوع شركتي غير موجود — أبي أعبّي يدوي",
     "lowRisk": "مخاطر منخفضة",
     "mediumRisk": "مخاطر متوسطة",
     "highRisk": "مخاطر عالية",
@@ -109,7 +109,7 @@
     "requestSpecialistQuote": "طلب عرض سعر متخصص",
     "specialistRequired": "يتطلب اكتتاباً متخصصاً. سنوصلك بمستشار متخصص.",
     "requestSubmitted": "تم إرسال الطلب",
-    "specialistContactMsg": "فريقنا المتخصص سيتواصل معك خلال يوم عمل واحد.",
+    "specialistContactMsg": "فريقنا المتخصص سيتواصل معك خلال يوم عمل واحد",
     "close": "إغلاق",
     "specialistLeaveDetails": "الشركات تتطلب اكتتاباً متخصصاً. اترك بياناتك وسنعاود التواصل معك.",
     "fullName": "الاسم الكامل",
@@ -119,6 +119,11 @@
     "tellUsAboutBusiness": "أخبرنا عن شركتك...",
     "submitRequest": "إرسال الطلب",
     "yourNamePlaceholder": "اسمك",
+    "quickOverview": "نظرة عامة سريعة",
+    "typicalEmployees": "الموظفون عادة",
+    "annualRevenue": "الإيرادات السنوية",
+    "likelyApplies": "غالباً ينطبق",
+    "usuallyNotNeeded": "عادة لا يكون ضروري",
     "cafe-restaurant": "مقهى / مطعم",
     "law-firm": "مكتب محاماة",
     "retail-trading": "تجزئة / تجارة",
@@ -506,5 +511,27 @@
     "minutesAgo": "منذ {count} د",
     "hoursAgo": "منذ {count} س",
     "daysAgo": "منذ {count} ي"
+  },
+  "products": {
+    "workers-comp": {
+      "name": "تأمين الحوادث الوظيفية",
+      "shortName": "حوادث وظيفية"
+    },
+    "public-liability": {
+      "name": "تأمين المسؤولية المدنية",
+      "shortName": "مسؤولية"
+    },
+    "professional-indemnity": {
+      "name": "تأمين المسؤولية المهنية",
+      "shortName": "مسؤولية مهنية"
+    },
+    "property": {
+      "name": "تأمين الممتلكات",
+      "shortName": "ممتلكات"
+    },
+    "fleet": {
+      "name": "تأمين الأسطول",
+      "shortName": "أسطول"
+    }
   }
 }

@@ -52,18 +52,20 @@ const OTHER_METHODS = [
 ] as const;
 
 export default function QuoteStartPage() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   return (
     <div className="flex flex-col gap-8">
-      <ProgressIndicator currentStep={1} totalSteps={6} label={t.progress.chooseMethod} />
+      <ProgressIndicator
+        currentStep={1}
+        totalSteps={6}
+        label={t.progress.chooseMethod}
+      />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
           {t.start.title}
         </h1>
-        <p className="mt-2 text-text-muted">
-          {t.start.subtitle}
-        </p>
+        <p className="mt-2 text-text-muted">{t.start.subtitle}</p>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
@@ -72,7 +74,10 @@ export default function QuoteStartPage() {
           <Card className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
             <CardContent className="flex items-center gap-4 p-5 sm:p-6">
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                <LottieAnimation path="/lottie/aiChat.lottie" className="w-18 h-18" />
+                <LottieAnimation
+                  path="/lottie/aiChat.lottie"
+                  className="w-18 h-18"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -95,7 +100,11 @@ export default function QuoteStartPage() {
                 fill="none"
                 className="text-primary shrink-0">
                 <path
-                  d="M7.5 4.167L13.333 10L7.5 15.833"
+                  d={
+                    locale === 'ar'
+                      ? 'M12.5 4.167L6.667 10L12.5 15.833'
+                      : 'M7.5 4.167L13.333 10L7.5 15.833'
+                  }
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
@@ -123,7 +132,8 @@ export default function QuoteStartPage() {
                 <CardContent className="flex flex-col gap-3 p-4 relative">
                   {method.badge && (
                     <div className="absolute -top-2.5 inset-s-3">
-                      <span className={`text-[10px] px-3 py-0.5 rounded-full font-bold shadow-sm ${method.badge.className}`}>
+                      <span
+                        className={`text-[10px] px-3 py-0.5 rounded-full font-bold shadow-sm ${method.badge.className}`}>
                         {t.start.fastest}
                       </span>
                     </div>
@@ -133,11 +143,19 @@ export default function QuoteStartPage() {
                       {method.icon}
                     </div>
                     <span className="font-semibold text-text text-sm sm:text-base leading-tight">
-                      {method.id === 'pre-configured' ? t.start.preConfigured : method.id === 'upload' ? t.start.uploadLicence : t.start.manual}
+                      {method.id === 'pre-configured'
+                        ? t.start.preConfigured
+                        : method.id === 'upload'
+                          ? t.start.uploadLicence
+                          : t.start.manual}
                     </span>
                   </div>
                   <p className="text-[11px] sm:text-xs text-text-muted leading-relaxed">
-                    {method.id === 'pre-configured' ? t.start.preConfiguredDesc : method.id === 'upload' ? t.start.uploadLicenceDesc : t.start.manualDesc}
+                    {method.id === 'pre-configured'
+                      ? t.start.preConfiguredDesc
+                      : method.id === 'upload'
+                        ? t.start.uploadLicenceDesc
+                        : t.start.manualDesc}
                   </p>
                 </CardContent>
               </Card>
