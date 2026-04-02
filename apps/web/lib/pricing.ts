@@ -63,6 +63,10 @@ export function getSizeFactor(employeeBand: string): number {
   return SIZE_FACTORS[employeeBand] ?? 1.0;
 }
 
+const priceFormatter = new Intl.NumberFormat('en-AE', {
+  maximumFractionDigits: 0,
+});
+
 export function formatPrice(amount: number): string {
-  return amount.toLocaleString('en-AE');
+  return priceFormatter.format(amount);
 }

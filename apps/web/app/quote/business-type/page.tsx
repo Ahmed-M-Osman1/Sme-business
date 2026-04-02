@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeDetail} from '@/components/quote/business-type-detail';
 import {useI18n} from '@/lib/i18n';
 import {api} from '@/lib/api-client';
+import {BUSINESS_TYPE_HELP} from '@/config/business-type-help';
 
 const RISK_BADGE_STYLES: Record<string, string> = {
   low: 'bg-primary/10 text-primary',
@@ -201,6 +202,36 @@ export default function BusinessTypePage() {
             </svg>
           </div>
         </button>
+
+        {/* Contextual help info */}
+        {expandedId && BUSINESS_TYPE_HELP[expandedId] && (
+          <div className="rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex flex-col gap-2 text-sm animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 text-primary font-medium text-xs uppercase tracking-wider">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0">
+                <path d="M7 1.167A5.833 5.833 0 1 0 12.833 7 5.84 5.84 0 0 0 7 1.167Zm0 9.333a.583.583 0 1 1 0-1.167.583.583 0 0 1 0 1.167Zm.583-2.917a.583.583 0 0 1-1.166 0V4.667a.583.583 0 0 1 1.166 0v2.916Z" fill="currentColor" />
+              </svg>
+              Quick overview
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-text-muted">
+              <div>
+                <p className="font-medium text-text mb-0.5">Recommended covers</p>
+                <p>{BUSINESS_TYPE_HELP[expandedId].recommendedCovers.join(', ')}</p>
+              </div>
+              <div>
+                <p className="font-medium text-text mb-0.5">Typical employees</p>
+                <p>{BUSINESS_TYPE_HELP[expandedId].typicalEmployees}</p>
+              </div>
+              <div>
+                <p className="font-medium text-text mb-0.5">Annual revenue</p>
+                <p>{BUSINESS_TYPE_HELP[expandedId].annualRevenue}</p>
+              </div>
+              <div>
+                <p className="font-medium text-text mb-0.5">High-value assets</p>
+                <p>{BUSINESS_TYPE_HELP[expandedId].highValueAssets ? 'Likely applies' : 'Usually not needed'}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Expanded detail form */}
         {expandedId &&

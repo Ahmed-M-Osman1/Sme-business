@@ -37,14 +37,17 @@ export function QuoteCard({
         isBestPrice
           ? 'border-primary/40 shadow-sm'
           : 'border-gray-200 hover:border-gray-300'
-      }`}
-    >
+      }`}>
       {/* Badges row */}
       {(isBestPrice || insurer.shariahCompliant) && (
         <div className="flex items-center gap-2 mb-3">
           {isBestPrice && (
             <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium gap-1">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none">
                 <path
                   d="M6 1L7.545 4.15L11 4.66L8.5 7.1L9.09 10.54L6 8.92L2.91 10.54L3.5 7.1L1 4.66L4.455 4.15L6 1Z"
                   fill="currentColor"
@@ -75,26 +78,33 @@ export function QuoteCard({
             <p className="font-semibold text-gray-900 text-sm">
               {insurer.name}
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">{coverageType}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {coverageType}
+            </p>
             <div className="flex items-center gap-1 mt-1">
               <span className="text-yellow-400 text-xs">
                 {'★'.repeat(Math.round(insurer.rating))}
                 {'☆'.repeat(5 - Math.round(insurer.rating))}
               </span>
               <span className="text-[11px] text-gray-400">
-                {insurer.rating} ({insurer.reviewCount.toLocaleString()})
+                {insurer.rating} (
+                {insurer.reviewCount.toLocaleString()})
               </span>
             </div>
           </div>
         </div>
         <div className="text-right shrink-0">
           <div className="flex items-baseline gap-1 justify-end">
-            <span className="text-sm font-semibold text-gray-500">AED</span>
+            <span className="text-sm font-semibold text-gray-500">
+              AED
+            </span>
             <span className="text-2xl font-bold text-gray-900">
               {formatPrice(insurer.total)}
             </span>
           </div>
-          <p className="text-[11px] text-gray-400">{t.common.perYearInclTax}</p>
+          <p className="text-[11px] text-gray-400">
+            {t.common.perYearInclTax}
+          </p>
           <p className="text-[11px] text-gray-400 mt-0.5">
             Or AED {formatPrice(Math.ceil(insurer.total / 4))}/quarter
           </p>
@@ -113,15 +123,13 @@ export function QuoteCard({
               .map((benefit) => (
                 <div
                   key={benefit.name}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
+                  className="flex items-center gap-2 text-sm text-gray-700">
                   <svg
                     width="16"
                     height="16"
                     viewBox="0 0 16 16"
                     fill="none"
-                    className="text-primary shrink-0"
-                  >
+                    className="text-primary shrink-0">
                     <path
                       d="M3.333 8L6.667 11.333L12.667 4.667"
                       stroke="currentColor"
@@ -143,15 +151,15 @@ export function QuoteCard({
           variant="outline"
           size="sm"
           onClick={() => setShowDetails((prev) => !prev)}
-          className="rounded-lg text-primary border-primary hover:bg-primary/5 text-sm px-4"
-        >
-          {showDetails ? t.results.hideDetails : t.results.showDetails}
+          className="rounded-lg text-primary border-primary hover:bg-primary/5 text-sm px-4">
+          {showDetails
+            ? t.results.hideDetails
+            : t.results.showDetails}
         </Button>
         <Button
           size="sm"
           onClick={() => onSelect(insurer.id, insurer.total)}
-          className="rounded-lg bg-primary text-white hover:bg-primary/90 text-sm px-6"
-        >
+          className="rounded-lg bg-primary text-white hover:bg-primary/90 text-sm px-6">
           {t.common.select}
         </Button>
       </div>
