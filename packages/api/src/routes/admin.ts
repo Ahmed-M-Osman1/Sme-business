@@ -1,12 +1,26 @@
 import {Hono} from 'hono';
-import {db, quotes} from '@shory/db';
-import {eq, desc, count, gte} from 'drizzle-orm';
+import {db, quotes, customers, incidents, apiServices, portfolioAlerts} from '@shory/db';
+import {eq, desc, count, gte, or} from 'drizzle-orm';
 import {adminAuth} from '../middleware/auth';
 import {errorResponse} from '../middleware/error-handler';
+import {adminCustomersRouter} from './admin-customers';
+import {adminIncidentsRouter} from './admin-incidents';
+import {adminAlertsRouter} from './admin-alerts';
+import {adminActionsRouter} from './admin-actions';
+import {adminPlatformRouter} from './admin-platform';
+import {adminIntelligenceRouter} from './admin-intelligence';
 
 export const adminRouter = new Hono();
 
 adminRouter.use('*', adminAuth);
+
+// Mount sub-routers
+adminRouter.route('/customers', adminCustomersRouter);
+adminRouter.route('/incidents', adminIncidentsRouter);
+adminRouter.route('/alerts', adminAlertsRouter);
+adminRouter.route('/actions', adminActionsRouter);
+adminRouter.route('/platform', adminPlatformRouter);
+adminRouter.route('/intelligence', adminIntelligenceRouter);
 
 // GET /admin/quotes
 adminRouter.get('/quotes', async (c) => {
@@ -61,13 +75,36 @@ adminRouter.get('/stats', async (c) => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const [[{totalQuotes}], [{quotesThisWeek}], [{acceptedQuotes}], [{pendingQuotes}]] =
-    await Promise.all([
-      db.select({totalQuotes: count()}).from(quotes),
-      db.select({quotesThisWeek: count()}).from(quotes).where(gte(quotes.createdAt, oneWeekAgo)),
-      db.select({acceptedQuotes: count()}).from(quotes).where(eq(quotes.status, 'accepted')),
-      db.select({pendingQuotes: count()}).from(quotes).where(eq(quotes.status, 'quoted')),
-    ]);
+  const [
+    [{totalQuotes}],
+    [{quotesThisWeek}],
+    [{acceptedQuotes}],
+    [{pendingQuotes}],
+    [{totalCustomers}],
+    [{activeIncidents}],
+    [{degradedServices}],
+    [{unreadAlerts}],
+  ] = await Promise.all([
+    db.select({totalQuotes: count()}).from(quotes),
+    db.select({quotesThisWeek: count()}).from(quotes).where(gte(quotes.createdAt, oneWeekAgo)),
+    db.select({acceptedQuotes: count()}).from(quotes).where(eq(quotes.status, 'accepted')),
+    db.select({pendingQuotes: count()}).from(quotes).where(eq(quotes.status, 'quoted')),
+    db.select({totalCustomers: count()}).from(customers),
+    db.select({activeIncidents: count()}).from(incidents).where(eq(incidents.status, 'active')),
+    db.select({degradedServices: count()}).from(apiServices).where(
+      or(eq(apiServices.status, 'degraded'), eq(apiServices.status, 'down')),
+    ),
+    db.select({unreadAlerts: count()}).from(portfolioAlerts).where(eq(portfolioAlerts.isRead, false)),
+  ]);
 
-  return c.json({totalQuotes, quotesThisWeek, acceptedQuotes, pendingQuotes});
+  return c.json({
+    totalQuotes,
+    quotesThisWeek,
+    acceptedQuotes,
+    pendingQuotes,
+    totalCustomers,
+    activeIncidents,
+    degradedServices,
+    unreadAlerts,
+  });
 });
