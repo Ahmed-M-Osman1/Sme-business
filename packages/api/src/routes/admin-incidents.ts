@@ -48,7 +48,7 @@ adminIncidentsRouter.post('/', async (c) => {
     .values({
       ...result.data,
       startedAt: new Date(),
-    })
+    } as any)
     .returning();
 
   return c.json(incident, 201);
