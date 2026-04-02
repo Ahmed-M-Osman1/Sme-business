@@ -1,6 +1,6 @@
 'use client';
 
-import {createContext, useContext, useState, useCallback} from 'react';
+import {createContext, useContext, useState, useCallback, useEffect} from 'react';
 import en from './en.json';
 import ar from './ar.json';
 
@@ -26,19 +26,25 @@ const I18nContext = createContext<I18nContextValue>({
 });
 
 export function I18nProvider({children}: {children: React.ReactNode}) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('shory-locale') as Locale) || 'en';
-    }
-    return 'en';
-  });
+  const [locale, setLocaleState] = useState<Locale>('en');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLocale = localStorage.getItem('shory-locale') as Locale | null;
+    const nextLocale = savedLocale === 'ar' ? 'ar' : 'en';
+    setLocaleState(nextLocale);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    document.documentElement.lang = locale;
+    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+  }, [locale]);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
     if (typeof window !== 'undefined') {
       localStorage.setItem('shory-locale', newLocale);
-      document.documentElement.lang = newLocale;
-      document.documentElement.dir = newLocale === 'ar' ? 'rtl' : 'ltr';
     }
   }, []);
 

@@ -71,7 +71,7 @@
     "step": "خطوة",
     "of": "من",
     "chooseMethod": "اختر الطريقة",
-    "business": "الشركة",
+    "business": "تأمين الأعمال",
     "coverage": "التغطية",
     "quotes": "عروض الأسعار",
     "compare": "مقارنة",
@@ -126,18 +126,24 @@
     "title": "المستشار الذكي",
     "openingMessage": "هلا! أنا مستشار التأمين من شوري. قولي عن شركتك وبساعدك تلقى التغطية المناسبة. قدر تذكر نشاطك التجاري، عدد الموظفين، والموقع.",
     "unavailable": "المستشار الذكي مب متاح حالياً. تقدر تحصل على عرض السعر من خلال هالخيارات:",
+    "backToStart": "رجوع",
     "quickSelect": "اختيار سريع",
     "manualEntry": "إدخال يدوي",
     "orDescribeBelow": "أو وصّف شركتك تحت",
+    "swipeHint": "اسحب لعرض خيارات أكثر",
     "inputPlaceholder": "وصّف شركتك بكلماتك...",
     "typeAnswer": "اكتب جوابك...",
     "seeMyQuotes": "عرض الأسعار",
     "theseRightSeeQuotes": "تمام — عرض الأسعار",
     "notExpected": "مب اللي تتوقعه؟",
+    "startOverAgain": "ابدأ من جديد مرة ثانية",
     "shoryAi": "شوري الذكي",
     "askEmployees": "كم عدد الموظفين في شركتك (بما فيهم أنت)؟",
     "askRevenue": "كم تتوقع إيرادات شركتك السنوية في الـ١٢ شهر الياية؟",
     "askEmirate": "في أي إمارة شركتك؟",
+    "employeesRetry": "اختر أحد نطاقات عدد الموظفين، مثل ٢-٥ أو ٦-٢٠.",
+    "revenueRetry": "اختر أحد نطاقات الإيرادات حتى نقدر نسعّر عرضك بشكل صحيح.",
+    "emirateRetry": "يرجى إدخال إمارة صحيحة داخل الإمارات مثل دبي أو أبوظبي.",
     "summaryIntro": "هذي البيانات اللي عندي:",
     "summaryBusiness": "الشركة",
     "summaryTeam": "عدد الفريق",
@@ -175,6 +181,9 @@
     "detailsLookGood": "البيانات تمام — متابعة",
     "reUpload": "إعادة رفع المستند",
     "enterManuallyInstead": "أدخل يدوياً بدل",
+    "fileTooLarge": "حجم الملف كبير. يرجى رفع ملف أقل من ١٠ ميجابايت.",
+    "unsupportedDocument": "ما قدرنا نأكد إن هذا مستند رخصة تجارية إماراتية صالح. ارفع نسخة أوضح أو كمل يدوياً.",
+    "reviewHighlightedFields": "يرجى تصحيح الحقول المظللة قبل المتابعة.",
     "getMyQuotes": "عرض الأسعار",
     "employees": "عدد الموظفين",
     "includingYourself": "(بما فيهم أنت)",
@@ -315,11 +324,89 @@
     "datePlaceholder": "يوم/شهر/سنة",
     "companyNameRequired": "اسم الشركة مطلوب",
     "licenseNumberRequired": "رقم الرخصة مطلوب",
+    "fileTooLarge": "حجم الملف كبير. يرجى رفع ملف أقل من ١٠ ميجابايت.",
+    "reviewHighlightedFields": "يرجى مراجعة الحقول المظللة وتصحيحها قبل المتابعة.",
+    "acknowledgeExpired": "أفهم أن هذه الرخصة منتهية وتحتاج إلى تجديد قبل إصدار الوثيقة.",
     "reUploadDocument": "إعادة رفع المستند",
     "enterManuallyInstead": "أدخل يدوياً بدل",
     "backLabel": "رجوع",
     "verified": "تم التحقق",
     "notSpecified": "غير محدد"
+  },
+  "options": {
+    "employeeBands": {
+      "1": "أنا فقط",
+      "2-5": "٢-٥",
+      "6-20": "٦-٢٠",
+      "21-50": "٢١-٥٠",
+      "51-100": "٥١-١٠٠",
+      "100+": "١٠٠+"
+    },
+    "revenueBands": {
+      "under-500k": "أقل من ٥٠٠٬٠٠٠ د.إ",
+      "500k-1m": "٥٠٠ ألف - ١ مليون د.إ",
+      "1m-5m": "١ مليون - ٥ ملايين د.إ",
+      "5m-10m": "٥ ملايين - ١٠ ملايين د.إ",
+      "over-10m": "أكثر من ١٠ ملايين د.إ"
+    },
+    "coverageAreas": {
+      "uae": "داخل الإمارات فقط",
+      "gcc": "دول الخليج",
+      "worldwide": "عالمي"
+    },
+    "emirates": {
+      "Abu Dhabi": "أبوظبي",
+      "Dubai": "دبي",
+      "Sharjah": "الشارقة",
+      "Ajman": "عجمان",
+      "Umm Al Quwain": "أم القيوين",
+      "Ras Al Khaimah": "رأس الخيمة",
+      "Fujairah": "الفجيرة",
+      "RAK": "رأس الخيمة",
+      "UAQ": "أم القيوين",
+      "DIFC": "مركز دبي المالي العالمي",
+      "ADGM": "سوق أبوظبي العالمي"
+    },
+    "highValueAssets": {
+      "stock": {
+        "label": "المخزون / البضاعة",
+        "description": "قيمة المخزون الحالي بسعر التكلفة"
+      },
+      "fixtures": {
+        "label": "التجهيزات والديكور",
+        "description": "الأرفف، الكاونترات، والإضاءة"
+      },
+      "pos": {
+        "label": "أنظمة نقاط البيع والدفع",
+        "description": "الأجهزة الطرفية، الأجهزة اللوحية، والكاشير"
+      },
+      "security": {
+        "label": "أنظمة الأمن / المراقبة",
+        "description": "الكاميرات، التحكم بالدخول، والإنذارات"
+      },
+      "safe": {
+        "label": "الخزنة / التعامل النقدي",
+        "description": "الخزنات، وعدّادات النقد"
+      }
+    },
+    "activities": {
+      "Technology": "تقنية",
+      "Trading": "تجارة",
+      "Manufacturing": "تصنيع",
+      "Construction": "مقاولات",
+      "Healthcare": "رعاية صحية",
+      "Hospitality": "ضيافة",
+      "Retail": "تجزئة",
+      "Professional Services": "خدمات مهنية",
+      "Transport & Logistics": "نقل ولوجستيات",
+      "Food & Beverage": "أغذية ومشروبات",
+      "Beauty Services": "خدمات تجميل",
+      "Education": "تعليم",
+      "Real Estate": "عقارات",
+      "Financial Services": "خدمات مالية",
+      "Media & Advertising": "إعلام وإعلان",
+      "Other": "أخرى"
+    }
   },
   "checkout": {
     "title": "المراجعة والدفع",

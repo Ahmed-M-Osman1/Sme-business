@@ -4,6 +4,7 @@ import {useState, useCallback} from 'react';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {ManualStep1} from '@/components/quote/manual-step1';
 import {ManualStep2} from '@/components/quote/manual-step2';
+import {useI18n} from '@/lib/i18n';
 
 interface Step1Data {
   classifiedType: string;
@@ -12,6 +13,7 @@ interface Step1Data {
 }
 
 export default function ManualInputPage() {
+  const {t} = useI18n();
   const [step, setStep] = useState(1);
   const [step1Data, setStep1Data] = useState<Step1Data>({
     classifiedType: '',
@@ -28,24 +30,20 @@ export default function ManualInputPage() {
     <div className="flex flex-col gap-8">
       <ProgressIndicator
         currentStep={2}
-        label="Business details"
+        totalSteps={6}
+        label={t.progress.business}
       />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
-        <div className="flex items-center justify-between mb-1">
-          <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-medium px-3 py-1">
-            Step {step} of 2
-          </span>
-        </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mt-3">
           {step === 1
-            ? 'Tell us about your business'
-            : 'Location, coverage & assets'}
+            ? t.manual.step1Title
+            : t.manual.step2Title}
         </h1>
         <p className="mt-2 text-text-muted">
           {step === 1
-            ? 'Describe your business and we\'ll classify it automatically'
-            : 'Almost done — just a few more details'}
+            ? t.manual.step1Subtitle
+            : t.manual.step2Subtitle}
         </p>
       </div>
 

@@ -2,6 +2,7 @@
 
 import {useState, useCallback, useRef, useEffect} from 'react';
 import type {OcrField} from '@/lib/mock-ocr';
+import {useI18n} from '@/lib/i18n';
 
 const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
 
@@ -25,15 +26,16 @@ export const ACTIVITIES = [
 ];
 
 function ConfidenceDot({level}: {level: OcrField['confidence']}) {
+  const {t} = useI18n();
   const colors = {
     high: 'bg-primary',
     medium: 'bg-amber-500',
     low: 'bg-red-500',
   };
   const titles = {
-    high: 'High confidence',
-    medium: 'Medium confidence — please verify',
-    low: 'Low confidence — needs correction',
+    high: t.upload.highConfidence,
+    medium: t.upload.mediumConfidence,
+    low: t.upload.lowConfidence,
   };
   return (
     <span
@@ -50,7 +52,7 @@ export function formatDateInput(raw: string): string {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
 }
 
-function isValidDate(value: string): boolean {
+export function isValidDate(value: string): boolean {
   const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return false;
   const [, dd, mm, yyyy] = match;
@@ -61,6 +63,17 @@ function isValidDate(value: string): boolean {
   return true;
 }
 
+export function isUnreadableValue(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.length === 0 ||
+    normalized.includes('???') ||
+    normalized === 'unclear' ||
+    normalized === 'not clear' ||
+    normalized === 'n/a'
+  );
+}
+
 interface EditableFieldProps {
   field: OcrField;
   label: string;
@@ -69,6 +82,7 @@ interface EditableFieldProps {
 }
 
 export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldProps) {
+  const {t} = useI18n();
   const needsEdit = field.confidence !== 'high';
   const [editing, setEditing] = useState(needsEdit);
   const [value, setValue] = useState(field.value);
@@ -79,6 +93,18 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
   const isActivity = fieldKey === 'activity';
   const isDropdown = isEmirate || isActivity;
   const dropdownOptions = isEmirate ? EMIRATES : isActivity ? ACTIVITIES : [];
+  const hasUnreadableValue = isUnreadableValue(value);
+  const hasInvalidDate = isDate && value.length >= 10 && !isValidDate(value);
+
+  function getOptionLabel(optionValue: string) {
+    if (isEmirate) {
+      return (t.options.emirates as Record<string, string>)[optionValue] ?? optionValue;
+    }
+    if (isActivity) {
+      return (t.options.activities as Record<string, string>)[optionValue] ?? optionValue;
+    }
+    return optionValue;
+  }
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -94,7 +120,7 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
         : 'border-gray-200';
 
   const handleConfirm = () => {
-    if (isDate && value && !isValidDate(value)) return;
+    if (hasInvalidDate || hasUnreadableValue) return;
     setEditing(false);
     onUpdate(value);
   };
@@ -123,7 +149,9 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
         <ConfidenceDot level={field.confidence} />
         <div className="flex-1 min-w-0">
           <p className="text-[11px] text-gray-400 uppercase tracking-wider">{label}</p>
-          <p className="text-sm font-medium text-gray-900 mt-0.5 truncate">{value || '—'}</p>
+          <p className="text-sm font-medium text-gray-900 mt-0.5 truncate">
+            {isDropdown ? getOptionLabel(value) : value || '—'}
+          </p>
         </div>
         <svg
           width="14"
@@ -159,10 +187,10 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
             className="w-full text-sm font-medium text-gray-900 bg-transparent outline-none mt-0.5 cursor-pointer"
           >
             {!dropdownOptions.includes(value) && value && (
-              <option value={value}>{value}</option>
+              <option value={value}>{getOptionLabel(value)}</option>
             )}
             {dropdownOptions.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
+              <option key={opt} value={opt}>{getOptionLabel(opt)}</option>
             ))}
           </select>
         ) : (
@@ -172,20 +200,24 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
             value={value}
             onChange={isDate ? handleDateChange : (e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isDate ? 'DD/MM/YYYY' : ''}
+            placeholder={isDate ? t.companyDetails.datePlaceholder : ''}
             maxLength={isDate ? 10 : undefined}
             className="w-full text-sm font-medium text-gray-900 bg-transparent outline-none mt-0.5"
           />
         )}
-        {isDate && value && !isValidDate(value) && value.length >= 10 && (
-          <p className="text-[10px] text-red-500 mt-0.5">Invalid date format (DD/MM/YYYY)</p>
+        {hasInvalidDate && (
+          <p className="text-[10px] text-red-500 mt-0.5">{t.upload.invalidDateFormat}</p>
+        )}
+        {!hasInvalidDate && hasUnreadableValue && (
+          <p className="text-[10px] text-red-500 mt-0.5">{t.companyDetails.reviewHighlightedFields}</p>
         )}
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={handleConfirm}
+          disabled={hasInvalidDate || hasUnreadableValue}
           className="w-7 h-7 rounded-md bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
-          title="Confirm"
+          title={t.common.confirm}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
             <path d="M3.5 7.5L6 10L10.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -194,7 +226,7 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
         <button
           onClick={handleCancel}
           className="w-7 h-7 rounded-md bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-          title="Cancel"
+          title={t.common.cancel}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-gray-500">
             <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

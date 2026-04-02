@@ -17,6 +17,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
+      suppressHydrationWarning
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col" style={{fontFamily: "'BlissPro', 'PingARLT', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"}}>

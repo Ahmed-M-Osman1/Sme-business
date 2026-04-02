@@ -18,6 +18,7 @@ export interface OcrResult {
 
 interface Scenario {
   name: string;
+  success?: boolean;
   fields: OcrResult['fields'];
   warnings: string[];
 }
@@ -89,9 +90,22 @@ const scenarios: Scenario[] = [
     },
     warnings: ['Some fields could not be read clearly. Please review.'],
   },
+  {
+    name: 'unsupported',
+    success: false,
+    fields: {
+      companyName: { value: '', confidence: 'low' },
+      licenseNumber: { value: '', confidence: 'low' },
+      activity: { value: 'Unclear', confidence: 'low' },
+      emirate: { value: '', confidence: 'low' },
+      expiryDate: { value: 'Unclear', confidence: 'low' },
+    },
+    warnings: [
+      'We could not confirm this document is a valid UAE trade licence.',
+      'Please upload a clearer trade licence copy or continue manually.',
+    ],
+  },
 ];
-
-const happyScenarios = scenarios.slice(0, 4);
 
 function pickScenario(fileName: string): Scenario {
   const lower = fileName.toLowerCase();
@@ -115,7 +129,7 @@ function pickScenario(fileName: string): Scenario {
     return scenarios[5];
   }
 
-  return happyScenarios[Math.floor(Math.random() * happyScenarios.length)];
+  return scenarios[6];
 }
 
 const stages: Array<{ pct: number; label: string }> = [
@@ -145,7 +159,7 @@ export async function mockOcrExtract(
   const scenario = pickScenario(file.name);
 
   return {
-    success: true,
+    success: scenario.success ?? true,
     scenario: scenario.name,
     fields: scenario.fields,
     warnings: scenario.warnings,

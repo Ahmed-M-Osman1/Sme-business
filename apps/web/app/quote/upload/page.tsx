@@ -6,20 +6,12 @@ import {Button} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
-import {EditableField} from '@/components/quote/company-details-fields';
+import {EditableField, isUnreadableValue, isValidDate} from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
 import quoteOptions from '@/config/quote-options.json';
 import businessTypes from '@/config/business-types.json';
 
 type Step = 'upload' | 'processing' | 'review' | 'details';
-
-const FIELD_META: Array<{key: keyof OcrResult['fields']; label: string}> = [
-  {key: 'companyName', label: 'Company Name'},
-  {key: 'licenseNumber', label: 'License Number'},
-  {key: 'activity', label: 'Business Activity'},
-  {key: 'emirate', label: 'Emirate'},
-  {key: 'expiryDate', label: 'Expiry Date'},
-];
 
 export default function UploadPage() {
   const {t} = useI18n();
@@ -31,11 +23,34 @@ export default function UploadPage() {
   const [progress, setProgress] = useState({pct: 0, stage: ''});
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
+  const [fileError, setFileError] = useState('');
 
   // Step 2: additional details
   const [employees, setEmployees] = useState('');
   const [revenue, setRevenue] = useState('');
   const [selectedAssets, setSelectedAssets] = useState<Record<string, string>>({});
+  const fieldMeta: Array<{key: keyof OcrResult['fields']; label: string}> = [
+    {key: 'companyName', label: t.companyDetails.companyName},
+    {key: 'licenseNumber', label: t.companyDetails.licenseNumber},
+    {key: 'activity', label: t.companyDetails.businessActivity},
+    {key: 'emirate', label: t.confirmation.emirate},
+    {key: 'expiryDate', label: t.companyDetails.expiryDate},
+  ];
+  const employeeBands = t.options.employeeBands as Record<string, string>;
+  const revenueBands = t.options.revenueBands as Record<string, string>;
+  const assetLabels = t.options.highValueAssets as Record<string, {label: string; description: string}>;
+
+  function hasInvalidOcrFields(result: OcrResult | null): boolean {
+    if (!result) return true;
+
+    return Object.entries(result.fields).some(([key, field]) => {
+      const value = editedFields[key] ?? field.value;
+      if (key === 'expiryDate') {
+        return value.length > 0 && !isValidDate(value);
+      }
+      return isUnreadableValue(value);
+    });
+  }
 
   function toggleAsset(id: string) {
     setSelectedAssets((prev) => {
@@ -50,7 +65,13 @@ export default function UploadPage() {
   }
 
   const processFile = useCallback(async (file: File) => {
-    if (!file || file.size > 10 * 1024 * 1024) return;
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFileError(t.upload.fileTooLarge);
+      return;
+    }
+
+    setFileError('');
     setStep('processing');
     const result = await mockOcrExtract(file, (pct, stage) => {
       setProgress({pct, stage});
@@ -58,7 +79,7 @@ export default function UploadPage() {
     setOcrResult(result);
     setEditedFields({});
     setStep('review');
-  }, []);
+  }, [t.upload.fileTooLarge]);
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -83,7 +104,7 @@ export default function UploadPage() {
   }
 
   function handleGetQuotes() {
-    if (!ocrResult || !employees || !revenue) return;
+    if (!ocrResult || !employees || !revenue || hasInvalidOcrFields(ocrResult)) return;
     const type = resolveBusinessType();
     const emirate = editedFields.emirate || ocrResult.fields.emirate.value || 'Dubai';
     const companyName = editedFields.companyName ?? ocrResult.fields.companyName.value;
@@ -102,12 +123,13 @@ export default function UploadPage() {
   }
 
   const stageIcon = progress.pct < 30 ? '📤' : progress.pct < 60 ? '🔍' : '✨';
+  const canContinueFromReview = !!ocrResult && !hasInvalidOcrFields(ocrResult);
 
   // --- Processing screen ---
   if (step === 'processing') {
     return (
       <div className="flex flex-col gap-8">
-        <ProgressIndicator currentStep={2} label="Upload document" />
+        <ProgressIndicator currentStep={2} totalSteps={6} label={t.upload.uploadDocument} />
         <div className="flex-1 flex flex-col items-center justify-center gap-5 py-20">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl">
             {stageIcon}
@@ -127,7 +149,7 @@ export default function UploadPage() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={2} label="Upload document" />
+      <ProgressIndicator currentStep={2} totalSteps={6} label={t.upload.uploadDocument} />
 
       {/* Header */}
       <div className="max-w-3xl mx-auto px-4 w-full">
@@ -179,12 +201,19 @@ export default function UploadPage() {
               <div className="text-center">
                 <p className="text-base font-semibold text-gray-900">{t.upload.dropHere}</p>
                 <p className="text-sm text-gray-500 mt-1">
-                  or <span className="text-primary font-medium underline underline-offset-2">{t.upload.browseFiles}</span>
+                  {t.common.or}{' '}
+                  <span className="text-primary font-medium underline underline-offset-2">{t.upload.browseFiles}</span>
                 </p>
               </div>
               <p className="text-xs text-gray-400">{t.upload.fileHint}</p>
               <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
             </div>
+
+            {fileError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {fileError}
+              </div>
+            )}
 
             {/* What happens next */}
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
@@ -232,9 +261,17 @@ export default function UploadPage() {
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-amber-600 shrink-0 mt-0.5">
                       <path d="M8 5.333V8M8 10.667H8.007M14 8A6 6 0 1 1 2 8a6 6 0 0 1 12 0Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <p className="text-sm text-amber-800">{w}</p>
+                    <p className="text-sm text-amber-800">
+                      {ocrResult.success ? w : t.upload.unsupportedDocument}
+                    </p>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {!canContinueFromReview && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {t.upload.reviewHighlightedFields}
               </div>
             )}
 
@@ -246,7 +283,7 @@ export default function UploadPage() {
                 <span className="text-xs font-medium text-primary">{t.upload.extractedFrom}</span>
               </div>
               <div className="flex flex-col gap-2 p-4">
-                {FIELD_META.map(({key, label}) => {
+                {fieldMeta.map(({key, label}) => {
                   const field = ocrResult.fields[key];
                   if (!field || (!field.value && field.confidence === 'high')) return null;
                   return (
@@ -272,13 +309,14 @@ export default function UploadPage() {
                   <button
                     key={band.value}
                     onClick={() => setEmployees(band.value)}
+                    aria-label={employeeBands[band.value] ?? band.label}
                     className={`rounded-xl border py-3 text-sm font-medium transition-all duration-200 ${
                       employees === band.value
                         ? 'bg-primary text-white border-primary shadow-sm'
                         : 'bg-white text-gray-700 border-gray-200 hover:border-primary/40'
                     }`}
                   >
-                    {band.label}
+                    <span dir="ltr">{employeeBands[band.value] ?? band.label}</span>
                   </button>
                 ))}
               </div>
@@ -286,7 +324,7 @@ export default function UploadPage() {
 
             <Button
               onClick={() => setStep('details')}
-              disabled={!employees}
+              disabled={!employees || !canContinueFromReview}
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
               {t.common.continue}
@@ -332,13 +370,14 @@ export default function UploadPage() {
                   <button
                     key={band.value}
                     onClick={() => setRevenue(band.value)}
+                    aria-label={revenueBands[band.value] ?? band.label}
                     className={`w-full text-start rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
                       revenue === band.value
                         ? 'bg-primary/5 text-primary border-primary'
                         : 'bg-white text-gray-700 border-gray-200 hover:border-primary/40'
                     }`}
                   >
-                    {band.label}
+                    {revenueBands[band.value] ?? band.label}
                   </button>
                 ))}
               </div>
@@ -365,9 +404,11 @@ export default function UploadPage() {
                         <span className="text-lg">{asset.icon}</span>
                         <div className="flex-1 min-w-0">
                           <p className={`text-sm font-medium ${isSelected ? 'text-primary' : 'text-gray-700'}`}>
-                            {asset.label}
+                            {assetLabels[asset.id]?.label ?? asset.label}
                           </p>
-                          <p className="text-xs text-gray-400">{asset.description}</p>
+                          <p className="text-xs text-gray-400">
+                            {assetLabels[asset.id]?.description ?? asset.description}
+                          </p>
                         </div>
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 ${
                           isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'

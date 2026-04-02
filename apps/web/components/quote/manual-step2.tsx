@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import quoteOptions from '@/config/quote-options.json';
+import {useI18n} from '@/lib/i18n';
 
 interface Step1Data {
   classifiedType: string;
@@ -32,6 +33,7 @@ function parseAed(formatted: string): string {
 }
 
 export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
+  const {t, locale} = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [emirate, setEmirate] = useState('');
@@ -114,6 +116,9 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
   }
 
   const canSubmit = !!emirate;
+  const emirateLabels = t.options.emirates as Record<string, string>;
+  const coverageLabels = t.options.coverageAreas as Record<string, string>;
+  const assetLabels = t.options.highValueAssets as Record<string, {label: string; description: string}>;
 
   return (
     <div className="flex flex-col gap-6">
@@ -123,34 +128,34 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-text mb-1.5">
-                Emirate <span className="text-red-500">*</span>
+                {t.manual.emirate} <span className="text-red-500">*</span>
               </label>
               <select
                 value={emirate}
                 onChange={(e) => setEmirate(e.target.value)}
                 className="w-full rounded-xl border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
               >
-                <option value="">Select Emirate</option>
+                <option value="">{t.manual.selectEmirate}</option>
                 {quoteOptions.emirates.map((em) => (
                   <option key={em} value={em}>
-                    {em}
+                    {emirateLabels[em] ?? em}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-text mb-1.5">
-                Coverage area <span className="text-red-500">*</span>
+                {t.manual.coverageArea} <span className="text-red-500">*</span>
               </label>
               <select
                 value={coverageArea}
                 onChange={(e) => setCoverageArea(e.target.value)}
                 className="w-full rounded-xl border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
               >
-                <option value="">Select coverage area</option>
+                <option value="">{t.manual.selectCoverageArea}</option>
                 {quoteOptions.coverageAreas.map((ca) => (
                   <option key={ca.value} value={ca.value}>
-                    {ca.label}
+                    {coverageLabels[ca.value] ?? ca.label}
                   </option>
                 ))}
               </select>
@@ -164,10 +169,10 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
         <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
           <div>
             <label className="block text-sm font-medium text-text mb-1.5">
-              High value assets
+              {t.manual.highValueAssets}
             </label>
             <p className="text-xs text-text-muted mt-0.5">
-              Total estimated value of high-value assets (equipment, machinery, stock, etc.)
+              {t.manual.highValueAssetsDesc}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -189,10 +194,10 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
         <CardContent className="flex flex-col gap-3 p-5 sm:p-6">
           <div>
             <label className="block text-sm font-medium text-text">
-              Asset breakdown
+              {t.manual.assetBreakdown}
             </label>
             <p className="text-xs text-text-muted mt-0.5">
-              Tick any over AED 5,000
+              {t.manual.tickOver5k}
             </p>
           </div>
           <div className="flex flex-col gap-2">
@@ -211,8 +216,12 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
                   >
                     <span className="text-xl">{asset.icon}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-text">{asset.label}</p>
-                      <p className="text-xs text-text-muted">{asset.description}</p>
+                      <p className="text-sm font-medium text-text">
+                        {assetLabels[asset.id]?.label ?? asset.label}
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        {assetLabels[asset.id]?.description ?? asset.description}
+                      </p>
                     </div>
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -230,7 +239,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
                       <input
                         type="text"
                         inputMode="numeric"
-                        placeholder="Estimated value"
+                        placeholder={t.manual.estimatedValue}
                         value={getAssetValue(asset.id) ? formatAed(getAssetValue(asset.id)) : ''}
                         onChange={(e) => updateAssetValue(asset.id, parseAed(e.target.value))}
                         className="w-full rounded-lg border border-border px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
@@ -245,20 +254,20 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
       </Card>
 
       {/* Navigation */}
-      <div className="sticky bottom-4 z-10 flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <Button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="w-full rounded-xl bg-primary text-white py-3 font-medium disabled:opacity-50 shadow-lg"
+          className="w-full rounded-xl bg-primary text-white py-3 font-medium disabled:opacity-50"
         >
-          Get my quotes
+          {t.manual.getMyQuotes}
         </Button>
         <Button
           onClick={onBack}
           variant="outline"
           className="w-full rounded-xl py-2.5 font-medium"
         >
-          Back
+          {t.common.back}
         </Button>
       </div>
     </div>

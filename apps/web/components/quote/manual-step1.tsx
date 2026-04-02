@@ -4,6 +4,7 @@ import {useState, useRef, useEffect} from 'react';
 import {Button, Card, CardContent, Badge} from '@shory/ui';
 import businessTypes from '@/config/business-types.json';
 import quoteOptions from '@/config/quote-options.json';
+import {useI18n} from '@/lib/i18n';
 
 import type {BusinessType} from '@/types/quote';
 
@@ -153,6 +154,7 @@ function riskColor(level: string): string {
 }
 
 export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
+  const {t, locale} = useI18n();
   const [description, setDescription] = useState('');
   const [classifying, setClassifying] = useState(false);
   const [classificationError, setClassificationError] = useState('');
@@ -179,9 +181,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
       const match = classifyBusiness(description);
 
       if (!match && words.length < 3) {
-        setClassificationError(
-          "We need a bit more detail. Can you describe what your business actually does?",
-        );
+        setClassificationError(t.manual.classificationError);
         setClassifying(false);
         return;
       }
@@ -220,6 +220,9 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
   }
 
   const canContinue = locked && data.employees && data.revenue;
+  const businessTypeCopy = t.businessType as Record<string, string>;
+  const employeeBands = t.options.employeeBands as Record<string, string>;
+  const revenueBands = t.options.revenueBands as Record<string, string>;
 
   return (
     <div className="flex flex-col gap-6">
@@ -228,7 +231,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
         <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
           <div>
             <label className="block text-sm font-medium text-text mb-1.5">
-              Describe your business
+              {t.manual.describeYourBusiness}
             </label>
             {!locked && !classified ? (
               <>
@@ -245,7 +248,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                       handleClassify();
                     }
                   }}
-                  placeholder="e.g. Café serving coffee and light meals in Dubai Marina"
+                  placeholder={t.manual.descriptionPlaceholder}
                   className="w-full rounded-xl border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                 />
                 {classificationError && (
@@ -259,16 +262,16 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                   {classifying ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      Classifying...
+                      {t.manual.classifying}
                     </span>
                   ) : (
-                    'Classify my business'
+                    t.manual.classifyButton
                   )}
                 </Button>
               </>
             ) : showTypeList ? (
               <div className="flex flex-col gap-2">
-                <p className="text-sm text-text-muted mb-1">Select your business type:</p>
+                <p className="text-sm text-text-muted mb-1">{t.manual.selectYourBusinessType}</p>
                 {(businessTypes as BusinessType[]).map((bt) => (
                   <button
                     key={bt.id}
@@ -278,8 +281,9 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                   >
                     <span className="text-xl">{bt.icon}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-text">{bt.title}</p>
-                      <p className="text-xs text-text-muted">{bt.description}</p>
+                      <p className="text-sm font-medium text-text">
+                        {businessTypeCopy[bt.id] ?? bt.title}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -290,13 +294,20 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                   <span className="text-2xl">{classified.icon}</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-text">{classified.title}</p>
+                      <p className="text-sm font-medium text-text">
+                        {businessTypeCopy[classified.id] ?? classified.title}
+                      </p>
                       <Badge className={`text-[10px] px-1.5 py-0 ${riskColor(classified.riskLevel)}`}>
-                        {classified.riskLevel} risk
+                        {classified.riskLevel === 'low'
+                          ? t.businessType.lowRisk
+                          : classified.riskLevel === 'high'
+                            ? t.businessType.highRisk
+                            : t.businessType.mediumRisk}
                       </Badge>
                     </div>
                     <p className="text-xs text-text-muted mt-0.5">
-                      We've identified your business as: <strong>{classified.title}</strong>
+                      {t.manual.identifiedAs}{' '}
+                      <strong>{businessTypeCopy[classified.id] ?? classified.title}</strong>
                     </p>
                   </div>
                 </div>
@@ -306,14 +317,14 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                       onClick={handleConfirm}
                       className="flex-1 rounded-xl bg-primary text-white py-2.5 font-medium"
                     >
-                      Yes, that's right
+                      {t.manual.yesThatsRight}
                     </Button>
                     <Button
                       onClick={handleChangeType}
                       variant="outline"
                       className="flex-1 rounded-xl py-2.5 font-medium"
                     >
-                      Change it
+                      {t.manual.changeIt}
                     </Button>
                   </div>
                 )}
@@ -323,7 +334,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                     onClick={handleRestart}
                     className="text-xs text-primary hover:underline self-start"
                   >
-                    Re-classify
+                    {t.manual.reClassify}
                   </button>
                 )}
               </div>
@@ -337,9 +348,9 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
         <CardContent className="flex flex-col gap-3 p-5 sm:p-6">
           <div>
             <label className="block text-sm font-medium text-text">
-              Number of employees
+              {t.manual.numberOfEmployees}
             </label>
-            <p className="text-xs text-text-muted mt-0.5">(including yourself)</p>
+            <p className="text-xs text-text-muted mt-0.5">{t.manual.includingYourself}</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {quoteOptions.employeeBands.map((band) => (
@@ -352,8 +363,11 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                     ? 'bg-primary text-white border-primary'
                     : 'bg-white text-text border-border hover:border-primary/50'
                 }`}
+                aria-label={employeeBands[band.value] ?? band.label}
               >
-                {band.label}
+                <span dir="ltr">
+                  {employeeBands[band.value] ?? band.label}
+                </span>
               </button>
             ))}
           </div>
@@ -365,10 +379,10 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
         <CardContent className="flex flex-col gap-3 p-5 sm:p-6">
           <div>
             <label className="block text-sm font-medium text-text">
-              Estimated annual revenue (next 12 months)
+              {t.manual.estimatedAnnualRevenue}
             </label>
             <p className="text-xs text-text-muted mt-0.5">
-              Used to calculate your Business Interruption and Liability limits
+              {t.manual.revenueHelper}
             </p>
           </div>
           <div className="flex flex-col gap-2">
@@ -382,8 +396,11 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'bg-white text-text border-border hover:border-primary/50'
                 }`}
+                aria-label={revenueBands[band.value] ?? band.label}
               >
-                {band.label}
+                <span dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                  {revenueBands[band.value] ?? band.label}
+                </span>
               </button>
             ))}
           </div>
@@ -391,13 +408,13 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
       </Card>
 
       {/* Continue */}
-      <div className="sticky bottom-4 z-10">
+      <div>
         <Button
           onClick={onContinue}
           disabled={!canContinue}
-          className="w-full rounded-xl bg-primary text-white py-3 font-medium disabled:opacity-50 shadow-lg"
+          className="w-full rounded-xl bg-primary text-white py-3 font-medium disabled:opacity-50"
         >
-          Continue
+          {t.common.continue}
         </Button>
       </div>
     </div>

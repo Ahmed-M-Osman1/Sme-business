@@ -31,7 +31,7 @@
   },
   "nav": {
     "personal": "Personal",
-    "business": "Business",
+    "business": "Business Insurance",
     "company": "Company",
     "help": "Help",
     "dashboard": "Dashboard",
@@ -126,18 +126,24 @@
     "title": "AI Advisor",
     "openingMessage": "Hi! I'm your Shory insurance advisor. Tell me about your business and I'll help find the right coverage for you. You can describe your business activity, number of employees, and location.",
     "unavailable": "AI advisor is temporarily unavailable. You can still get your quote using one of these options:",
+    "backToStart": "Back",
     "quickSelect": "Quick Select",
     "manualEntry": "Manual Entry",
     "orDescribeBelow": "Or describe your business below",
+    "swipeHint": "Swipe to see more options",
     "inputPlaceholder": "Describe your business in plain English...",
     "typeAnswer": "Type your answer...",
     "seeMyQuotes": "See my quotes",
     "theseRightSeeQuotes": "These look right — see my quotes",
     "notExpected": "Not what you expected?",
+    "startOverAgain": "Start over again",
     "shoryAi": "Shory AI",
     "askEmployees": "How many people work in your business (including yourself)?",
     "askRevenue": "What's your estimated annual revenue for the next 12 months?",
     "askEmirate": "Which emirate is your business based in?",
+    "employeesRetry": "Choose one of the team-size options, like 2-5 or 6-20.",
+    "revenueRetry": "Choose one of the revenue ranges so I can price your quote correctly.",
+    "emirateRetry": "Please enter a valid UAE emirate, such as Dubai or Abu Dhabi.",
     "summaryIntro": "Here's what I've got:",
     "summaryBusiness": "Business",
     "summaryTeam": "Team size",
@@ -175,6 +181,9 @@
     "detailsLookGood": "Details look good — continue",
     "reUpload": "Re-upload document",
     "enterManuallyInstead": "Enter manually instead",
+    "fileTooLarge": "This file is too large. Please upload a file under 10 MB.",
+    "unsupportedDocument": "We couldn't confirm this is a valid UAE trade licence. Please upload a clearer licence copy or continue manually.",
+    "reviewHighlightedFields": "Please correct the highlighted fields before continuing.",
     "getMyQuotes": "Get my quotes",
     "employees": "Number of employees",
     "includingYourself": "(including yourself)",
@@ -315,11 +324,89 @@
     "datePlaceholder": "DD/MM/YYYY",
     "companyNameRequired": "Company name required",
     "licenseNumberRequired": "License number required",
+    "fileTooLarge": "This file is too large. Please upload a file under 10 MB.",
+    "reviewHighlightedFields": "Please review and fix the highlighted fields before continuing.",
+    "acknowledgeExpired": "I understand this trade licence is expired and needs renewal before policy issuance.",
     "reUploadDocument": "Re-upload document",
     "enterManuallyInstead": "Enter manually instead",
     "backLabel": "Back",
     "verified": "verified",
     "notSpecified": "Not specified"
+  },
+  "options": {
+    "employeeBands": {
+      "1": "Just me",
+      "2-5": "2-5",
+      "6-20": "6-20",
+      "21-50": "21-50",
+      "51-100": "51-100",
+      "100+": "100+"
+    },
+    "revenueBands": {
+      "under-500k": "Under AED 500,000",
+      "500k-1m": "AED 500K - 1 million",
+      "1m-5m": "AED 1M - 5 million",
+      "5m-10m": "AED 5M - 10 million",
+      "over-10m": "Over AED 10 million"
+    },
+    "coverageAreas": {
+      "uae": "UAE only",
+      "gcc": "GCC",
+      "worldwide": "Worldwide"
+    },
+    "emirates": {
+      "Abu Dhabi": "Abu Dhabi",
+      "Dubai": "Dubai",
+      "Sharjah": "Sharjah",
+      "Ajman": "Ajman",
+      "Umm Al Quwain": "Umm Al Quwain",
+      "Ras Al Khaimah": "Ras Al Khaimah",
+      "Fujairah": "Fujairah",
+      "RAK": "RAK",
+      "UAQ": "UAQ",
+      "DIFC": "DIFC",
+      "ADGM": "ADGM"
+    },
+    "highValueAssets": {
+      "stock": {
+        "label": "Stock / inventory",
+        "description": "Current retail stock at cost price"
+      },
+      "fixtures": {
+        "label": "Fixtures & fit-out",
+        "description": "Display shelving, counters, lighting"
+      },
+      "pos": {
+        "label": "POS & payment systems",
+        "description": "Terminals, tablets, cash registers"
+      },
+      "security": {
+        "label": "Security / CCTV systems",
+        "description": "Cameras, access control, alarms"
+      },
+      "safe": {
+        "label": "Safe / cash handling",
+        "description": "Safes, cash counters"
+      }
+    },
+    "activities": {
+      "Technology": "Technology",
+      "Trading": "Trading",
+      "Manufacturing": "Manufacturing",
+      "Construction": "Construction",
+      "Healthcare": "Healthcare",
+      "Hospitality": "Hospitality",
+      "Retail": "Retail",
+      "Professional Services": "Professional Services",
+      "Transport & Logistics": "Transport & Logistics",
+      "Food & Beverage": "Food & Beverage",
+      "Beauty Services": "Beauty Services",
+      "Education": "Education",
+      "Real Estate": "Real Estate",
+      "Financial Services": "Financial Services",
+      "Media & Advertising": "Media & Advertising",
+      "Other": "Other"
+    }
   },
   "checkout": {
     "title": "Review & Pay",
