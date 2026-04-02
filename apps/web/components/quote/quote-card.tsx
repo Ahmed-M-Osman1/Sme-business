@@ -34,6 +34,21 @@ export function QuoteCard({
 }: QuoteCardProps) {
   const {t} = useI18n();
   const [showDetails, setShowDetails] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+
+  const initials = insurer.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w.charAt(0).toUpperCase())
+    .join('');
+
+  // Deterministic color from insurer name
+  const INITIALS_COLORS = [
+    'bg-blue-600', 'bg-emerald-600', 'bg-violet-600', 'bg-amber-600',
+    'bg-rose-600', 'bg-cyan-600', 'bg-indigo-600', 'bg-teal-600',
+  ];
+  const colorIndex = insurer.name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % INITIALS_COLORS.length;
+  const initialsColor = INITIALS_COLORS[colorIndex];
 
   return (
     <div
@@ -74,11 +89,18 @@ export function QuoteCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 p-1">
-            <img
-              src={insurer.logo}
-              alt={insurer.name}
-              className="w-full h-full object-contain"
-            />
+            {!logoError && insurer.logo ? (
+              <img
+                src={insurer.logo}
+                alt={insurer.name}
+                className="w-full h-full object-contain"
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              <div className={`w-full h-full rounded-lg ${initialsColor} flex items-center justify-center`}>
+                <span className="text-white text-sm font-bold">{initials}</span>
+              </div>
+            )}
           </div>
           <div>
             <p className="font-semibold text-gray-900 text-sm">

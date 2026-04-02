@@ -384,7 +384,7 @@ export function Confirmation() {
             <div className="flex items-center justify-between bg-primary rounded-xl px-5 py-4 -mx-1">
               <div>
                 <p className="text-sm font-semibold text-white">{t.confirmation.totalPremium}</p>
-                <p className="text-xs text-white/70 mt-0.5">{t.confirmation.inclVat}</p>
+                <p className="text-xs text-white/85 mt-0.5">{t.confirmation.inclVat}</p>
               </div>
               <p className="text-2xl font-bold text-white">
                 AED {formatPrice(total)}

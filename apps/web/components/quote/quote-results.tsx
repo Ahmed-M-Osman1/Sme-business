@@ -513,6 +513,10 @@ export function QuoteResults() {
                 />
               ))
             )}
+          {/* Indicative pricing disclaimer */}
+          <p className="text-xs text-gray-400 text-center mt-2">
+            All prices shown are indicative and subject to final underwriting review.
+          </p>
           </div>
         </div>
       </div>
