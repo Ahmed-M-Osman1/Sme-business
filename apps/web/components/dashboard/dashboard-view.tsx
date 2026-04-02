@@ -101,7 +101,12 @@ export function DashboardView({user, policies, stats}: DashboardViewProps) {
                         {policy.businessName}
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
-                        {policy.products.join(', ')}
+                        {policy.products
+                          .map((productId) => {
+                            const product = (t.products as Record<string, {name: string}>)?.[productId];
+                            return product?.name || productId;
+                          })
+                          .join(', ')}
                       </p>
                       <div className="flex items-center gap-4 mt-4">
                         <span className="text-xs text-gray-400">
