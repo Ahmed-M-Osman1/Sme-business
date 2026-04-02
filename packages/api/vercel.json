@@ -1,19 +1,12 @@
 {
   "version": 2,
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "ANTHROPIC_API_KEY": "@anthropic_api_key",
-    "BLOB_READ_WRITE_TOKEN": "@blob_read_write_token"
-  },
-  "functions": {
-    "api/**": {
-      "runtime": "nodejs20.x"
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "runtime": "nodejs20.x",
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.ts"
+      "dest": "/api/index.ts"
     }
   ]
 }
