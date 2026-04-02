@@ -38,7 +38,7 @@ quotesRouter.patch('/:id', async (c) => {
     const data = updateQuoteSchema.parse(body);
     const [quote] = await db
       .update(quotes)
-      .set({...data, updatedAt: new Date()})
+      .set({...data, updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>)
       .where(eq(quotes.id, id))
       .returning();
     if (!quote) return errorResponse(c, 'QUOTE_NOT_FOUND', `Quote ${id} not found`, 404);
@@ -84,7 +84,7 @@ quotesRouter.post('/:id/submit', async (c) => {
     .returning();
 
   // Update status
-  await db.update(quotes).set({status: 'quoted', updatedAt: new Date()}).where(eq(quotes.id, id));
+  await db.update(quotes).set({status: 'quoted', updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>).where(eq(quotes.id, id));
 
   return c.json({status: 'quoted', results: insertedResults});
 });
@@ -133,7 +133,7 @@ quotesRouter.post('/:id/accept', async (c) => {
       })
       .returning();
 
-    await db.update(quotes).set({status: 'accepted', updatedAt: new Date()}).where(eq(quotes.id, id));
+    await db.update(quotes).set({status: 'accepted', updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>).where(eq(quotes.id, id));
 
     return c.json(policy, 201);
   } catch (e) {
