@@ -1,18 +1,35 @@
 'use client';
 
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
 import {calculateTotalPremium, getSizeFactor, formatPrice} from '@/lib/pricing';
+import type {ProductInfo} from '@/lib/pricing';
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
-import businessTypes from '@/config/business-types.json';
-import productsConfig from '@/config/products.json';
-import insurers from '@/config/insurers.json';
+import {api} from '@/lib/api-client';
 
-type ProductId = keyof typeof productsConfig;
+interface BusinessType {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  riskLevel: string;
+  riskFactor: number;
+  products: string[];
+}
+
+interface Insurer {
+  id: string;
+  name: string;
+  logo: string;
+  rating: number;
+  reviewCount: number;
+  shariahCompliant: boolean;
+  priceMultiplier: number;
+}
 
 export function QuoteResults() {
   const {t} = useI18n();
@@ -26,43 +43,71 @@ export function QuoteResults() {
   const revenue = searchParams.get('revenue') ?? '';
   const coverageArea = searchParams.get('coverageArea') ?? '';
 
-  const businessType =
-    businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
-  const initialProducts = resolveProducts(searchParams, businessType);
+  const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
+  const [productsMap, setProductsMap] = useState<Record<string, ProductInfo>>({});
+  const [insurers, setInsurers] = useState<Insurer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [activeProducts, setActiveProducts] = useState<Set<ProductId>>(
-    new Set(initialProducts),
-  );
-  const [coverageLimits, setCoverageLimits] = useState<Record<string, string>>(
-    () => {
-      const limits: Record<string, string> = {};
-      initialProducts.forEach((p) => {
-        limits[p] = '1M';
-      });
-      return limits;
-    },
-  );
+  useEffect(() => {
+    Promise.all([
+      api.catalog.businessTypes(),
+      api.catalog.products(),
+      api.catalog.insurers(),
+    ])
+      .then(([btData, prodData, insData]) => {
+        setBusinessTypes(btData);
+        const map: Record<string, ProductInfo> = {};
+        prodData.forEach((p) => { map[p.id] = p; });
+        setProductsMap(map);
+        setInsurers(insData);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const businessType = businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
+  const initialProducts = businessType ? resolveProducts(searchParams, businessType) : [];
+
+  const [activeProducts, setActiveProducts] = useState<Set<string>>(new Set());
+  const [coverageLimits, setCoverageLimits] = useState<Record<string, string>>({});
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'rating'>('price');
   const [shariahOnly, setShariahOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
+  // Initialize activeProducts and coverageLimits once data is loaded
+  useEffect(() => {
+    if (!loading && businessType && !initialized) {
+      const products = resolveProducts(searchParams, businessType);
+      setActiveProducts(new Set(products));
+      const limits: Record<string, string> = {};
+      products.forEach((p) => { limits[p] = '1M'; });
+      setCoverageLimits(limits);
+      setInitialized(true);
+    }
+  }, [loading, businessType, initialized, searchParams]);
 
   const sizeFactor = getSizeFactor(employeeBand);
 
   const allQuotes = useMemo(() => {
+    if (!businessType) return [];
     return insurers
       .map((insurer) => {
-        const total = calculateTotalPremium({
-          productIds: Array.from(activeProducts),
-          riskFactor: businessType.riskFactor,
-          sizeFactor,
-          coverageLimits,
-          insurerMultiplier: insurer.priceMultiplier,
-        });
+        const total = calculateTotalPremium(
+          {
+            productIds: Array.from(activeProducts),
+            riskFactor: businessType.riskFactor,
+            sizeFactor,
+            coverageLimits,
+            insurerMultiplier: insurer.priceMultiplier,
+          },
+          productsMap,
+        );
         return {...insurer, total};
       })
       .sort((a, b) => a.total - b.total);
-  }, [activeProducts, coverageLimits, businessType.riskFactor, sizeFactor]);
+  }, [activeProducts, coverageLimits, businessType, sizeFactor, insurers, productsMap]);
 
   const insurerQuotes = useMemo(() => {
     let filtered = allQuotes.filter((q) => {
@@ -87,15 +132,15 @@ export function QuoteResults() {
   const activeFilterCount = [shariahOnly, maxPrice !== null].filter(Boolean).length;
 
   const coverageType = Array.from(activeProducts)
-    .map((id) => productsConfig[id].shortName)
+    .map((id) => productsMap[id]?.shortName ?? id)
     .join(' + ');
 
   const benefits = Array.from(activeProducts).map((id) => ({
-    name: productsConfig[id].name,
+    name: productsMap[id]?.name ?? id,
     included: true,
   }));
 
-  function toggleProduct(productId: ProductId) {
+  function toggleProduct(productId: string) {
     setActiveProducts((prev) => {
       const next = new Set(prev);
       if (next.has(productId)) {
@@ -140,6 +185,14 @@ export function QuoteResults() {
     router.back();
   }
 
+  if (loading || !initialized) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 pb-12">
       <ProgressIndicator currentStep={3} label={t.progress.quotes} />
@@ -163,7 +216,7 @@ export function QuoteResults() {
         </button>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t.results.title}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {businessType.title} &middot; {emirate} &middot; {employeeBand} employees
+          {businessType?.title} &middot; {emirate} &middot; {employeeBand} employees
         </p>
       </div>
 
@@ -175,13 +228,13 @@ export function QuoteResults() {
           <Card className="rounded-xl border border-gray-200 bg-white">
             <CardContent className="p-5">
               <h2 className="text-lg font-bold text-gray-900">
-                {businessType.title}
+                {businessType?.title}
               </h2>
               <div className="mt-3 space-y-2 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Industry</span>
                   <span className="font-medium text-gray-900">
-                    {businessType.title}
+                    {businessType?.title}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -211,7 +264,8 @@ export function QuoteResults() {
             </p>
             <div className="flex flex-wrap gap-2">
               {initialProducts.map((productId) => {
-                const product = productsConfig[productId];
+                const product = productsMap[productId];
+                if (!product) return null;
                 const isActive = activeProducts.has(productId);
                 return (
                   <button
@@ -255,7 +309,8 @@ export function QuoteResults() {
             </p>
             <div className="space-y-2">
               {Array.from(activeProducts).map((productId) => {
-                const product = productsConfig[productId];
+                const product = productsMap[productId];
+                if (!product) return null;
                 return (
                   <div
                     key={productId}
@@ -413,7 +468,7 @@ export function QuoteResults() {
                 </CardContent>
               </Card>
             ) : (
-              insurerQuotes.map((insurer, index) => (
+              insurerQuotes.map((insurer) => (
                 <QuoteCard
                   key={insurer.id}
                   insurer={insurer}
@@ -433,12 +488,12 @@ export function QuoteResults() {
 
 function resolveProducts(
   params: URLSearchParams,
-  businessType: (typeof businessTypes)[number],
-): ProductId[] {
+  businessType: BusinessType,
+): string[] {
   const source = params.get('source');
 
   if (source === 'manual') {
-    const products: ProductId[] = ['workers-comp'];
+    const products: string[] = ['workers-comp'];
     if (params.get('customerInteraction') === 'true') {
       products.push('public-liability');
     }
@@ -457,5 +512,5 @@ function resolveProducts(
     return products;
   }
 
-  return businessType.products as unknown as ProductId[];
+  return businessType.products;
 }

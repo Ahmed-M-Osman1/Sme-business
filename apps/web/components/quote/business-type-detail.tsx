@@ -1,11 +1,17 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge, Button} from '@shory/ui';
-import products from '@/config/products.json';
+import {api} from '@/lib/api-client';
 
-type ProductId = keyof typeof products;
+interface ProductInfo {
+  id: string;
+  name: string;
+  shortName: string;
+  icon: string;
+  basePrice: number;
+}
 
 interface BusinessType {
   id: string;
@@ -17,73 +23,23 @@ interface BusinessType {
   products: string[];
 }
 
+interface OptionItem {
+  value: string;
+  label: string;
+}
+
+interface AssetItem {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+}
+
 const RISK_BADGE_STYLES: Record<string, string> = {
   low: 'bg-green-100 text-green-700',
   medium: 'bg-amber-100 text-amber-700',
   high: 'bg-red-100 text-red-700',
 };
-
-const EMPLOYEE_OPTIONS = [
-  {value: 'solo', label: 'Solo'},
-  {value: '2-5', label: '2–5'},
-  {value: '6-20', label: '6–20'},
-  {value: '21-50', label: '21–50'},
-  {value: '51-100', label: '51–100'},
-  {value: '100+', label: '100+'},
-];
-
-const REVENUE_OPTIONS = [
-  {value: 'under-500k', label: 'Under AED 500,000'},
-  {value: '500k-1m', label: 'AED 500K – 1 million'},
-  {value: '1m-5m', label: 'AED 1M – 5 million'},
-  {value: '5m-10m', label: 'AED 5M – 10 million'},
-  {value: 'over-10m', label: 'Over AED 10 million'},
-];
-
-const EMIRATES = [
-  'Dubai',
-  'Abu Dhabi',
-  'Sharjah',
-  'Ajman',
-  'RAK',
-  'Fujairah',
-  'UAQ',
-];
-
-const COVERAGE_AREAS = ['UAE only', 'GCC', 'Worldwide'];
-
-const ASSET_TYPES = [
-  {
-    id: 'stock',
-    icon: '📦',
-    name: 'Stock / inventory',
-    description: 'Current retail stock at cost price',
-  },
-  {
-    id: 'fixtures',
-    icon: '🪟',
-    name: 'Fixtures & fit-out',
-    description: 'Display shelving, counters, lighting',
-  },
-  {
-    id: 'pos',
-    icon: '💳',
-    name: 'POS & payment systems',
-    description: 'Terminals, tablets, cash registers',
-  },
-  {
-    id: 'security',
-    icon: '📷',
-    name: 'Security / CCTV systems',
-    description: 'Cameras, access control, alarms',
-  },
-  {
-    id: 'safe',
-    icon: '🔒',
-    name: 'Safe / cash handling',
-    description: 'Safes, cash counters',
-  },
-];
 
 interface Props {
   businessType: BusinessType;
@@ -99,6 +55,48 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
   const [assetValues, setAssetValues] = useState<Record<string, string>>({});
   const [assetErrors, setAssetErrors] = useState<Set<string>>(new Set());
+
+  const [productsMap, setProductsMap] = useState<Record<string, ProductInfo>>({});
+  const [employeeOptions, setEmployeeOptions] = useState<OptionItem[]>([]);
+  const [revenueOptions, setRevenueOptions] = useState<OptionItem[]>([]);
+  const [emirates, setEmirates] = useState<string[]>([]);
+  const [coverageAreas, setCoverageAreas] = useState<string[]>([]);
+  const [assetTypes, setAssetTypes] = useState<AssetItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.catalog.products(),
+      api.catalog.quoteOption('employee-bands'),
+      api.catalog.quoteOption('revenue-bands'),
+      api.catalog.quoteOption('emirates'),
+      api.catalog.quoteOption('coverage-areas'),
+      api.catalog.quoteOption('high-value-assets'),
+    ])
+      .then(([productsData, empData, revData, emirData, covData, assetData]) => {
+        const map: Record<string, ProductInfo> = {};
+        (productsData as ProductInfo[]).forEach((p) => { map[p.id] = p; });
+        setProductsMap(map);
+
+        setEmployeeOptions(empData as OptionItem[]);
+        setRevenueOptions(revData as OptionItem[]);
+
+        const emirateItems = emirData as Array<{label?: string; value?: string} | string>;
+        setEmirates(emirateItems.map((e) => (typeof e === 'string' ? e : (e.label ?? e.value ?? ''))));
+
+        const covItems = covData as Array<{label?: string; value?: string} | string>;
+        setCoverageAreas(covItems.map((c) => (typeof c === 'string' ? c : (c.label ?? c.value ?? ''))));
+
+        setAssetTypes((assetData as AssetItem[]).map((a) => ({
+          id: a.id,
+          icon: a.icon,
+          label: a.label,
+          description: a.description,
+        })));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   function toggleAsset(assetId: string) {
     setSelectedAssets((prev) => {
@@ -149,6 +147,14 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
     }
 
     router.push(`/quote/results?${params.toString()}`);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-10">
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   return (
@@ -206,7 +212,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
           </p>
           <div className="flex flex-wrap gap-2">
             {businessType.products.map((productId) => {
-              const product = products[productId as ProductId];
+              const product = productsMap[productId];
               if (!product) return null;
               return (
                 <span
@@ -227,7 +233,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         <div>
           <p className="text-sm font-medium text-text mb-2.5">Employees</p>
           <div className="grid grid-cols-3 gap-2">
-            {EMPLOYEE_OPTIONS.map((opt) => (
+            {employeeOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setEmployees(opt.value)}
@@ -249,7 +255,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             Estimated annual revenue
           </p>
           <div className="flex flex-col gap-2">
-            {REVENUE_OPTIONS.map((opt) => (
+            {revenueOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setRevenue(opt.value)}
@@ -292,7 +298,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
               onChange={(e) => setEmirate(e.target.value)}
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
-              {EMIRATES.map((e) => (
+              {emirates.map((e) => (
                 <option key={e} value={e}>
                   {e}
                 </option>
@@ -308,7 +314,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
               onChange={(e) => setCoverageArea(e.target.value)}
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
             >
-              {COVERAGE_AREAS.map((ca) => (
+              {coverageAreas.map((ca) => (
                 <option key={ca} value={ca}>
                   {ca}
                 </option>
@@ -326,7 +332,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
             </span>
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2.5">
-            {ASSET_TYPES.map((asset) => {
+            {assetTypes.map((asset) => {
               const isSelected = selectedAssets.has(asset.id);
               return (
                 <div
@@ -342,7 +348,7 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
                     <span className="text-2xl shrink-0">{asset.icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-text leading-tight">
-                        {asset.name}
+                        {asset.label}
                       </p>
                       <p className="text-[10px] text-text-muted mt-0.5">
                         {asset.description}

@@ -6,16 +6,13 @@ import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeDetail} from '@/components/quote/business-type-detail';
 import {useI18n} from '@/lib/i18n';
-import businessTypes from '@/config/business-types.json';
-import products from '@/config/products.json';
+import {api} from '@/lib/api-client';
 
 const RISK_BADGE_STYLES: Record<string, string> = {
   low: 'bg-green-100 text-green-700',
   medium: 'bg-amber-100 text-amber-700',
   high: 'bg-red-100 text-red-700',
 };
-
-type ProductId = keyof typeof products;
 
 // Top 3 most common — shown as featured row
 const FEATURED_IDS = ['cafe-restaurant', 'retail-trading', 'it-technology'];
@@ -26,6 +23,18 @@ export default function BusinessTypePage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  const [businessTypes, setBusinessTypes] = useState<Array<{
+    id: string; title: string; description: string; icon: string;
+    riskLevel: string; riskFactor: number; products: string[];
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.catalog.businessTypes()
+      .then(setBusinessTypes)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   const featured = businessTypes.filter((bt) => FEATURED_IDS.includes(bt.id));
   const others = businessTypes.filter((bt) => !FEATURED_IDS.includes(bt.id));
@@ -43,6 +52,14 @@ export default function BusinessTypePage() {
 
   function handleSelect(btId: string) {
     setExpandedId((prev) => (prev === btId ? null : btId));
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   return (

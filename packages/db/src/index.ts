@@ -17,3 +17,15 @@ export type {AiRecommendation, NewAiRecommendation} from './schema/ai-recommenda
 
 export {adminRoleEnum, adminUsers} from './schema/admin-users';
 export type {AdminUser, NewAdminUser} from './schema/admin-users';
+
+export {riskLevelEnum, businessTypes} from './schema/business-types';
+export type {BusinessType, NewBusinessType} from './schema/business-types';
+
+export {products} from './schema/products';
+export type {Product, NewProduct} from './schema/products';
+
+export {insurers} from './schema/insurers';
+export type {Insurer, NewInsurer} from './schema/insurers';
+
+export {quoteOptions} from './schema/quote-options';
+export type {QuoteOption, NewQuoteOption} from './schema/quote-options';

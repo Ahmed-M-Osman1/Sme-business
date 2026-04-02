@@ -5,6 +5,7 @@ import {quotesRouter} from './routes/quotes';
 import {uploadsRouter} from './routes/uploads';
 import {aiRouter} from './routes/ai';
 import {adminRouter} from './routes/admin';
+import {catalogRouter} from './routes/catalog';
 
 const app = new Hono().basePath('/api');
 
@@ -15,6 +16,7 @@ app.route('/quotes', quotesRouter);
 app.route('/uploads', uploadsRouter);
 app.route('/ai', aiRouter);
 app.route('/admin', adminRouter);
+app.route('/catalog', catalogRouter);
 
 const port = Number(process.env.PORT) || 3002;
 

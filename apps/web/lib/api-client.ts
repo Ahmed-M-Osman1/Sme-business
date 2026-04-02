@@ -78,4 +78,29 @@ export const api = {
 
     get: (id: string) => fetchApi<ShoryDocument>(`/uploads/${id}`),
   },
+
+  catalog: {
+    businessTypes: () => fetchApi<Array<{
+      id: string; title: string; description: string; icon: string;
+      riskLevel: string; riskFactor: number; products: string[];
+    }>>('/catalog/business-types'),
+
+    businessType: (id: string) => fetchApi<{
+      id: string; title: string; description: string; icon: string;
+      riskLevel: string; riskFactor: number; products: string[];
+    }>(`/catalog/business-types/${id}`),
+
+    products: () => fetchApi<Array<{
+      id: string; name: string; shortName: string; icon: string; basePrice: number;
+    }>>('/catalog/products'),
+
+    insurers: () => fetchApi<Array<{
+      id: string; name: string; logo: string; rating: number;
+      reviewCount: number; shariahCompliant: boolean; priceMultiplier: number;
+    }>>('/catalog/insurers'),
+
+    quoteOptions: () => fetchApi<Record<string, unknown>>('/catalog/quote-options'),
+
+    quoteOption: (id: string) => fetchApi<unknown>(`/catalog/quote-options/${id}`),
+  },
 };

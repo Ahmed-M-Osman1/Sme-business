@@ -1,6 +1,10 @@
-import products from '@/config/products.json';
-
-type ProductId = keyof typeof products;
+export interface ProductInfo {
+  id: string;
+  name: string;
+  shortName: string;
+  icon: string;
+  basePrice: number;
+}
 
 const COVERAGE_MULTIPLIERS: Record<string, number> = {
   '1M': 1.0,
@@ -18,7 +22,7 @@ const SIZE_FACTORS: Record<string, number> = {
 };
 
 export interface PricingInput {
-  productIds: ProductId[];
+  productIds: string[];
   riskFactor: number;
   sizeFactor?: number;
   coverageLimits?: Record<string, string>;
@@ -26,12 +30,13 @@ export interface PricingInput {
 }
 
 export function calculateProductPrice(
-  productId: ProductId,
+  productId: string,
   riskFactor: number,
   sizeFactor: number,
   coverageLimit: string,
+  productsMap: Record<string, ProductInfo>,
 ): number {
-  const product = products[productId];
+  const product = productsMap[productId];
   if (!product) return 0;
 
   const coverageMultiplier = COVERAGE_MULTIPLIERS[coverageLimit] ?? 1.0;
@@ -40,13 +45,16 @@ export function calculateProductPrice(
   );
 }
 
-export function calculateTotalPremium(input: PricingInput): number {
+export function calculateTotalPremium(
+  input: PricingInput,
+  productsMap: Record<string, ProductInfo>,
+): number {
   const sizeFactor = input.sizeFactor ?? 1.0;
   const insurerMult = input.insurerMultiplier ?? 1.0;
 
   return input.productIds.reduce((total, productId) => {
     const limit = input.coverageLimits?.[productId] ?? '1M';
-    const price = calculateProductPrice(productId, input.riskFactor, sizeFactor, limit);
+    const price = calculateProductPrice(productId, input.riskFactor, sizeFactor, limit, productsMap);
     return total + Math.round(price * insurerMult);
   }, 0);
 }
