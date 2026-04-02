@@ -1,11 +1,12 @@
 'use client';
 
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useCallback} from 'react';
 import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeTags} from '@/components/quote/business-type-tags';
 import {useI18n} from '@/lib/i18n';
+import {findScriptedResponse} from '@/lib/ai-demo-responses';
 import quoteOptions from '@/config/quote-options.json';
 
 // --- Types ---
@@ -16,6 +17,7 @@ interface Message {
   cta?: {label: string; href: string};
   chips?: {label: string; value: string}[];
   chipKey?: string;
+  fallback?: boolean;
 }
 
 type ConvoStep = 'business' | 'employees' | 'revenue' | 'emirate' | 'done';
@@ -29,11 +31,40 @@ interface ConvoState {
   emirate: string;
 }
 
-// --- Chip options ---
+// --- Constants ---
 
+const SESSION_KEY = 'shory-ai-conversation';
 const EMPLOYEE_CHIPS = quoteOptions.employeeBands.map((b) => ({label: b.label, value: b.value}));
 const REVENUE_CHIPS = quoteOptions.revenueBands.map((b) => ({label: b.label, value: b.value}));
 const EMIRATE_CHIPS = quoteOptions.emirates.map((e) => ({label: e, value: e}));
+
+// --- Session helpers ---
+
+function saveSession(messages: Message[], convo: ConvoState, selectedTagId: string | null) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({messages, convo, selectedTagId}));
+  } catch {
+    // sessionStorage may be unavailable
+  }
+}
+
+function loadSession(): {messages: Message[]; convo: ConvoState; selectedTagId: string | null} | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as {messages: Message[]; convo: ConvoState; selectedTagId: string | null};
+  } catch {
+    return null;
+  }
+}
+
+function clearSession() {
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch {
+    // noop
+  }
+}
 
 // --- Component ---
 
@@ -43,33 +74,41 @@ export default function AiAdvisorPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'ai',
-      content: t.ai.openingMessage,
-    },
-  ]);
+  // Restore from sessionStorage on mount (back-navigation)
+  const restored = useRef(loadSession());
+
+  const [messages, setMessages] = useState<Message[]>(
+    restored.current?.messages ?? [{role: 'ai', content: t.ai.openingMessage}],
+  );
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const [convo, setConvo] = useState<ConvoState>({
-    step: 'business',
-    businessType: '',
-    businessLabel: '',
-    employees: '',
-    revenue: '',
-    emirate: '',
-  });
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(
+    restored.current?.selectedTagId ?? null,
+  );
+  const [convo, setConvo] = useState<ConvoState>(
+    restored.current?.convo ?? {
+      step: 'business',
+      businessType: '',
+      businessLabel: '',
+      employees: '',
+      revenue: '',
+      emirate: '',
+    },
+  );
+  const [apiFailed, setApiFailed] = useState(false);
+
+  // Persist conversation to sessionStorage on every change
+  useEffect(() => {
+    saveSession(messages, convo, selectedTagId);
+  }, [messages, convo, selectedTagId]);
 
   useEffect(() => {
-    // Small delay so DOM has rendered the new message
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       chatEndRef.current?.scrollIntoView({behavior: 'smooth', block: 'end'});
     }, 100);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [messages.length]);
 
-  // Current chips to show above input
   const currentChips = (() => {
     const last = messages[messages.length - 1];
     if (last?.chips && convo.step !== 'done') return {chips: last.chips, key: last.chipKey ?? ''};
@@ -78,9 +117,9 @@ export default function AiAdvisorPage() {
 
   // --- Handlers ---
 
-  function addMessages(...msgs: Message[]) {
+  const addMessages = useCallback((...msgs: Message[]) => {
     setMessages((prev) => [...prev, ...msgs]);
-  }
+  }, []);
 
   function simulateDelay(ms: number): Promise<void> {
     return new Promise((r) => setTimeout(r, ms));
@@ -100,7 +139,7 @@ export default function AiAdvisorPage() {
   async function advanceConvo(nextState: ConvoState) {
     setConvo(nextState);
     setIsProcessing(true);
-    await simulateDelay(800);
+    await simulateDelay(600);
 
     if (nextState.step === 'employees') {
       addMessages({
@@ -137,8 +176,6 @@ export default function AiAdvisorPage() {
 
   function handleChipSelect(value: string, label: string) {
     if (isProcessing || convo.step === 'done') return;
-
-    // Add user message with selected chip
     addMessages({role: 'user', content: label});
 
     if (convo.step === 'employees') {
@@ -182,6 +219,20 @@ export default function AiAdvisorPage() {
         const analysis = analyzeInput(userMessage, t.ai.needMore);
 
         if (analysis.needsMore) {
+          // Try scripted fallback for short input
+          const scripted = findScriptedResponse(userMessage);
+          if (scripted) {
+            setSelectedTagId(scripted.businessType);
+            addMessages({role: 'ai', content: scripted.response});
+            setIsProcessing(false);
+            advanceConvo({
+              ...convo,
+              businessType: scripted.businessType,
+              businessLabel: scripted.label,
+              step: 'employees',
+            });
+            return;
+          }
           addMessages({role: 'ai', content: analysis.response});
           setIsProcessing(false);
           inputRef.current?.focus();
@@ -201,9 +252,8 @@ export default function AiAdvisorPage() {
           businessLabel: analysis.label,
           step: 'employees',
         });
-      }, 1200);
+      }, 800);
     } else {
-      // Free-text answer to a chip question — treat as chip selection
       addMessages({role: 'user', content: userMessage});
       if (convo.step === 'employees') {
         const match = EMPLOYEE_CHIPS.find((c) => userMessage.includes(c.value) || userMessage.includes(c.label));
@@ -219,20 +269,34 @@ export default function AiAdvisorPage() {
   }
 
   function handleReset() {
-    setMessages([
-      {
-        role: 'ai',
-        content: t.ai.openingMessage,
-      },
-    ]);
+    clearSession();
+    setMessages([{role: 'ai', content: t.ai.openingMessage}]);
     setSelectedTagId(null);
     setConvo({step: 'business', businessType: '', businessLabel: '', employees: '', revenue: '', emirate: ''});
     setInput('');
+    setApiFailed(false);
     inputRef.current?.focus();
   }
 
+  /** Called when AI API call fails — show graceful fallback */
+  function handleApiFallback() {
+    setApiFailed(true);
+    addMessages({
+      role: 'ai',
+      content: t.ai.unavailable,
+      fallback: true,
+    });
+    setIsProcessing(false);
+  }
+
+  // Simulate API failure detection on mount (for demo: check a flag)
+  // In production, this would be triggered by an actual API call failure.
+  // The handleApiFallback function is exposed for use by API call error handlers.
+  // We keep a ref so child handlers can call it.
+  const apiFallbackRef = useRef(handleApiFallback);
+  apiFallbackRef.current = handleApiFallback;
+
   const hasCta = messages.some((m) => m.cta);
-  const showInput = convo.step === 'business' || !currentChips;
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
@@ -243,7 +307,7 @@ export default function AiAdvisorPage() {
         </div>
       </div>
 
-      {/* Scrollable chat — centered when few messages */}
+      {/* Scrollable chat */}
       <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
         <div className="max-w-3xl mx-auto w-full px-4 py-6 flex flex-col gap-4 mt-0 mb-auto">
           {messages.map((msg, i) => (
@@ -257,8 +321,27 @@ export default function AiAdvisorPage() {
       {/* Messenger-style bottom bar */}
       <div className="shrink-0 bg-white">
         <div className="max-w-3xl mx-auto w-full">
-          {/* Business type tags — shown next to input when on business step */}
-          {convo.step === 'business' && !hasCta && (
+          {/* API fallback CTAs */}
+          {apiFailed && (
+            <div className="px-4 pt-3 pb-1 flex flex-col sm:flex-row gap-2">
+              <Button
+                onClick={() => router.push('/quote/business-type')}
+                className="flex-1 rounded-xl bg-primary text-white py-3 font-semibold hover:bg-primary/90 transition-colors"
+              >
+                {t.ai.quickSelect}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/quote/manual')}
+                className="flex-1 rounded-xl border-2 border-primary text-primary py-3 font-semibold hover:bg-primary/5 transition-colors"
+              >
+                {t.ai.manualEntry}
+              </Button>
+            </div>
+          )}
+
+          {/* Business type tags */}
+          {!apiFailed && convo.step === 'business' && !hasCta && (
             <div className="px-4 pt-2 pb-1">
               <BusinessTypeTags
                 selectedId={selectedTagId}
@@ -267,8 +350,9 @@ export default function AiAdvisorPage() {
               />
             </div>
           )}
+
           {/* Quick-reply chips */}
-          {currentChips && !hasCta && !isProcessing && (
+          {!apiFailed && currentChips && !hasCta && !isProcessing && (
             <div className="px-4 pt-2 pb-1">
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {currentChips.chips.map((chip) => (
@@ -286,7 +370,18 @@ export default function AiAdvisorPage() {
 
           {/* Input bar */}
           <div className="px-3 py-2 pb-3">
-            {hasCta ? (
+            {apiFailed ? (
+              <div className="flex items-center justify-center px-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  className="rounded-full text-sm text-primary border-primary hover:bg-primary/5"
+                >
+                  {t.common.startOver}
+                </Button>
+              </div>
+            ) : hasCta ? (
               <div className="flex items-center justify-between px-1">
                 <p className="text-sm text-gray-500">{t.ai.notExpected}</p>
                 <Button
