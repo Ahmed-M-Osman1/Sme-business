@@ -42,12 +42,8 @@ adminActionsRouter.post('/', async (c) => {
     .insert(actions)
     .values({
       type: result.data.type,
-      customerId: result.data.customerId,
-      payload: result.data.payload ?? {},
       adminUserId: adminUser.id,
-      status: 'completed',
-      completedAt: new Date(),
-    })
+    } as any)
     .returning();
 
   // Create notification for customer if customerId provided
