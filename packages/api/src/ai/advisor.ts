@@ -1,6 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk';
+import AnthropicModule from '@anthropic-ai/sdk';
 import type {Recommendation} from '@shory/shared';
 
+// Handle both ESM default and CJS module resolution
+const Anthropic = ('default' in AnthropicModule ? (AnthropicModule as unknown as {default: typeof AnthropicModule}).default : AnthropicModule) as typeof AnthropicModule;
 const client = new Anthropic();
 
 interface AdvisorContext {
