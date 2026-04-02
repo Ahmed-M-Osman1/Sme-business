@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup",
+    "build": "tsup && cp dist/_vercel.js api/index.mjs",
     "start": "node dist/index.mjs",
     "lint": "eslint"
   },
