@@ -1,8 +1,9 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import Lottie from 'lottie-react';
+import type {LottieRefCurrentProps} from 'lottie-react';
 
 const DotLottiePlayer = dynamic(
   () =>
@@ -69,6 +70,7 @@ function LottieJson({
   const [data, setData] = useState<Record<string, unknown> | null>(
     null,
   );
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
 
   useEffect(() => {
     fetch(path)
@@ -77,15 +79,21 @@ function LottieJson({
       .catch(() => {});
   }, [path]);
 
+  useEffect(() => {
+    if (lottieRef.current && speed) {
+      lottieRef.current.setSpeed(speed);
+    }
+  }, [speed]);
+
   if (!data) return <div className={className} />;
 
   return (
     <Lottie
+      lottieRef={lottieRef}
       animationData={data}
       loop={loop}
       autoplay={autoplay}
       className={className}
-      speed={speed}
     />
   );
 }
