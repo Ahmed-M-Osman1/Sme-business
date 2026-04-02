@@ -37,25 +37,33 @@ export function CustomersView({customers, initialSelectedId, token}: CustomersVi
   const fetchCustomerData = useCallback(async (customerId: string) => {
     setLoading(true);
     try {
-      const [customer, comms, playbook, signalsData, platformContext, interactions, claims] = await Promise.all([
+      const unwrap = <T,>(res: T | {data: T}): T =>
+        res && typeof res === 'object' && 'data' in res ? (res as {data: T}).data : res;
+
+      const [customerRes, commsRes, playbook, signalsData, platformContext, interactionsRes, claimsRes] = await Promise.all([
         adminApi.customers.get(token, customerId),
-        adminApi.customers.getComms(token, customerId).catch(() => [] as CommsSequence[]),
+        adminApi.customers.getComms(token, customerId).catch(() => ({data: [] as CommsSequence[]})),
         adminApi.customers.getPlaybook(token, customerId).catch(() => null),
         adminApi.customers.getSignals(token, customerId).catch(() => ({signals: [], triggers: []})),
         adminApi.customers.getPlatformContext(token, customerId).catch(() => ({flag: false, issue: null, detail: null, severity: null}) as CustomerPlatformContext),
-        adminApi.customers.getInteractions(token, customerId).catch(() => [] as CustomerInteraction[]),
-        adminApi.customers.getClaims(token, customerId).catch(() => [] as Claim[]),
+        adminApi.customers.getInteractions(token, customerId).catch(() => ({data: [] as CustomerInteraction[]})),
+        adminApi.customers.getClaims(token, customerId).catch(() => ({data: [] as Claim[]})),
       ]);
+
+      const customer = unwrap(customerRes);
+      const comms = Array.isArray(commsRes) ? commsRes : unwrap(commsRes);
+      const interactions = Array.isArray(interactionsRes) ? interactionsRes : unwrap(interactionsRes);
+      const claimsList = Array.isArray(claimsRes) ? claimsRes : unwrap(claimsRes);
 
       setSelectedData({
         customer,
-        comms,
+        comms: Array.isArray(comms) ? comms : [],
         playbook,
         signals: signalsData.signals ?? [],
         triggers: signalsData.triggers ?? [],
         platformContext,
-        interactions,
-        claims,
+        interactions: Array.isArray(interactions) ? interactions : [],
+        claims: Array.isArray(claimsList) ? claimsList : [],
       });
 
       setPlaybooks((prev) => ({...prev, [customerId]: playbook}));
