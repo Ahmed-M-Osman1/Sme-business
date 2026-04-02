@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useCallback} from 'react';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {ManualStep1} from '@/components/quote/manual-step1';
 import {ManualStep2} from '@/components/quote/manual-step2';
@@ -18,6 +18,11 @@ export default function ManualInputPage() {
     employees: '',
     revenue: '',
   });
+
+  const goToStep = useCallback((nextStep: number) => {
+    setStep(nextStep);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,12 +54,12 @@ export default function ManualInputPage() {
           <ManualStep1
             data={step1Data}
             onChange={setStep1Data}
-            onContinue={() => setStep(2)}
+            onContinue={() => goToStep(2)}
           />
         ) : (
           <ManualStep2
             step1Data={step1Data}
-            onBack={() => setStep(1)}
+            onBack={() => goToStep(1)}
           />
         )}
       </div>

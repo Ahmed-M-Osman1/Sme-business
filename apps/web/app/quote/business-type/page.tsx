@@ -180,17 +180,22 @@ export default function BusinessTypePage() {
           onClick={() => router.push('/quote/manual')}
           className="w-full"
         >
-          <div className="rounded-2xl border-2 border-dashed border-border bg-white hover:border-primary hover:shadow-sm transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 p-4">
-            <span className="text-sm font-medium text-text">
-              My business type isn&apos;t listed
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 px-6 py-5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary text-lg shrink-0">
+              +
             </span>
-            <span className="text-sm text-text-muted">— fill in manually</span>
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-base font-semibold text-text">
+                My business type isn&apos;t listed
+              </span>
+              <span className="text-sm text-text-muted">Describe your business and we&apos;ll classify it for you</span>
+            </div>
             <svg
-              width="16"
-              height="16"
+              width="20"
+              height="20"
               viewBox="0 0 16 16"
               fill="none"
-              className="text-text-muted ml-1"
+              className="text-primary ml-auto shrink-0"
             >
               <path
                 d="M6 3.333L10.667 8L6 12.667"

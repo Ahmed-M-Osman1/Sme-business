@@ -69,6 +69,49 @@ const KEYWORD_MAP: Record<string, string> = {
   'real estate': 'real-estate',
   property: 'real-estate',
   brokerage: 'real-estate',
+  salon: 'healthcare',
+  spa: 'healthcare',
+  gym: 'healthcare',
+  fitness: 'healthcare',
+  wellness: 'healthcare',
+  gardening: 'general-trading',
+  landscaping: 'construction',
+  cleaning: 'general-trading',
+  laundry: 'general-trading',
+  maintenance: 'construction',
+  plumbing: 'construction',
+  electrical: 'construction',
+  painting: 'construction',
+  carpentry: 'construction',
+  bakery: 'cafe-restaurant',
+  grocery: 'retail-trading',
+  supermarket: 'retail-trading',
+  fashion: 'retail-trading',
+  clothing: 'retail-trading',
+  textile: 'retail-trading',
+  furniture: 'retail-trading',
+  electronics: 'retail-trading',
+  automobile: 'general-trading',
+  garage: 'general-trading',
+  workshop: 'general-trading',
+  printing: 'general-trading',
+  education: 'consulting',
+  training: 'consulting',
+  tutoring: 'consulting',
+  nursery: 'consulting',
+  marketing: 'consulting',
+  advertising: 'consulting',
+  design: 'consulting',
+  accounting: 'consulting',
+  audit: 'consulting',
+  photography: 'consulting',
+  event: 'consulting',
+  travel: 'general-trading',
+  tourism: 'general-trading',
+  hotel: 'general-trading',
+  warehouse: 'logistics',
+  shipping: 'logistics',
+  moving: 'logistics',
   general: 'general-trading',
   import: 'general-trading',
   export: 'general-trading',
@@ -206,7 +249,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                       handleClassify();
                     }
                   }}
-                  placeholder="e.g. Caf\u00e9 serving coffee and light meals in Dubai Marina"
+                  placeholder="e.g. Café serving coffee and light meals in Dubai Marina"
                   className="w-full rounded-xl border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                 />
                 {classificationError && (
@@ -223,7 +266,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
                       Classifying...
                     </span>
                   ) : (
-                    'Classify my business \u2192'
+                    'Classify my business'
                   )}
                 </Button>
               </>
@@ -358,7 +401,7 @@ export function ManualStep1({data, onChange, onContinue}: ManualStep1Props) {
           disabled={!canContinue}
           className="w-full rounded-xl bg-primary text-white py-3 font-medium disabled:opacity-50 shadow-lg"
         >
-          Continue \u2192
+          Continue
         </Button>
       </div>
     </div>
