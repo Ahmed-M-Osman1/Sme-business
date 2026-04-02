@@ -253,10 +253,15 @@
     "coverage": "التغطيات",
     "totalPremium": "إجمالي القسط السنوي",
     "inclVat": "شامل الضريبة · وثيقة ١٢ شهر",
-    "downloadPdf": "تحميل PDF",
+    "downloadPdf": "شهادة الوثيقة",
+    "downloadInvoice": "الفاتورة",
     "print": "طباعة",
     "startNewQuote": "ابدأ عرض سعر جديد",
-    "generating": "جاري التجهيز..."
+    "generating": "جاري التجهيز...",
+    "supportTitle": "تحتاج مساعدة؟",
+    "supportDescription": "فريق الدعم متاح من الأحد إلى الخميس، ٩ صباحاً - ٦ مساءً بتوقيت الخليج.",
+    "supportEmail": "support@shory.ae",
+    "supportPhone": "+971 4 123 4567"
   },
   "footer": {
     "personalInsurance": "التأمين الشخصي",

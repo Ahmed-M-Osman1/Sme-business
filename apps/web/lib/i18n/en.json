@@ -253,10 +253,15 @@
     "coverage": "Coverage",
     "totalPremium": "Total Annual Premium",
     "inclVat": "Incl. VAT · 12-month policy",
-    "downloadPdf": "Download PDF",
+    "downloadPdf": "Policy Certificate",
+    "downloadInvoice": "Invoice",
     "print": "Print",
     "startNewQuote": "Start a new quote",
-    "generating": "Generating..."
+    "generating": "Generating...",
+    "supportTitle": "Need help?",
+    "supportDescription": "Our support team is available Sunday to Thursday, 9 AM - 6 PM GST.",
+    "supportEmail": "support@shory.ae",
+    "supportPhone": "+971 4 123 4567"
   },
   "footer": {
     "personalInsurance": "Personal Insurance",

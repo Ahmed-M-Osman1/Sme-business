@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import {Button, Card, CardContent} from '@shory/ui';
+import {Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {formatPrice} from '@/lib/pricing';
@@ -43,10 +43,13 @@ export function Confirmation() {
     return d.toLocaleDateString('en-AE', {day: '2-digit', month: 'short', year: 'numeric'});
   }
 
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingCert, setDownloadingCert] = useState(false);
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
 
-  async function downloadPdf() {
-    setDownloading(true);
+  async function generatePdf(docType: 'certificate' | 'invoice') {
+    const isInvoice = docType === 'invoice';
+    const setter = isInvoice ? setDownloadingInvoice : setDownloadingCert;
+    setter(true);
     const products = productIds
       .filter((id) => productsConfig[id])
       .map((id) => ({name: productsConfig[id].name, limit: limits[id] ?? '1M'}));
@@ -56,7 +59,7 @@ export function Confirmation() {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Shory Policy Summary - ${policyNumber}</title>
+  <title>Shory ${isInvoice ? 'Invoice' : 'Policy Certificate'} - ${policyNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 48px; max-width: 800px; margin: 0 auto; }
@@ -91,7 +94,7 @@ export function Confirmation() {
   <div class="header">
     <div class="logo">Shory.</div>
     <div class="doc-type">
-      <h2>Policy Summary</h2>
+      <h2>${isInvoice ? 'Invoice' : 'Policy Certificate'}</h2>
       <p>${policyNumber}</p>
     </div>
   </div>
@@ -237,10 +240,11 @@ export function Confirmation() {
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Shory-Policy-${policyNumber}.pdf`);
+      const prefix = isInvoice ? 'Shory-Invoice' : 'Shory-Policy';
+      pdf.save(`${prefix}-${policyNumber}.pdf`);
     } finally {
       document.body.removeChild(iframe);
-      setDownloading(false);
+      setter(false);
     }
   }
 
@@ -328,24 +332,22 @@ export function Confirmation() {
             </div>
 
             {/* Business */}
-            {(businessName || licenseNumber) && (
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.business}</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    {label: t.confirmation.businessName, value: businessName},
-                    {label: t.confirmation.businessType, value: businessType.title},
-                    {label: t.confirmation.licenseNumber, value: licenseNumber},
-                    {label: t.confirmation.employees, value: employees},
-                  ].filter((f) => f.value).map((f) => (
-                    <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
-                      <p className="text-sm font-medium text-gray-900 mt-0.5">{f.value}</p>
-                    </div>
-                  ))}
-                </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t.confirmation.business}</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {label: t.confirmation.businessType, value: businessType.title},
+                  {label: t.confirmation.businessName, value: businessName || '—'},
+                  {label: t.confirmation.licenseNumber, value: licenseNumber || '—'},
+                  {label: t.confirmation.employees, value: employees || '—'},
+                ].map((f) => (
+                  <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">{f.label}</p>
+                    <p className="text-sm font-medium text-gray-900 mt-0.5">{f.value}</p>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             <div className="h-px bg-gray-100" />
 
@@ -391,14 +393,14 @@ export function Confirmation() {
           </CardContent>
         </Card>
 
-        {/* Actions */}
+        {/* Download actions */}
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={downloadPdf}
-            disabled={downloading}
+            onClick={() => generatePdf('certificate')}
+            disabled={downloadingCert}
             className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200"
           >
-            {downloading ? (
+            {downloadingCert ? (
               <>
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary animate-spin">
                   <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -415,15 +417,62 @@ export function Confirmation() {
             )}
           </button>
           <button
-            onClick={() => window.print()}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
+            onClick={() => generatePdf('invoice')}
+            disabled={downloadingInvoice}
+            className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 disabled:opacity-50 disabled:cursor-wait transition-all duration-200"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
-              <path d="M4.5 6.75V2.25h9v4.5M4.5 13.5H3a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 3 7.5h12A1.5 1.5 0 0 1 16.5 9v3a1.5 1.5 0 0 1-1.5 1.5h-1.5m-9 0h9v3h-9v-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {t.confirmation.print}
+            {downloadingInvoice ? (
+              <>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary animate-spin">
+                  <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                {t.confirmation.generating}
+              </>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
+                  <path d="M9 2.25v9m0 0L6 8.25m3 3 3-3M3 12.75v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {t.confirmation.downloadInvoice}
+              </>
+            )}
           </button>
         </div>
+
+        {/* Print */}
+        <button
+          onClick={() => window.print()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-primary">
+            <path d="M4.5 6.75V2.25h9v4.5M4.5 13.5H3a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 3 7.5h12A1.5 1.5 0 0 1 16.5 9v3a1.5 1.5 0 0 1-1.5 1.5h-1.5m-9 0h9v3h-9v-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {t.confirmation.print}
+        </button>
+
+        {/* Support contact */}
+        <Card className="rounded-xl border border-gray-200 bg-gray-50">
+          <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M10 13.75v.01M10 11.25a1.875 1.875 0 1 0-1.875-1.875" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-900">{t.confirmation.supportTitle}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t.confirmation.supportDescription}</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                <a href={`mailto:${t.confirmation.supportEmail}`} className="text-xs font-medium text-primary hover:underline">
+                  {t.confirmation.supportEmail}
+                </a>
+                <a href={`tel:${t.confirmation.supportPhone.replace(/\s/g, '')}`} className="text-xs font-medium text-primary hover:underline">
+                  {t.confirmation.supportPhone}
+                </a>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Start over */}
         <Link
