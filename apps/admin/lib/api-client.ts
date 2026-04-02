@@ -39,8 +39,8 @@ export interface FunnelStep {
 }
 
 export interface CustomerSignals {
-  externalSignals: ExternalSignal[];
-  midtermTriggers: MidtermTrigger[];
+  signals: ExternalSignal[];
+  triggers: MidtermTrigger[];
 }
 
 export const adminApi = {
