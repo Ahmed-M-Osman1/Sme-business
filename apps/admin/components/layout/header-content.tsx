@@ -42,6 +42,8 @@ export function HeaderContent({session, token}: HeaderContentProps) {
   const bellRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!token) return;
+
     async function fetchServiceStatus() {
       try {
         const res = await fetch(
@@ -61,9 +63,11 @@ export function HeaderContent({session, token}: HeaderContentProps) {
       }
     }
     fetchServiceStatus();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
+    if (!token) return;
+
     async function fetchAlertCounts() {
       try {
         const res = await fetch(
@@ -82,7 +86,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
       }
     }
     fetchAlertCounts();
-  }, []);
+  }, [token]);
 
   const totalAlertBadge = alertCounts.criticalCount + alertCounts.highCount;
   const isHealthy = degradedCount === 0;

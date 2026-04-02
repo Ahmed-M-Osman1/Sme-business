@@ -98,7 +98,7 @@ export function DashboardView({stats, alerts, attentionCustomers, incidents, ser
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold text-gray-700">{t.dashboard.portfolioAlerts}</CardTitle>
-              <Link href="/alerts" className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+              <Link href="/signals" className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 {t.common.viewAll}
               </Link>
             </div>
