@@ -74,6 +74,10 @@ export function Confirmation() {
         limit: limits[id] ?? '1M',
       }));
 
+    const translatedInsurerName = (t.insurers as Record<string, string>)[
+      insurer.id.toLowerCase()
+    ] || insurer.name;
+
     const html = `
 <!DOCTYPE html>
 <html>
@@ -122,9 +126,9 @@ export function Confirmation() {
   <div class="section">
     <div class="section-title">Insurer</div>
     <div class="insurer-row">
-      <img src="${window.location.origin}${insurer.logo}" class="insurer-logo" alt="${insurer.name}" />
+      <img src="${window.location.origin}${insurer.logo}" class="insurer-logo" alt="${translatedInsurerName}" />
       <div>
-        <div class="insurer-name">${insurer.name}</div>
+        <div class="insurer-name">${translatedInsurerName}</div>
         <div class="insurer-detail">${businessType.title} · ${emirate}</div>
       </div>
     </div>
@@ -326,7 +330,9 @@ export function Confirmation() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-gray-900">
-                {insurer.name}
+                {(t.insurers as Record<string, string>)[
+                  insurer.id.toLowerCase()
+                ] || insurer.name}
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
                 {businessType.title} · {emirate}

@@ -4,7 +4,11 @@ import {useState} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
-import {calculateMonthlyPrice, formatPrice, formatPriceWithCurrency} from '@/lib/pricing';
+import {
+  calculateMonthlyPrice,
+  formatPrice,
+  formatPriceWithCurrency,
+} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
@@ -38,12 +42,14 @@ export function Checkout() {
   );
 
   const businessName = searchParams.get('businessName') ?? '';
-  const companyVerified = searchParams.get('companyVerified') === 'true';
+  const companyVerified =
+    searchParams.get('companyVerified') === 'true';
   const emirate = searchParams.get('emirate') ?? 'Dubai';
 
   const businessType =
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
-  const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
+  const insurer =
+    insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
   const eidName = searchParams.get('eidName') ?? '';
   const [form, setForm] = useState<ContactForm>({
@@ -62,13 +68,18 @@ export function Checkout() {
     if (!form.email || !EMAIL_REGEX.test(form.email)) {
       newErrors.email = t.checkout.invalidEmail;
     }
-    if (!form.phone || !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))) {
+    if (
+      !form.phone ||
+      !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))
+    ) {
       newErrors.phone = t.checkout.invalidPhone;
     }
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       setTimeout(() => {
-        document.querySelector('[data-error]')?.scrollIntoView({behavior: 'smooth', block: 'center'});
+        document
+          .querySelector('[data-error]')
+          ?.scrollIntoView({behavior: 'smooth', block: 'center'});
       }, SCROLL_TO_ERROR_DELAY_MS);
     }
     return Object.keys(newErrors).length === 0;
@@ -130,7 +141,11 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={6} totalSteps={6} label={t.progress.checkout} />
+      <ProgressIndicator
+        currentStep={6}
+        totalSteps={6}
+        label={t.progress.checkout}
+      />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -154,14 +169,22 @@ export function Checkout() {
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl border border-border bg-white flex items-center justify-center overflow-hidden">
                 {insurer.logo ? (
-                  <img src={insurer.logo} alt={insurer.name} className="w-9 h-9 object-contain" />
+                  <img
+                    src={insurer.logo}
+                    alt={insurer.name}
+                    className="w-9 h-9 object-contain"
+                  />
                 ) : (
-                  <span className="text-lg font-bold text-white bg-primary/80 w-full h-full flex items-center justify-center">{insurer.name.charAt(0)}</span>
+                  <span className="text-lg font-bold text-white bg-primary/80 w-full h-full flex items-center justify-center">
+                    {insurer.name.charAt(0)}
+                  </span>
                 )}
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-text text-sm">
-                  {insurer.name}
+                  {(t.insurers as Record<string, string>)[
+                    insurer.id.toLowerCase()
+                  ] || insurer.name}
                 </p>
                 <p className="text-xs text-text-muted">
                   {businessType.title} · {emirate}
@@ -177,8 +200,7 @@ export function Checkout() {
                   height="14"
                   viewBox="0 0 14 14"
                   fill="none"
-                  className="text-primary"
-                >
+                  className="text-primary">
                   <path
                     d="M3.5 7.5L6 10L10.5 4.5"
                     stroke="currentColor"
@@ -187,8 +209,12 @@ export function Checkout() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-text font-medium">{businessName}</span>
-                <span className="text-xs text-primary">{t.companyDetails.verified}</span>
+                <span className="text-text font-medium">
+                  {businessName}
+                </span>
+                <span className="text-xs text-primary">
+                  {t.companyDetails.verified}
+                </span>
               </div>
             )}
 
@@ -203,11 +229,12 @@ export function Checkout() {
                 return (
                   <div
                     key={productId}
-                    className="flex items-center justify-between text-sm"
-                  >
+                    className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span>{product.icon}</span>
-                      <span className="text-text">{product.name}</span>
+                      <span className="text-text">
+                        {product.name}
+                      </span>
                     </div>
                     <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
                       AED {limit}
@@ -220,16 +247,25 @@ export function Checkout() {
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-text">{t.checkout.totalPremium}</span>
+                <span className="font-bold text-text">
+                  {t.checkout.totalPremium}
+                </span>
                 <span className="font-bold text-primary text-xl">
-                  {formatPriceWithCurrency(calculateMonthlyPrice(total), t.common.currency, locale)}
+                  {formatPriceWithCurrency(
+                    calculateMonthlyPrice(total),
+                    t.common.currency,
+                    locale,
+                  )}
                   <span className="text-xs font-normal text-text-muted">
                     {t.common.perMonth}
                   </span>
                 </span>
               </div>
               <p className="text-xs text-text-muted">
-                {t.results.finwallPrefix} <span className="font-semibold text-text">{t.results.finwallBrand}</span>
+                {t.results.finwallPrefix}{' '}
+                <span className="font-semibold text-text">
+                  {t.results.finwallBrand}
+                </span>
               </p>
             </div>
           </CardContent>
@@ -257,7 +293,9 @@ export function Checkout() {
                 placeholder: t.checkout.emailPlaceholder,
               },
             ].map((field) => (
-              <div key={field.key} {...(errors[field.key] ? {'data-error': true} : {})}>
+              <div
+                key={field.key}
+                {...(errors[field.key] ? {'data-error': true} : {})}>
                 <label className="block text-sm font-medium text-text mb-1.5">
                   {field.label}{' '}
                   <span className="text-red-500 text-xs">*</span>
@@ -274,7 +312,9 @@ export function Checkout() {
                   }}
                   placeholder={field.placeholder}
                   className={`w-full rounded-xl border px-4 py-3 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 ${
-                    errors[field.key] ? 'border-red-500' : 'border-border'
+                    errors[field.key]
+                      ? 'border-red-500'
+                      : 'border-border'
                   }`}
                 />
                 {errors[field.key] && (
@@ -288,14 +328,18 @@ export function Checkout() {
             {/* Phone with UAE flag + auto-formatting */}
             <div {...(errors.phone ? {'data-error': true} : {})}>
               <label className="block text-sm font-medium text-text mb-1.5">
-                {t.checkout.phone} <span className="text-red-500 text-xs">*</span>
+                {t.checkout.phone}{' '}
+                <span className="text-red-500 text-xs">*</span>
               </label>
-              <div className={`flex items-center rounded-xl border bg-white overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent ${
-                errors.phone ? 'border-red-500' : 'border-border'
-              }`}>
+              <div
+                className={`flex items-center rounded-xl border bg-white overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent ${
+                  errors.phone ? 'border-red-500' : 'border-border'
+                }`}>
                 <div className="flex items-center gap-1.5 ps-4 pe-2 py-3 border-e border-gray-100 shrink-0 bg-gray-50">
                   <span className="text-base">🇦🇪</span>
-                  <span className="text-sm text-gray-500 font-medium">+971</span>
+                  <span className="text-sm text-gray-500 font-medium">
+                    +971
+                  </span>
                 </div>
                 <input
                   type="tel"
@@ -318,7 +362,9 @@ export function Checkout() {
                 />
               </div>
               {errors.phone && (
-                <p className="mt-1 text-[11px] text-red-500">{errors.phone}</p>
+                <p className="mt-1 text-[11px] text-red-500">
+                  {errors.phone}
+                </p>
               )}
             </div>
           </CardContent>
@@ -327,16 +373,19 @@ export function Checkout() {
         {/* Pay Button */}
         <Button
           onClick={handlePay}
-          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
-        >
-          {t.checkout.payNow} — {formatPriceWithCurrency(calculateMonthlyPrice(total), t.common.currency, locale)}
+          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm">
+          {t.checkout.payNow} —{' '}
+          {formatPriceWithCurrency(
+            calculateMonthlyPrice(total),
+            t.common.currency,
+            locale,
+          )}
           <svg
             width="16"
             height="16"
             viewBox="0 0 16 16"
             fill="none"
-            className="ms-2 inline rtl:rotate-180"
-          >
+            className="ms-2 inline rtl:rotate-180">
             <path
               d="M6 3.333L10.667 8L6 12.667"
               stroke="currentColor"

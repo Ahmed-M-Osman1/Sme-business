@@ -54,10 +54,11 @@ export function BundleCard({
         </div>
 
         <div className="shrink-0 text-right">
-          <p className={`text-3xl font-bold ${featured ? 'text-primary' : 'text-gray-900'}`}>
-            {formatPriceWithCurrency(annualPrice, t.common.currency, locale)}
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+            {t.common.currency}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className={`text-3xl font-bold ${featured ? 'text-primary' : 'text-gray-900'}`}>
+            {formatPrice(annualPrice)}
             {t.common.perYear}
           </p>
         </div>
@@ -85,7 +86,7 @@ export function BundleCard({
       >
         {ctaLabel}
         <span className="ms-1.5" aria-hidden="true">
-          →
+          {locale === 'ar' ? '←' : '→'}
         </span>
       </Button>
     </div>

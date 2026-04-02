@@ -270,6 +270,7 @@ export function QuoteResults() {
   }, [activeTab, bundles, eligibleQuotes, insurerQuotes]);
 
   function setIndividualTab() {
+    setSelectedBundleId(null);
     setActiveTab('individual');
   }
 
@@ -288,12 +289,11 @@ export function QuoteResults() {
     setSelectedInsurerId(null);
     setShowFilters(false);
     setSortBy('price');
-    setActiveTab('individual');
     window.scrollTo({top: 0, behavior: 'smooth'});
   }
 
   function handleBackToBundles() {
-    setActiveTab('bundles');
+    setSelectedBundleId(null);
     setSelectedInsurerId(null);
   }
 
@@ -575,7 +575,7 @@ export function QuoteResults() {
                         ) : (
                           <span>{product.icon}</span>
                         )}
-                        <span>{product.shortName}</span>
+                        <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.name || product.name}</span>
                       </div>
 
                       <select
@@ -752,50 +752,16 @@ export function QuoteResults() {
                 </Card>
               )}
 
-              {activeTab === 'individual' && selectedBundle && (
-                <Card className="rounded-[24px] border border-primary/20 bg-primary/[0.04]">
-                  <CardContent className="flex flex-col gap-3 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {t.results.showingBundleQuotes.replace(
-                            '{bundle}',
-                            bundleCopy[selectedBundle.copyKey].title,
-                          )}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {t.results.matchingBundleInsurers}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={handleBackToBundles}
-                        className="text-sm font-medium text-primary hover:underline">
-                        ← {t.results.backToBundles}
-                      </button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {selectedBundle.productIds.map((productId) => {
-                        const product = productsMap[productId];
-                        if (!product) return null;
-
-                        return (
-                          <span
-                            key={productId}
-                            className="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-white px-3 py-1.5 text-xs font-medium text-gray-700">
-                            <span>{product.icon}</span>
-                            <span>{product.shortName}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {activeTab === 'individual' ? (
+              {activeTab === 'individual' || selectedBundle ? (
                 <div className="flex flex-col gap-4">
+                  {selectedBundle && (
+                    <button
+                      onClick={handleBackToBundles}
+                      className="flex items-center gap-1 text-sm font-medium text-primary hover:underline self-start">
+                      ← {t.results.backToBundles}
+                    </button>
+                  )}
+
                   {insurerQuotes.length === 0 ? (
                     <Card className="rounded-[24px] border border-gray-200 bg-white">
                       <CardContent className="p-8 text-center">
