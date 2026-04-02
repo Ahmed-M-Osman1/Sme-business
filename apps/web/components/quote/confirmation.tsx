@@ -275,7 +275,8 @@ export function Confirmation() {
   return (
     <div className="flex flex-col gap-6 pb-12">
       <ProgressIndicator
-        currentStep={7}
+        currentStep={6}
+        totalSteps={6}
         label={t.progress.confirmed}
       />
 

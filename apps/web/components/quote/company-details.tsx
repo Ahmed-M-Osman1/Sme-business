@@ -1,28 +1,60 @@
 'use client';
 
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
-import {DragDropZone, EditableField, formatDateInput, ACTIVITIES} from '@/components/quote/company-details-fields';
+import {DragDropZone, EditableField, formatDateInput, ACTIVITIES, isUnreadableValue, isValidDate} from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
 
 const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
+const STORAGE_KEY = 'shory-company-details-draft';
 
 /** Simulated government API verification delay. */
 const VERIFY_DELAY_MS = 1200;
 
-const FIELD_META: Array<{key: keyof OcrResult['fields']; label: string}> = [
-  {key: 'companyName', label: 'Company Name'},
-  {key: 'licenseNumber', label: 'License Number'},
-  {key: 'activity', label: 'Business Activity'},
-  {key: 'emirate', label: 'Emirate'},
-  {key: 'expiryDate', label: 'Expiry Date'},
-];
+function isExpiredDate(value: string): boolean {
+  if (!isValidDate(value)) return false;
+  const [day, month, year] = value.split('/').map(Number);
+  const expiry = new Date(year, month - 1, day, 23, 59, 59, 999);
+  return expiry.getTime() < Date.now();
+}
+
+function loadDraft() {
+  try {
+    if (typeof window === 'undefined') return null;
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as {
+      mode: Mode;
+      ocrResult: OcrResult | null;
+      editedFields: Record<string, string>;
+      form: {
+        companyName: string;
+        licenseNumber: string;
+        activity: string;
+        emirate: string;
+        expiryDate: string;
+      };
+      expiredAcknowledged: boolean;
+    };
+  } catch {
+    return null;
+  }
+}
+
+function clearDraft() {
+  try {
+    if (typeof window === 'undefined') return;
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 export function CompanyDetails() {
   const {t} = useI18n();
@@ -33,20 +65,30 @@ export function CompanyDetails() {
   const hasLicenseNumber = !!searchParams.get('licenseNumber');
   const prefilled = searchParams.get('prefilled') === 'true';
   const hasTradeLicense = hasLicenseNumber || prefilled;
+  const draft = !hasTradeLicense ? loadDraft() : null;
 
-  const [mode, setMode] = useState<Mode>(hasTradeLicense ? 'confirmed' : 'choice');
+  const [mode, setMode] = useState<Mode>(draft?.mode ?? (hasTradeLicense ? 'confirmed' : 'choice'));
   const [progress, setProgress] = useState({pct: 0, stage: ''});
-  const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
-  const [editedFields, setEditedFields] = useState<Record<string, string>>({});
+  const [ocrResult, setOcrResult] = useState<OcrResult | null>(draft?.ocrResult ?? null);
+  const [editedFields, setEditedFields] = useState<Record<string, string>>(draft?.editedFields ?? {});
   const [verifying, setVerifying] = useState(false);
+  const [fileError, setFileError] = useState('');
+  const [expiredAcknowledged, setExpiredAcknowledged] = useState(draft?.expiredAcknowledged ?? false);
   const [form, setForm] = useState({
-    companyName: searchParams.get('businessName') || '',
-    licenseNumber: searchParams.get('licenseNumber') || '',
-    activity: searchParams.get('activity') || '',
-    emirate: searchParams.get('emirate') || 'Dubai',
-    expiryDate: '',
+    companyName: draft?.form.companyName ?? (searchParams.get('businessName') || ''),
+    licenseNumber: draft?.form.licenseNumber ?? (searchParams.get('licenseNumber') || ''),
+    activity: draft?.form.activity ?? (searchParams.get('activity') || ''),
+    emirate: draft?.form.emirate ?? (searchParams.get('emirate') || 'Dubai'),
+    expiryDate: draft?.form.expiryDate ?? '',
   });
   const [errs, setErrs] = useState<Record<string, string>>({});
+  const fieldMeta: Array<{key: keyof OcrResult['fields']; label: string}> = [
+    {key: 'companyName', label: t.companyDetails.companyName},
+    {key: 'licenseNumber', label: t.companyDetails.licenseNumber},
+    {key: 'activity', label: t.companyDetails.businessActivity},
+    {key: 'emirate', label: t.confirmation.emirate},
+    {key: 'expiryDate', label: t.companyDetails.expiryDate},
+  ];
 
   const prefilledResult: OcrResult | null = hasTradeLicense
     ? {
@@ -64,6 +106,40 @@ export function CompanyDetails() {
     : null;
 
   const activeResult = ocrResult || prefilledResult;
+  const hasInvalidActiveFields = !!activeResult && Object.entries(activeResult.fields).some(([key, field]) => {
+    const value = editedFields[key] ?? field.value;
+    if (key === 'expiryDate') {
+      return value.length > 0 && !isValidDate(value);
+    }
+    return isUnreadableValue(value);
+  });
+  const activeExpiryDate = activeResult
+    ? editedFields.expiryDate ?? activeResult.fields.expiryDate.value
+    : '';
+  const requiresExpiryAcknowledgement = isExpiredDate(activeExpiryDate);
+  const canProceed = !!activeResult && !hasInvalidActiveFields && (!requiresExpiryAcknowledgement || expiredAcknowledged);
+
+  useEffect(() => {
+    if (hasTradeLicense) {
+      clearDraft();
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          mode,
+          ocrResult,
+          editedFields,
+          form,
+          expiredAcknowledged,
+        }),
+      );
+    } catch {
+      // ignore storage errors
+    }
+  }, [editedFields, expiredAcknowledged, form, hasTradeLicense, mode, ocrResult]);
 
   const setF = (k: string, v: string) => {
     setForm((p) => ({...p, [k]: v}));
@@ -75,7 +151,12 @@ export function CompanyDetails() {
   };
 
   const processFile = async (file: File) => {
-    if (!file || file.size > 10 * 1024 * 1024) return;
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFileError(t.companyDetails.fileTooLarge);
+      return;
+    }
+    setFileError('');
     setMode('uploading');
     const result = await mockOcrExtract(file, (pct, stage) => {
       setProgress({pct, stage});
@@ -89,27 +170,33 @@ export function CompanyDetails() {
     const e: Record<string, string> = {};
     if (!form.companyName.trim()) e.companyName = t.companyDetails.companyNameRequired;
     if (!form.licenseNumber.trim()) e.licenseNumber = t.companyDetails.licenseNumberRequired;
+    if (form.expiryDate && !isValidDate(form.expiryDate)) e.expiryDate = t.upload.invalidDateFormat;
     setErrs(e);
     if (Object.keys(e).length) return;
     setVerifying(true);
     await new Promise((r) => setTimeout(r, VERIFY_DELAY_MS));
     setVerifying(false);
+    const expiryValue = form.expiryDate || '';
     setOcrResult({
       success: true,
       scenario: 'manual',
       fields: {
         companyName: {value: form.companyName, confidence: 'high'},
         licenseNumber: {value: form.licenseNumber, confidence: 'high'},
-        activity: {value: form.activity || 'Not specified', confidence: 'high'},
+        activity: {value: form.activity || t.companyDetails.notSpecified, confidence: 'high'},
         emirate: {value: form.emirate, confidence: 'high'},
-        expiryDate: {value: form.expiryDate || '', confidence: 'high'},
+        expiryDate: {value: expiryValue, confidence: 'high'},
       },
-      warnings: [],
+      warnings: isExpiredDate(expiryValue)
+        ? ['Trade license appears to be expired — please renew before purchasing a policy']
+        : [],
     });
+    setExpiredAcknowledged(false);
     setMode('confirmed');
   };
 
   const proceed = () => {
+    if (!canProceed) return;
     const existing = new URLSearchParams(searchParams.toString());
     if (activeResult) {
       const fields = activeResult.fields;
@@ -125,6 +212,7 @@ export function CompanyDetails() {
       existing.set('companyVerified', 'false');
       existing.set('companySource', 'none');
     }
+    clearDraft();
     window.scrollTo({top: 0, behavior: 'smooth'});
     router.push(`/quote/checkout?${existing.toString()}`);
   };
@@ -151,7 +239,7 @@ export function CompanyDetails() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={6} label={t.progress.company} />
+      <ProgressIndicator currentStep={5} totalSteps={6} label={t.progress.company} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">{t.companyDetails.title}</h1>
@@ -162,6 +250,12 @@ export function CompanyDetails() {
         {mode === 'choice' && (
           <>
             <DragDropZone onFile={processFile} fileRef={fileRef} />
+
+            {fileError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {fileError}
+              </div>
+            )}
 
             <button onClick={() => setMode('manual')} className="w-full text-start">
               <Card className="rounded-xl border border-border bg-white shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer">
@@ -210,6 +304,24 @@ export function CompanyDetails() {
               </div>
             )}
 
+            {hasInvalidActiveFields && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {t.companyDetails.reviewHighlightedFields}
+              </div>
+            )}
+
+            {requiresExpiryAcknowledgement && (
+              <label className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={expiredAcknowledged}
+                  onChange={(e) => setExpiredAcknowledged(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-amber-300 text-primary focus:ring-primary"
+                />
+                <span>{t.companyDetails.acknowledgeExpired}</span>
+              </label>
+            )}
+
             <Card className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
               <div className="bg-primary/5 px-5 py-2.5 border-b border-primary/10 flex items-center gap-2">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
@@ -224,7 +336,7 @@ export function CompanyDetails() {
                 </span>
               </div>
               <CardContent className="flex flex-col gap-2 p-4">
-                {FIELD_META.map(({key, label}) => {
+                {fieldMeta.map(({key, label}) => {
                   const field = activeResult.fields[key];
                   if (!field || (!field.value && field.confidence === 'high')) return null;
                   return (
@@ -242,6 +354,7 @@ export function CompanyDetails() {
 
             <Button
               onClick={proceed}
+              disabled={!canProceed}
               className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold shadow-sm"
             >
               {t.common.continue}
@@ -255,6 +368,7 @@ export function CompanyDetails() {
                 onClick={() => {
                   setOcrResult(null);
                   setEditedFields({});
+                  setExpiredAcknowledged(false);
                   setMode('choice');
                 }}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200"
@@ -319,7 +433,9 @@ export function CompanyDetails() {
                 >
                   <option value="">{t.companyDetails.selectActivity}</option>
                   {ACTIVITIES.map((a) => (
-                    <option key={a} value={a}>{a}</option>
+                    <option key={a} value={a}>
+                      {(t.options.activities as Record<string, string>)[a] ?? a}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -347,7 +463,9 @@ export function CompanyDetails() {
                   className="w-full rounded-lg border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none transition-all duration-200"
                 >
                   {EMIRATES.map((e) => (
-                    <option key={e} value={e}>{e}</option>
+                    <option key={e} value={e}>
+                      {(t.options.emirates as Record<string, string>)[e] ?? e}
+                    </option>
                   ))}
                 </select>
               </div>

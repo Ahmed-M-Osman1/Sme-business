@@ -352,7 +352,7 @@ export function QuoteResults() {
   return (
     <div className="pb-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4">
-        <ProgressIndicator currentStep={4} label={t.progress.quotes} />
+        <ProgressIndicator currentStep={4} totalSteps={6} label={t.progress.quotes} />
       </div>
 
       <div className="sticky top-0 z-30 border-y border-gray-200 bg-[#F7F8FC]/95 backdrop-blur">

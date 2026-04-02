@@ -23,7 +23,6 @@ export function ProgressIndicator({
     {label: t.progress.business, path: '/quote/business-type'},
     {label: t.progress.coverage, path: null},
     {label: t.progress.quotes, path: '/quote/results'},
-    {label: t.progress.compare, path: null},
     {label: t.progress.company, path: '/quote/company-details'},
     {label: t.progress.checkout, path: '/quote/checkout'},
   ];

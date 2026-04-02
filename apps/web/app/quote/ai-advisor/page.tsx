@@ -19,29 +19,6 @@ const SCROLL_DELAY_MS = 100;
 const AI_THINKING_MS = 600;
 /** Simulated text classification delay. */
 const CLASSIFICATION_MS = 800;
-const EMPLOYEE_CHIPS = quoteOptions.employeeBands.map((b) => ({label: b.label, value: b.value}));
-const REVENUE_CHIPS = quoteOptions.revenueBands.map((b) => ({label: b.label, value: b.value}));
-const EMIRATE_CHIPS = quoteOptions.emirates.map((e) => ({label: e, value: e}));
-
-// --- Session helpers ---
-
-function saveSession(messages: ChatMessage[], convo: ConvoState, selectedTagId: string | null) {
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({messages, convo, selectedTagId}));
-  } catch {
-    // sessionStorage may be unavailable
-  }
-}
-
-function loadSession(): {messages: ChatMessage[]; convo: ConvoState; selectedTagId: string | null} | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as {messages: ChatMessage[]; convo: ConvoState; selectedTagId: string | null};
-  } catch {
-    return null;
-  }
-}
 
 function clearSession() {
   try {
@@ -59,19 +36,16 @@ export default function AiAdvisorPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Restore from sessionStorage on mount (back-navigation)
-  const restored = useRef(loadSession());
-
   const [messages, setChatMessages] = useState<ChatMessage[]>(
-    restored.current?.messages ?? [{role: 'ai', content: t.ai.openingMessage}],
+    [{role: 'ai', content: t.ai.openingMessage}],
   );
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(
-    restored.current?.selectedTagId ?? null,
+    null,
   );
   const [convo, setConvo] = useState<ConvoState>(
-    restored.current?.convo ?? {
+    {
       step: 'business',
       businessType: '',
       businessLabel: '',
@@ -81,11 +55,23 @@ export default function AiAdvisorPage() {
     },
   );
   const [apiFailed, setApiFailed] = useState(false);
+  const employeeChips = quoteOptions.employeeBands.map((band) => ({
+    label: (t.options.employeeBands as Record<string, string>)[band.value] ?? band.label,
+    value: band.value,
+  }));
+  const revenueChips = quoteOptions.revenueBands.map((band) => ({
+    label: (t.options.revenueBands as Record<string, string>)[band.value] ?? band.label,
+    value: band.value,
+  }));
+  const emirateChips = quoteOptions.emirates.map((emirate) => ({
+    label: (t.options.emirates as Record<string, string>)[emirate] ?? emirate,
+    value: emirate,
+  }));
 
-  // Persist conversation to sessionStorage on every change
   useEffect(() => {
-    saveSession(messages, convo, selectedTagId);
-  }, [messages, convo, selectedTagId]);
+    clearSession();
+    inputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -110,6 +96,39 @@ export default function AiAdvisorPage() {
     return new Promise((r) => setTimeout(r, ms));
   }
 
+  function findEmployeeBand(raw: string) {
+    const normalized = raw.toLowerCase().trim();
+    return employeeChips.find((chip) => {
+      const label = chip.label.toLowerCase();
+      const value = chip.value.toLowerCase();
+      return (
+        normalized === value ||
+        normalized === label ||
+        normalized.includes(value) ||
+        normalized.includes(label)
+      );
+    });
+  }
+
+  function findRevenueBand(raw: string) {
+    const normalized = raw.toLowerCase().trim();
+    return revenueChips.find((chip) => {
+      const label = chip.label.toLowerCase();
+      const value = chip.value.toLowerCase();
+      return (
+        normalized === value ||
+        normalized === label ||
+        normalized.includes(value) ||
+        normalized.includes(label)
+      );
+    });
+  }
+
+  function findEmirate(raw: string) {
+    const normalized = raw.toLowerCase().trim();
+    return emirateChips.find((chip) => normalized === chip.label.toLowerCase() || normalized.includes(chip.label.toLowerCase()));
+  }
+
   function buildResultsUrl(state: ConvoState): string {
     const params = new URLSearchParams({
       type: state.businessType,
@@ -130,28 +149,28 @@ export default function AiAdvisorPage() {
       addChatMessages({
         role: 'ai',
         content: t.ai.askEmployees,
-        chips: EMPLOYEE_CHIPS,
+        chips: employeeChips,
         chipKey: 'employees',
       });
     } else if (nextState.step === 'revenue') {
       addChatMessages({
         role: 'ai',
         content: t.ai.askRevenue,
-        chips: REVENUE_CHIPS,
+        chips: revenueChips,
         chipKey: 'revenue',
       });
     } else if (nextState.step === 'emirate') {
       addChatMessages({
         role: 'ai',
         content: t.ai.askEmirate,
-        chips: EMIRATE_CHIPS,
+        chips: emirateChips,
         chipKey: 'emirate',
       });
     } else if (nextState.step === 'done') {
       const url = buildResultsUrl(nextState);
       addChatMessages({
         role: 'ai',
-        content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${nextState.employees}\n• **${t.ai.summaryRevenue}:** ${quoteOptions.revenueBands.find((b) => b.value === nextState.revenue)?.label ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${nextState.emirate}\n\n${t.ai.summaryReady}`,
+        content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${(t.options.employeeBands as Record<string, string>)[nextState.employees] ?? nextState.employees}\n• **${t.ai.summaryRevenue}:** ${(t.options.revenueBands as Record<string, string>)[nextState.revenue] ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${(t.options.emirates as Record<string, string>)[nextState.emirate] ?? nextState.emirate}\n\n${t.ai.summaryReady}`,
         cta: {label: t.ai.seeMyQuotes, href: url},
       });
     }
@@ -207,13 +226,14 @@ export default function AiAdvisorPage() {
           // Try scripted fallback for short input
           const scripted = findScriptedResponse(userChatMessage);
           if (scripted) {
+            const translatedLabel = (t.businessType as Record<string, string>)[scripted.businessType] ?? scripted.label;
             setSelectedTagId(scripted.businessType);
             addChatMessages({role: 'ai', content: scripted.response});
             setIsProcessing(false);
             advanceConvo({
               ...convo,
               businessType: scripted.businessType,
-              businessLabel: scripted.label,
+              businessLabel: translatedLabel,
               step: 'employees',
             });
             return;
@@ -225,30 +245,46 @@ export default function AiAdvisorPage() {
         }
 
         setSelectedTagId(analysis.businessType);
+        const translatedLabel = (t.businessType as Record<string, string>)[analysis.businessType] ?? analysis.label;
         addChatMessages({
           role: 'ai',
-          content: `${t.ai.classifiedAs} **${analysis.label}**. ${t.ai.quickQuestions}`,
+          content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}`,
         });
 
         setIsProcessing(false);
         advanceConvo({
           ...convo,
           businessType: analysis.businessType,
-          businessLabel: analysis.label,
+          businessLabel: translatedLabel,
           step: 'employees',
         });
       }, CLASSIFICATION_MS);
     } else {
       addChatMessages({role: 'user', content: userChatMessage});
       if (convo.step === 'employees') {
-        const match = EMPLOYEE_CHIPS.find((c) => userChatMessage.includes(c.value) || userChatMessage.includes(c.label));
-        advanceConvo({...convo, employees: match?.value ?? '2-5', step: 'revenue'});
+        const match = findEmployeeBand(userChatMessage);
+        if (!match) {
+          addChatMessages({role: 'ai', content: t.ai.employeesRetry});
+          inputRef.current?.focus();
+          return;
+        }
+        advanceConvo({...convo, employees: match.value, step: 'revenue'});
       } else if (convo.step === 'revenue') {
-        const match = REVENUE_CHIPS.find((c) => userChatMessage.toLowerCase().includes(c.value));
-        advanceConvo({...convo, revenue: match?.value ?? '500k-1m', step: 'emirate'});
+        const match = findRevenueBand(userChatMessage);
+        if (!match) {
+          addChatMessages({role: 'ai', content: t.ai.revenueRetry});
+          inputRef.current?.focus();
+          return;
+        }
+        advanceConvo({...convo, revenue: match.value, step: 'emirate'});
       } else if (convo.step === 'emirate') {
-        const match = EMIRATE_CHIPS.find((c) => userChatMessage.toLowerCase().includes(c.label.toLowerCase()));
-        advanceConvo({...convo, emirate: match?.value ?? 'Dubai', step: 'done'});
+        const match = findEmirate(userChatMessage);
+        if (!match) {
+          addChatMessages({role: 'ai', content: t.ai.emirateRetry});
+          inputRef.current?.focus();
+          return;
+        }
+        advanceConvo({...convo, emirate: match.value, step: 'done'});
       }
     }
   }
@@ -288,7 +324,19 @@ export default function AiAdvisorPage() {
       {/* Fixed header */}
       <div className="shrink-0">
         <div className="pt-4 pb-2">
-          <ProgressIndicator currentStep={2} label={t.ai.title} />
+          <div className="max-w-3xl mx-auto w-full px-4 mb-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rtl:rotate-180">
+                <path d="M10 12.667L5.333 8L10 3.333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {t.ai.backToStart}
+            </button>
+          </div>
+          <ProgressIndicator currentStep={2} totalSteps={6} label={t.ai.title} />
         </div>
       </div>
 
@@ -333,23 +381,26 @@ export default function AiAdvisorPage() {
                 onSelect={handleTagSelect}
                 disabled={isProcessing}
               />
+              <p className="mt-2 text-[11px] text-gray-400">{t.ai.swipeHint}</p>
             </div>
           )}
 
           {/* Quick-reply chips */}
           {!apiFailed && currentChips && !hasCta && !isProcessing && (
             <div className="px-4 pt-2 pb-1">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pe-6">
                 {currentChips.chips.map((chip) => (
                   <button
                     key={chip.value}
                     onClick={() => handleChipSelect(chip.value, chip.label)}
+                    aria-label={chip.label}
                     className="shrink-0 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white active:scale-95 transition-all duration-150 whitespace-nowrap"
                   >
                     {chip.label}
                   </button>
                 ))}
               </div>
+              <p className="mt-2 text-[11px] text-gray-400">{t.ai.swipeHint}</p>
             </div>
           )}
 
@@ -363,7 +414,7 @@ export default function AiAdvisorPage() {
                   onClick={handleReset}
                   className="rounded-full text-sm text-primary border-primary hover:bg-primary/5"
                 >
-                  {t.common.startOver}
+                  {t.ai.startOverAgain}
                 </Button>
               </div>
             ) : hasCta ? (
@@ -375,7 +426,7 @@ export default function AiAdvisorPage() {
                   onClick={handleReset}
                   className="rounded-full text-sm text-primary border-primary hover:bg-primary/5"
                 >
-                  {t.common.startOver}
+                  {t.ai.startOverAgain}
                 </Button>
               </div>
             ) : (
@@ -407,6 +458,7 @@ export default function AiAdvisorPage() {
                 <button
                   type="submit"
                   disabled={!input.trim() || isProcessing}
+                  aria-label={t.common.continue}
                   className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 self-end transition-all duration-200 ${
                     input.trim()
                       ? 'bg-primary text-white hover:bg-primary/90 active:scale-90'

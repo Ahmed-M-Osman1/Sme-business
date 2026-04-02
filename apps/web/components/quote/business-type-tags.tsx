@@ -27,12 +27,14 @@ export function BusinessTypeTags({
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {(businessTypes as BusinessType[]).map((bt) => {
           const isSelected = selectedId === bt.id;
+          const label = (t.businessType as Record<string, string>)[bt.id] ?? bt.title;
           return (
             <button
               key={bt.id}
               type="button"
               disabled={disabled}
-              onClick={() => onSelect(isSelected ? null : bt)}
+              onClick={() => onSelect(isSelected ? null : {...bt, title: label})}
+              aria-label={label}
               className={cn(
                 'shrink-0 rounded-full px-4 py-2 text-sm font-medium border transition-all duration-200 whitespace-nowrap',
                 isSelected
@@ -41,7 +43,7 @@ export function BusinessTypeTags({
                 disabled && 'opacity-50 cursor-not-allowed',
               )}
             >
-              {bt.icon} {(t.businessType as Record<string, string>)[bt.id] ?? bt.title}
+              {bt.icon} {label}
             </button>
           );
         })}

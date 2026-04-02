@@ -123,6 +123,7 @@ export default function BusinessTypePage() {
       <div ref={topRef} />
       <ProgressIndicator
         currentStep={2}
+        totalSteps={6}
         label={t.businessType.title}
       />
 
