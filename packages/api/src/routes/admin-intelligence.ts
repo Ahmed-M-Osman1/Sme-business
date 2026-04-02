@@ -11,6 +11,7 @@ import {createSignalSchema, updateSignalSchema, updateTriggerSchema} from '@shor
 import {errorResponse, handleZodError} from '../middleware/error-handler';
 
 export const adminIntelligenceRouter = new Hono();
+// Force rebuild
 
 // GET /signals — list all external signals
 adminIntelligenceRouter.get('/signals', async (c) => {
