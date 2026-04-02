@@ -38,7 +38,7 @@ export function AlertTray({onClose, token}: AlertTrayProps) {
     async function fetchAlerts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/alerts`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {

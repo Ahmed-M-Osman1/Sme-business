@@ -8,7 +8,7 @@ import type {CustomerPlatformContext, PlaybookResult} from '@shory/shared';
 import type {Customer, Incident, PortfolioAlert, Action, CommsSequence, ApiService, ServiceHealthLog, Claim, CustomerInteraction} from '@shory/db';
 import type {ExternalSignal, MidtermTrigger, PeerBenchmark, BehaviourMetric, PlatformCorrelation} from '@shory/db';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 async function fetchAdmin<T>(path: string, token: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {

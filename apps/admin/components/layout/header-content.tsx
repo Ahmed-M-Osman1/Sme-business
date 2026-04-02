@@ -43,11 +43,12 @@ export function HeaderContent({session, token}: HeaderContentProps) {
     async function fetchServiceStatus() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/platform/services`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/platform/services`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
-          const data = (await res.json()) as ServiceStatus[];
+          const json = await res.json();
+          const data = (json.data ?? json) as ServiceStatus[];
           const count = data.filter(
             (s) => s.status === 'degraded' || s.status === 'down'
           ).length;
@@ -64,11 +65,12 @@ export function HeaderContent({session, token}: HeaderContentProps) {
     async function fetchAlertCounts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/alerts`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
-          const data = (await res.json()) as Array<{severity: string}>;
+          const json = await res.json();
+          const data = (json.data ?? json) as Array<{severity: string}>;
           const critical = data.filter((a) => a.severity === 'critical').length;
           const high = data.filter((a) => a.severity === 'high').length;
           setAlertCounts({criticalCount: critical, highCount: high});
