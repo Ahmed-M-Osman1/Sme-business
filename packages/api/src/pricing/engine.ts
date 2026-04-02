@@ -1,5 +1,5 @@
-import type {QuoteInput, PricingResult, PricingProvider} from './types';
-import {mockProviders} from './providers/mock';
+import type {QuoteInput, PricingResult, PricingProvider} from './types.js';
+import {mockProviders} from './providers/mock.js';
 
 export async function calculateQuotes(
   input: QuoteInput,

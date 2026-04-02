@@ -1,8 +1,8 @@
 import {Hono} from 'hono';
 import {db, quotes} from '@shory/db';
 import {eq, desc, count, gte} from 'drizzle-orm';
-import {adminAuth} from '../middleware/auth';
-import {errorResponse} from '../middleware/error-handler';
+import {adminAuth} from '../middleware/auth.js';
+import {errorResponse} from '../middleware/error-handler.js';
 
 export const adminRouter = new Hono();
 

@@ -20,7 +20,6 @@
 # production
 /build
 dist/
-packages/api/api/index.mjs
 
 # misc
 .DS_Store

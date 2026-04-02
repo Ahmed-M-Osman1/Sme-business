@@ -2,13 +2,12 @@ import {defineConfig} from 'tsup';
 
 export default defineConfig({
   entry: {
-    'index': 'src/index.ts',
-    '_vercel': 'api/index.ts',
+    'api/index': 'api/index.ts',
   },
   format: 'esm',
   target: 'node20',
-  outDir: 'dist',
-  clean: true,
+  outDir: '.',
+  clean: false,
   splitting: false,
   noExternal: [/.*/],
 });

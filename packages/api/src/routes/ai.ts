@@ -2,8 +2,8 @@ import {Hono} from 'hono';
 import {db, quotes, aiRecommendations} from '@shory/db';
 import {aiRecommendRequestSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
-import {getRecommendations} from '../ai/advisor';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
+import {getRecommendations} from '../ai/advisor.js';
 import {ZodError} from 'zod';
 
 export const aiRouter = new Hono();

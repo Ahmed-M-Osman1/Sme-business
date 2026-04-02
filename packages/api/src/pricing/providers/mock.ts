@@ -1,4 +1,4 @@
-import type {PricingProvider, QuoteInput, PricingResult} from '../types';
+import type {PricingProvider, QuoteInput, PricingResult} from '../types.js';
 
 const INDUSTRY_RISK: Record<string, number> = {
   Technology: 0.8,
