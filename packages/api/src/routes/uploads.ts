@@ -3,7 +3,7 @@ import {put} from '@vercel/blob';
 import {db, documents, quotes} from '@shory/db';
 import {ALLOWED_FILE_TYPES, MAX_FILE_SIZE} from '@shory/shared';
 import {eq} from 'drizzle-orm';
-import {errorResponse} from '../middleware/error-handler.js';
+import {errorResponse} from '../middleware/error-handler';
 
 export const uploadsRouter = new Hono();
 

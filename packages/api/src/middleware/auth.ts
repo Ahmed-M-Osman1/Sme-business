@@ -1,7 +1,7 @@
 import type {Context, Next} from 'hono';
 import {db, adminUsers} from '@shory/db';
 import {eq} from 'drizzle-orm';
-import {errorResponse} from './error-handler.js';
+import {errorResponse} from './error-handler';
 
 export async function adminAuth(c: Context, next: Next) {
   const authHeader = c.req.header('Authorization');

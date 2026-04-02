@@ -12,6 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39",
     "@dotlottie/react-player": "^1.6.19",
+    "@shory/api": "workspace:*",
     "@shory/db": "workspace:*",
     "@shory/shared": "workspace:*",
     "@shory/ui": "workspace:*",
