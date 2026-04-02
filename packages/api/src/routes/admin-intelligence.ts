@@ -52,7 +52,7 @@ adminIntelligenceRouter.patch('/signals/:id', async (c) => {
 
   const [signal] = await db
     .update(externalSignals)
-    .set(result.data)
+    .set(result.data as any)
     .where(eq(externalSignals.id, id))
     .returning();
 
@@ -85,7 +85,7 @@ adminIntelligenceRouter.patch('/midterm/:id', async (c) => {
 
   const [trigger] = await db
     .update(midtermTriggers)
-    .set({status: result.data.status as 'pending_send'})
+    .set(result.data as any)
     .where(eq(midtermTriggers.id, id))
     .returning();
 
