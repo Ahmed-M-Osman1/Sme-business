@@ -18,7 +18,9 @@ interface QuoteCardProps {
   coverageType: string;
   benefits: {name: string; included: boolean}[];
   isBestPrice: boolean;
-  onSelect: (insurerId: string, total: number) => void;
+  isSelected?: boolean;
+  onSelect: () => void;
+  onProceed?: () => void;
 }
 
 export function QuoteCard({
@@ -26,7 +28,9 @@ export function QuoteCard({
   coverageType,
   benefits,
   isBestPrice,
+  isSelected = false,
   onSelect,
+  onProceed,
 }: QuoteCardProps) {
   const {t} = useI18n();
   const [showDetails, setShowDetails] = useState(false);
@@ -34,9 +38,11 @@ export function QuoteCard({
   return (
     <div
       className={`rounded-xl border bg-white p-5 transition-all duration-200 hover:shadow-md ${
-        isBestPrice
-          ? 'border-primary/40 shadow-sm'
-          : 'border-gray-200 hover:border-gray-300'
+        isSelected
+          ? 'border-primary ring-2 ring-primary/20 shadow-md'
+          : isBestPrice
+            ? 'border-green-300 shadow-sm'
+            : 'border-gray-200 hover:border-gray-300'
       }`}>
       {/* Badges row */}
       {(isBestPrice || insurer.shariahCompliant) && (
@@ -158,9 +164,13 @@ export function QuoteCard({
         </Button>
         <Button
           size="sm"
-          onClick={() => onSelect(insurer.id, insurer.total)}
-          className="rounded-lg bg-primary text-white hover:bg-primary/90 text-sm px-6">
-          {t.common.select}
+          onClick={onSelect}
+          className={`rounded-lg text-sm px-6 ${
+            isSelected
+              ? 'bg-primary/10 text-primary border border-primary hover:bg-primary/20'
+              : 'bg-primary text-white hover:bg-primary/90'
+          }`}>
+          {isSelected ? 'Selected' : t.common.select}
         </Button>
       </div>
     </div>

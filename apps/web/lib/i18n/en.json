@@ -70,10 +70,12 @@
     "step": "Step",
     "of": "of",
     "chooseMethod": "Choose method",
-    "business": "Business",
-    "quotes": "Your quotes",
-    "company": "Company details",
-    "checkout": "Checkout",
+    "business": "Business details",
+    "coverage": "Coverage",
+    "quotes": "Get quotes",
+    "compare": "Compare",
+    "company": "Customize",
+    "checkout": "Purchase",
     "confirmed": "Confirmed"
   },
   "businessType": {

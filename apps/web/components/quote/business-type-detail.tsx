@@ -55,6 +55,9 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
   const [assetValues, setAssetValues] = useState<Record<string, string>>({});
   const [assetErrors, setAssetErrors] = useState<Set<string>>(new Set());
+  const [showSpecialistModal, setShowSpecialistModal] = useState(false);
+  const [specialistForm, setSpecialistForm] = useState({name: '', email: '', phone: '', message: ''});
+  const [specialistSubmitted, setSpecialistSubmitted] = useState(false);
 
   const [productsMap, setProductsMap] = useState<Record<string, ProductInfo>>({});
   const [employeeOptions, setEmployeeOptions] = useState<OptionItem[]>([]);
@@ -413,27 +416,110 @@ export function BusinessTypeDetail({businessType, onCollapse}: Props) {
         </div>
 
         {/* CTA */}
-        <Button
-          onClick={handleGetQuotes}
-          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
-        >
-          Get my quotes
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            className="ml-2 inline"
+        {emirate === 'DIFC' || emirate === 'ADGM' ? (
+          <>
+            <Button
+              onClick={() => setShowSpecialistModal(true)}
+              className="w-full rounded-xl bg-amber-500 text-white py-3.5 text-base font-semibold hover:bg-amber-600 transition-all duration-200 shadow-sm"
+            >
+              Request specialist quote
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ml-2 inline">
+                <path d="M3 9H15M15 9L10.5 4.5M15 9L10.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Button>
+            <p className="text-xs text-amber-600 text-center -mt-2">
+              {emirate} requires specialist underwriting. We will connect you with a dedicated advisor.
+            </p>
+          </>
+        ) : (
+          <Button
+            onClick={handleGetQuotes}
+            className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm"
           >
-            <path
-              d="M6.75 3.75L12 9L6.75 14.25"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Button>
+            Get my quotes
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ml-2 inline">
+              <path d="M6.75 3.75L12 9L6.75 14.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Button>
+        )}
+
+        {/* Specialist quote modal for DIFC/ADGM */}
+        {showSpecialistModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 flex flex-col gap-4">
+              {specialistSubmitted ? (
+                <div className="flex flex-col items-center gap-3 py-6">
+                  <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-green-600">
+                      <path d="M7 14.5L12 19.5L21 9.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <p className="text-lg font-semibold text-text">Request submitted</p>
+                  <p className="text-sm text-text-muted text-center">
+                    Our {emirate} specialist team will contact you within 1 business day.
+                  </p>
+                  <Button
+                    onClick={() => { setShowSpecialistModal(false); setSpecialistSubmitted(false); }}
+                    className="rounded-xl bg-primary text-white px-6 py-2.5 text-sm font-semibold mt-2"
+                  >
+                    Close
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <h3 className="text-lg font-bold text-text">Request specialist quote</h3>
+                    <p className="text-sm text-text-muted mt-1">
+                      {emirate} businesses require specialist underwriting. Leave your details and we will get back to you.
+                    </p>
+                  </div>
+                  {[
+                    {key: 'name', label: 'Full name', type: 'text', placeholder: 'Your name'},
+                    {key: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com'},
+                    {key: 'phone', label: 'Phone', type: 'tel', placeholder: '+971 55 123 4567'},
+                  ].map((field) => (
+                    <div key={field.key}>
+                      <label className="block text-sm font-medium text-text mb-1">{field.label}</label>
+                      <input
+                        type={field.type}
+                        value={specialistForm[field.key as keyof typeof specialistForm]}
+                        onChange={(e) => setSpecialistForm((prev) => ({...prev, [field.key]: e.target.value}))}
+                        placeholder={field.placeholder}
+                        className="w-full rounded-xl border border-border px-4 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-1">Message (optional)</label>
+                    <textarea
+                      value={specialistForm.message}
+                      onChange={(e) => setSpecialistForm((prev) => ({...prev, message: e.target.value}))}
+                      placeholder="Tell us about your business..."
+                      rows={3}
+                      className="w-full rounded-xl border border-border px-4 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 resize-none"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSpecialistModal(false)}
+                      className="flex-1 rounded-xl py-2.5"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => { if (specialistForm.name && specialistForm.email) setSpecialistSubmitted(true); }}
+                      disabled={!specialistForm.name || !specialistForm.email}
+                      className="flex-1 rounded-xl bg-primary text-white py-2.5 font-semibold disabled:opacity-50"
+                    >
+                      Submit request
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

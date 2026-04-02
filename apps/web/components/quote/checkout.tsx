@@ -45,8 +45,9 @@ export function Checkout() {
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer = insurers.find((i) => i.id === insurerId) ?? insurers[0];
 
+  const eidName = searchParams.get('eidName') ?? '';
   const [form, setForm] = useState<ContactForm>({
-    fullName: '',
+    fullName: eidName,
     email: '',
     phone: '',
   });
@@ -65,6 +66,11 @@ export function Checkout() {
       newErrors.phone = t.checkout.invalidPhone;
     }
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setTimeout(() => {
+        document.querySelector('[data-error]')?.scrollIntoView({behavior: 'smooth', block: 'center'});
+      }, 50);
+    }
     return Object.keys(newErrors).length === 0;
   }
 
@@ -123,7 +129,7 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={5} label={t.progress.checkout} />
+      <ProgressIndicator currentStep={7} label={t.progress.checkout} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -245,7 +251,7 @@ export function Checkout() {
                 placeholder: t.checkout.emailPlaceholder,
               },
             ].map((field) => (
-              <div key={field.key}>
+              <div key={field.key} {...(errors[field.key] ? {'data-error': true} : {})}>
                 <label className="block text-sm font-medium text-text mb-1.5">
                   {field.label}{' '}
                   <span className="text-red-500 text-xs">*</span>
@@ -274,7 +280,7 @@ export function Checkout() {
             ))}
 
             {/* Phone with UAE flag + auto-formatting */}
-            <div>
+            <div {...(errors.phone ? {'data-error': true} : {})}>
               <label className="block text-sm font-medium text-text mb-1.5">
                 {t.checkout.phone} <span className="text-red-500 text-xs">*</span>
               </label>

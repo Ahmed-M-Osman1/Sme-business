@@ -250,7 +250,7 @@ export function Confirmation() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={6} label={t.progress.confirmed} />
+      <ProgressIndicator currentStep={7} label={t.progress.confirmed} />
 
       {/* Success hero */}
       <div className="max-w-3xl mx-auto px-4 w-full py-4">

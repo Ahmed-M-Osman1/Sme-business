@@ -75,6 +75,8 @@ export function QuoteResults() {
   const [shariahOnly, setShariahOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [selectedInsurerId, setSelectedInsurerId] = useState<string | null>(null);
+  const [showTransition, setShowTransition] = useState(false);
 
   // Initialize activeProducts and coverageLimits once data is loaded
   useEffect(() => {
@@ -153,7 +155,18 @@ export function QuoteResults() {
     });
   }
 
-  function handleSelect(insurerId: string, total: number) {
+  function handleSelectToggle(insurerId: string) {
+    setSelectedInsurerId((prev) => (prev === insurerId ? null : insurerId));
+  }
+
+  const selectedQuote = insurerQuotes.find((q) => q.id === selectedInsurerId);
+
+  function handleProceed() {
+    if (!selectedQuote) return;
+    handleNavigate(selectedQuote.id, selectedQuote.total);
+  }
+
+  function handleNavigate(insurerId: string, total: number) {
     const params = new URLSearchParams({
       type: typeId,
       insurer: insurerId,
@@ -166,19 +179,19 @@ export function QuoteResults() {
     });
     if (revenue) params.set('revenue', revenue);
     if (coverageArea) params.set('coverageArea', coverageArea);
-    // If company details already collected (upload path), skip to checkout
     const businessName = searchParams.get('businessName');
     const licenseNumber = searchParams.get('licenseNumber');
     if (businessName) params.set('businessName', businessName);
     if (licenseNumber) params.set('licenseNumber', licenseNumber);
 
-    if (licenseNumber && businessName) {
-      params.set('companyVerified', 'true');
-      params.set('companySource', 'ocr');
-      router.push(`/quote/checkout?${params.toString()}`);
-    } else {
-      router.push(`/quote/company-details?${params.toString()}`);
-    }
+    setShowTransition(true);
+    const destination = licenseNumber && businessName
+      ? (() => { params.set('companyVerified', 'true'); params.set('companySource', 'ocr'); return `/quote/checkout?${params.toString()}`; })()
+      : `/quote/company-details?${params.toString()}`;
+
+    setTimeout(() => {
+      router.push(destination);
+    }, 800);
   }
 
   function handleBack() {
@@ -193,9 +206,23 @@ export function QuoteResults() {
     );
   }
 
+  if (showTransition) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-20 animate-in fade-in duration-300">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <div className="animate-spin w-7 h-7 border-2 border-primary border-t-transparent rounded-full" />
+        </div>
+        <p className="text-base font-semibold text-gray-900">Preparing your quote...</p>
+        <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full animate-[loading_0.8s_ease-in-out]" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator currentStep={3} label={t.progress.quotes} />
+      <ProgressIndicator currentStep={4} label={t.progress.quotes} />
 
       {/* Back + Title */}
       <div className="max-w-6xl mx-auto px-4 w-full">
@@ -259,9 +286,14 @@ export function QuoteResults() {
 
           {/* Product Toggles */}
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
               {t.results.includedCovers}
             </p>
+            {selectedQuote && (
+              <p className="text-xs text-gray-400 mb-2">
+                Coverage available for {selectedQuote.name}. Adjust to update all quotes.
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               {initialProducts.map((productId) => {
                 const product = productsMap[productId];
@@ -475,13 +507,45 @@ export function QuoteResults() {
                   coverageType={coverageType}
                   benefits={benefits}
                   isBestPrice={insurer.total === Math.min(...insurerQuotes.map((q) => q.total))}
-                  onSelect={handleSelect}
+                  isSelected={insurer.id === selectedInsurerId}
+                  onSelect={() => handleSelectToggle(insurer.id)}
+                  onProceed={() => handleNavigate(insurer.id, insurer.total)}
                 />
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Sticky bottom bar when a quote is selected */}
+      {selectedQuote && (
+        <div className="fixed bottom-0 inset-x-0 z-50 bg-white/80 backdrop-blur-lg border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 p-0.5">
+                <img src={selectedQuote.logo} alt={selectedQuote.name} className="w-full h-full object-contain" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {t.common.continue} with {selectedQuote.name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  AED {formatPrice(selectedQuote.total)}{t.common.perYear}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleProceed}
+              className="rounded-xl bg-primary text-white px-6 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm shrink-0"
+            >
+              {t.common.continue}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-1.5 inline rtl:rotate-180">
+                <path d="M6 3.333L10.667 8L6 12.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

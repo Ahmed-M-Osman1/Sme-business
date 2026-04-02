@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
 import {DragDropZone, EditableField, formatDateInput, ACTIVITIES} from '@/components/quote/company-details-fields';
+import {useI18n} from '@/lib/i18n';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
 
@@ -21,6 +22,7 @@ const FIELD_META: Array<{key: keyof OcrResult['fields']; label: string}> = [
 ];
 
 export function CompanyDetails() {
+  const {t} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -145,7 +147,7 @@ export function CompanyDetails() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={4} label="Company details" />
+      <ProgressIndicator currentStep={6} label={t.progress.company} />
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">Company details</h1>

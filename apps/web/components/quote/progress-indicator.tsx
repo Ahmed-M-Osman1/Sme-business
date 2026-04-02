@@ -21,10 +21,11 @@ export function ProgressIndicator({
   const STEPS = [
     {label: t.progress.chooseMethod, path: '/quote/start'},
     {label: t.progress.business, path: '/quote/business-type'},
+    {label: t.progress.coverage, path: null},
     {label: t.progress.quotes, path: '/quote/results'},
+    {label: t.progress.compare, path: null},
     {label: t.progress.company, path: '/quote/company-details'},
     {label: t.progress.checkout, path: '/quote/checkout'},
-    {label: t.progress.confirmed, path: null},
   ];
 
   const total = totalSteps ?? STEPS.length;
