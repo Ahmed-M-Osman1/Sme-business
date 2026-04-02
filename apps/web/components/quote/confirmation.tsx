@@ -80,23 +80,29 @@ export function Confirmation() {
     // Mark as saved IMMEDIATELY to prevent any re-runs
     hasSaved.current = true;
 
-    console.log('💾 Persisting policy with email:', session.user.email);
+    console.log(
+      '💾 Persisting policy with email:',
+      session.user.email,
+    );
     api.user.policies
-      .create({
-        userId: session.user.id!,
-        businessName,
-        emirate,
-        typeId,
-        insurerId,
-        products: productIds,
-        limits,
-        total,
-        name,
-        email,
-        phone,
-        licenseNumber,
-        employees,
-      }, session.user.email!)
+      .create(
+        {
+          userId: session.user.id!,
+          businessName,
+          emirate,
+          typeId,
+          insurerId,
+          products: productIds,
+          limits,
+          total,
+          name,
+          email,
+          phone,
+          licenseNumber,
+          employees,
+        },
+        session.user.email!,
+      )
       .then(() => console.log('✅ Policy saved successfully'))
       .catch((err) => {
         console.error('❌ Policy save failed:', err);
