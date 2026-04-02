@@ -8,6 +8,7 @@ import {AlertTray} from './alert-tray';
 
 interface HeaderContentProps {
   session: {user?: {email?: string | null; name?: string | null}} | null;
+  token: string;
 }
 
 interface ServiceStatus {
@@ -31,7 +32,7 @@ function getInitials(name: string | null | undefined): string {
     .toUpperCase();
 }
 
-export function HeaderContent({session}: HeaderContentProps) {
+export function HeaderContent({session, token}: HeaderContentProps) {
   const {t} = useI18n();
   const [degradedCount, setDegradedCount] = useState(0);
   const [alertCounts, setAlertCounts] = useState<AlertSummary>({criticalCount: 0, highCount: 0});
@@ -42,7 +43,8 @@ export function HeaderContent({session}: HeaderContentProps) {
     async function fetchServiceStatus() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/platform/services`
+          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/platform/services`,
+          {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
           const data = (await res.json()) as ServiceStatus[];
@@ -62,7 +64,8 @@ export function HeaderContent({session}: HeaderContentProps) {
     async function fetchAlertCounts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`
+          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`,
+          {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
           const data = (await res.json()) as Array<{severity: string}>;
@@ -130,7 +133,7 @@ export function HeaderContent({session}: HeaderContentProps) {
               </span>
             )}
           </button>
-          {trayOpen && <AlertTray onClose={() => setTrayOpen(false)} />}
+          {trayOpen && <AlertTray onClose={() => setTrayOpen(false)} token={token} />}
         </div>
 
         {/* User info */}

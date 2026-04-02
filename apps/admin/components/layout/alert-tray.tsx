@@ -18,6 +18,7 @@ interface Alert {
 
 interface AlertTrayProps {
   onClose: () => void;
+  token: string;
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -27,7 +28,7 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: 'text-gray-600',
 };
 
-export function AlertTray({onClose}: AlertTrayProps) {
+export function AlertTray({onClose, token}: AlertTrayProps) {
   const {t} = useI18n();
   const router = useRouter();
   const trayRef = useRef<HTMLDivElement>(null);
@@ -37,7 +38,8 @@ export function AlertTray({onClose}: AlertTrayProps) {
     async function fetchAlerts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`
+          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'}/api/admin/alerts`,
+          {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
           const data = (await res.json()) as Alert[];
