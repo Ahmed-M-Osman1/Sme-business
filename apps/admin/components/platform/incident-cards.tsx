@@ -9,6 +9,13 @@ interface IncidentCardsProps {
   incidents: Incident[];
 }
 
+function toDate(value: Date | string | null | undefined): Date | null {
+  if (!value) return null;
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function severityVariant(severity: string): 'danger' | 'warning' | 'info' | 'success' {
   if (severity === 'critical') return 'danger';
   if (severity === 'high') return 'danger';
@@ -20,8 +27,11 @@ function statusVariant(status: string): 'danger' | 'success' {
   return status === 'active' ? 'danger' : 'success';
 }
 
-function formatTimestamp(date: Date): string {
-  return date.toLocaleString('en-GB', {
+function formatTimestamp(date: Date | string | null | undefined): string {
+  const resolvedDate = toDate(date);
+  if (!resolvedDate) return '--';
+
+  return resolvedDate.toLocaleString('en-GB', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -33,13 +43,19 @@ function calculateAvgResolution(incidents: Incident[]): string {
   const resolved = incidents.filter((i) => i.resolvedAt);
   if (resolved.length === 0) return '--';
 
-  const totalMs = resolved.reduce((sum, i) => {
-    const start = i.startedAt.getTime();
-    const end = i.resolvedAt!.getTime();
-    return sum + (end - start);
-  }, 0);
+  const durations = resolved.flatMap((incident) => {
+    const start = toDate(incident.startedAt);
+    const end = toDate(incident.resolvedAt);
 
-  const avgMs = totalMs / resolved.length;
+    if (!start || !end) return [];
+    return [end.getTime() - start.getTime()];
+  });
+
+  if (durations.length === 0) return '--';
+
+  const totalMs = durations.reduce((sum, duration) => sum + duration, 0);
+
+  const avgMs = totalMs / durations.length;
   const avgHours = avgMs / (1000 * 60 * 60);
 
   if (avgHours < 1) {
