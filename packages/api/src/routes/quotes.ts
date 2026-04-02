@@ -1,8 +1,7 @@
 import {Hono} from 'hono';
 import {db, quotes, quoteResults, policies} from '@shory/db';
-import type {NewQuote} from '@shory/db';
 import {createQuoteSchema, updateQuoteSchema, acceptQuoteSchema} from '@shory/shared';
-import {eq} from 'drizzle-orm';
+import {eq, sql} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler';
 import {ZodError} from 'zod';
 import {calculateQuotes} from '../pricing/engine';
@@ -13,8 +12,19 @@ export const quotesRouter = new Hono();
 quotesRouter.post('/', async (c) => {
   try {
     const body = await c.req.json();
-    const data = createQuoteSchema.parse(body) as NewQuote;
-    const [quote] = await db.insert(quotes).values(data).returning();
+    const data = createQuoteSchema.parse(body);
+    const [quote] = await db
+      .insert(quotes)
+      .values({
+        businessName: data.businessName,
+        tradeLicense: data.tradeLicense,
+        emirate: data.emirate,
+        industry: data.industry,
+        businessType: data.businessType,
+        employeesCount: data.employeesCount,
+        coverageType: data.coverageType,
+      })
+      .returning();
     return c.json(quote, 201);
   } catch (e) {
     if (e instanceof ZodError) return handleZodError(c, e);
@@ -38,7 +48,16 @@ quotesRouter.patch('/:id', async (c) => {
     const data = updateQuoteSchema.parse(body);
     const [quote] = await db
       .update(quotes)
-      .set({...data, updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>)
+      .set({
+        ...(data.businessName !== undefined && {businessName: data.businessName}),
+        ...(data.tradeLicense !== undefined && {tradeLicense: data.tradeLicense}),
+        ...(data.emirate !== undefined && {emirate: data.emirate}),
+        ...(data.industry !== undefined && {industry: data.industry}),
+        ...(data.businessType !== undefined && {businessType: data.businessType}),
+        ...(data.employeesCount !== undefined && {employeesCount: data.employeesCount}),
+        ...(data.coverageType !== undefined && {coverageType: data.coverageType}),
+        updatedAt: sql`now()`,
+      })
       .where(eq(quotes.id, id))
       .returning();
     if (!quote) return errorResponse(c, 'QUOTE_NOT_FOUND', `Quote ${id} not found`, 404);
@@ -66,7 +85,6 @@ quotesRouter.post('/:id/submit', async (c) => {
     coverageType: quote.coverageType,
   });
 
-  // Store results — numeric columns require string values in Drizzle
   const insertedResults = await db
     .insert(quoteResults)
     .values(
@@ -83,8 +101,10 @@ quotesRouter.post('/:id/submit', async (c) => {
     )
     .returning();
 
-  // Update status
-  await db.update(quotes).set({status: 'quoted', updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>).where(eq(quotes.id, id));
+  await db
+    .update(quotes)
+    .set({status: 'quoted', updatedAt: sql`now()`})
+    .where(eq(quotes.id, id));
 
   return c.json({status: 'quoted', results: insertedResults});
 });
@@ -133,7 +153,10 @@ quotesRouter.post('/:id/accept', async (c) => {
       })
       .returning();
 
-    await db.update(quotes).set({status: 'accepted', updatedAt: new Date()} as Partial<typeof quotes.$inferInsert>).where(eq(quotes.id, id));
+    await db
+      .update(quotes)
+      .set({status: 'accepted', updatedAt: sql`now()`})
+      .where(eq(quotes.id, id));
 
     return c.json(policy, 201);
   } catch (e) {
