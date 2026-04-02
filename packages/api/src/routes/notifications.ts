@@ -28,7 +28,7 @@ notificationsRouter.patch('/:id/read', async (c) => {
 
   const [notification] = await db
     .update(notifications)
-    .set({isRead: true})
+    .set({isRead: true} as any)
     .where(eq(notifications.id, id))
     .returning();
 
