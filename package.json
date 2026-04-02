@@ -11,7 +11,8 @@
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
     "db:push": "turbo db:push",
-    "db:studio": "pnpm --filter @shory/db db:studio"
+    "db:studio": "pnpm --filter @shory/db db:studio",
+    "setup:db": "node scripts/apply-migration.mjs"
   },
   "devDependencies": {
     "next-auth": "5.0.0-beta.30",
