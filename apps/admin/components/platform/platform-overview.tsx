@@ -1,58 +1,15 @@
 'use client';
 
+import type {ApiService, BehaviourMetric, Incident, PlatformCorrelation} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {KpiCard} from '@/components/shared/kpi-card';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {Tag} from '@/components/shared/tag';
 
-interface Incident {
-  id: string;
-  service_name: string;
-  severity: string;
-  status: string;
-  description: string;
-  impact: string;
-  started_at: string;
-  resolved_at: string | null;
-}
-
-interface Service {
-  id: string;
-  name: string;
-  category: string;
-  status: string;
-  uptime: number;
-  latency: number;
-  p99: number;
-  error_rate: number;
-  requests_24h: number;
-}
-
-interface Correlation {
-  id: string;
-  severity: string;
-  headline: string;
-  detail: string;
-  action: string;
-  action_label: string;
-  services: string[];
-  metrics: string[];
-  is_active: boolean;
-}
-
-interface BehaviourMetric {
-  label: string;
-  value: string;
-  trend: number;
-  is_good: boolean;
-  icon: string;
-  sub_label: string;
-}
-
 interface PlatformOverviewProps {
-  services: Service[];
+  services: ApiService[];
   incidents: Incident[];
-  correlations: Correlation[];
+  correlations: PlatformCorrelation[];
   behaviour: BehaviourMetric[];
 }
 
@@ -67,7 +24,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
 
   const activeIncidents = incidents.filter((i) => i.status === 'active');
   const degradedApis = services.filter((s) => s.status === 'degraded' || s.status === 'down');
-  const anomalyMetrics = behaviour.filter((b) => !b.is_good);
+  const anomalyMetrics = behaviour.filter((b) => !b.isGood);
   const activeSessions = behaviour.find((b) => b.label === 'Active Sessions');
 
   return (
@@ -85,7 +42,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
                 {activeIncidents.length} {t.platform.activeIncidents}
               </p>
               <p className="mt-0.5 text-sm text-red-100">
-                {activeIncidents.map((i) => i.service_name).join(', ')} &mdash;{' '}
+                {activeIncidents.map((i) => i.serviceName).join(', ')} &mdash;{' '}
                 {activeIncidents[0]?.description}
               </p>
             </div>
@@ -115,7 +72,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
         <KpiCard
           label={t.platform.activeSessions}
           value={activeSessions?.value ?? '0'}
-          sub={activeSessions?.sub_label}
+          sub={activeSessions?.subLabel}
           icon="👥"
         />
       </div>
@@ -129,7 +86,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
           <p className="text-sm text-slate-400">{t.platform.noCorrelations}</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {correlations.filter((c) => c.is_active).map((correlation) => (
+            {correlations.filter((c) => c.isActive).map((correlation) => (
               <div
                 key={correlation.id}
                 className="rounded-xl border border-gray-200 bg-white p-4"
@@ -161,7 +118,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
                   type="button"
                   className="mt-3 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
                 >
-                  {correlation.action_label || t.platform.correlationAction}
+                  {correlation.actionLabel || t.platform.correlationAction}
                 </button>
               </div>
             ))}

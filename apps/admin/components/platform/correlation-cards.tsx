@@ -1,23 +1,12 @@
 'use client';
 
+import type {PlatformCorrelation} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {Tag} from '@/components/shared/tag';
 
-interface Correlation {
-  id: string;
-  severity: string;
-  headline: string;
-  detail: string;
-  action: string;
-  action_label: string;
-  services: string[];
-  metrics: string[];
-  is_active: boolean;
-}
-
 interface CorrelationCardsProps {
-  correlations: Correlation[];
+  correlations: PlatformCorrelation[];
 }
 
 function severityVariant(severity: string): 'danger' | 'warning' | 'info' {
@@ -29,7 +18,7 @@ function severityVariant(severity: string): 'danger' | 'warning' | 'info' {
 export function CorrelationCards({correlations}: CorrelationCardsProps) {
   const {t} = useI18n();
 
-  const active = correlations.filter((c) => c.is_active);
+  const active = correlations.filter((c) => c.isActive);
 
   if (active.length === 0) {
     return (
@@ -119,7 +108,7 @@ export function CorrelationCards({correlations}: CorrelationCardsProps) {
               type="button"
               className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700"
             >
-              {correlation.action_label || t.platform.correlationAction}
+              {correlation.actionLabel || t.platform.correlationAction}
             </button>
             <button
               type="button"

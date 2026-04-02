@@ -1,25 +1,14 @@
 'use client';
 
 import {useEffect, useState} from 'react';
+import type {ApiService} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {StatusDot} from '@/components/shared/status-dot';
 import {Sparkline} from '@/components/shared/sparkline';
 import {Tag} from '@/components/shared/tag';
 
-interface Service {
-  id: string;
-  name: string;
-  category: string;
-  status: 'operational' | 'degraded' | 'down';
-  uptime: number;
-  latency: number;
-  p99: number;
-  error_rate: number;
-  requests_24h: number;
-}
-
 interface ApiHealthGridProps {
-  services: Service[];
+  services: ApiService[];
 }
 
 type CategoryKey = 'core' | 'ai' | 'infra' | 'insurer';
@@ -116,7 +105,7 @@ export function ApiHealthGrid({services}: ApiHealthGridProps) {
                       </span>
                     </div>
                     <Tag
-                      label={t.platform[service.status as 'operational' | 'degraded' | 'down']}
+                      label={t.platform[service.status]}
                       variant={statusVariant(service.status)}
                     />
                   </div>
@@ -137,14 +126,14 @@ export function ApiHealthGrid({services}: ApiHealthGridProps) {
                     </div>
                     <div>
                       <span className="text-slate-400">{t.platform.errorRate}</span>
-                      <span className={`ms-1 font-mono font-semibold ${errorRateColor(service.error_rate)}`}>
-                        {service.error_rate}%
+                      <span className={`ms-1 font-mono font-semibold ${errorRateColor(parseFloat(service.errorRate))}`}>
+                        {service.errorRate}%
                       </span>
                     </div>
                     <div>
                       <span className="text-slate-400">{t.platform.uptime}</span>
                       <span className="ms-1 font-mono font-semibold text-slate-700">
-                        {service.uptime}%
+                        {parseFloat(service.uptime)}%
                       </span>
                     </div>
                   </div>
@@ -152,7 +141,7 @@ export function ApiHealthGrid({services}: ApiHealthGridProps) {
                   {/* Sparkline */}
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-xs text-slate-400">
-                      {service.requests_24h.toLocaleString()} {t.platform.requests}
+                      {service.requests24h.toLocaleString()} {t.platform.requests}
                     </span>
                     <Sparkline values={sparkValues} color={sparkColor} />
                   </div>

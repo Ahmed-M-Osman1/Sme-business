@@ -7,66 +7,15 @@ import {ApiHealthGrid} from '@/components/platform/api-health-grid';
 import {UserBehaviour} from '@/components/platform/user-behaviour';
 import {CorrelationCards} from '@/components/platform/correlation-cards';
 import {IncidentCards} from '@/components/platform/incident-cards';
-
-interface Service {
-  id: string;
-  name: string;
-  category: string;
-  status: 'operational' | 'degraded' | 'down';
-  uptime: number;
-  latency: number;
-  p99: number;
-  error_rate: number;
-  requests_24h: number;
-}
-
-interface FunnelStep {
-  id: string;
-  step: string;
-  sessions: number;
-  drop_pct: number;
-  trend: number;
-  is_anomaly: boolean;
-}
-
-interface BehaviourMetric {
-  label: string;
-  value: string;
-  trend: number;
-  is_good: boolean;
-  icon: string;
-  sub_label: string;
-}
-
-interface Correlation {
-  id: string;
-  severity: string;
-  headline: string;
-  detail: string;
-  action: string;
-  action_label: string;
-  services: string[];
-  metrics: string[];
-  is_active: boolean;
-}
-
-interface Incident {
-  id: string;
-  service_name: string;
-  severity: string;
-  status: string;
-  started_at: string;
-  resolved_at: string | null;
-  description: string;
-  impact: string;
-}
+import type {ApiService, BehaviourMetric as DBBehaviourMetric, PlatformCorrelation, Incident as DBIncident} from '@shory/db';
+import type {FunnelStep} from '@/lib/api-client';
 
 interface PlatformTabsProps {
-  services: Service[];
+  services: ApiService[];
   funnel: FunnelStep[];
-  behaviour: BehaviourMetric[];
-  correlations: Correlation[];
-  incidents: Incident[];
+  behaviour: DBBehaviourMetric[];
+  correlations: PlatformCorrelation[];
+  incidents: DBIncident[];
 }
 
 type TabKey = 'overview' | 'apiHealth' | 'userBehaviour' | 'aiCorrelations' | 'incidents';

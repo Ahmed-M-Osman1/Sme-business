@@ -1,19 +1,9 @@
 'use client';
 
+import type {Incident} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {KpiCard} from '@/components/shared/kpi-card';
 import {Tag} from '@/components/shared/tag';
-
-interface Incident {
-  id: string;
-  service_name: string;
-  severity: string;
-  status: string;
-  started_at: string;
-  resolved_at: string | null;
-  description: string;
-  impact: string;
-}
 
 interface IncidentCardsProps {
   incidents: Incident[];
@@ -30,9 +20,8 @@ function statusVariant(status: string): 'danger' | 'success' {
   return status === 'active' ? 'danger' : 'success';
 }
 
-function formatTimestamp(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString('en-GB', {
+function formatTimestamp(date: Date): string {
+  return date.toLocaleString('en-GB', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -41,12 +30,12 @@ function formatTimestamp(iso: string): string {
 }
 
 function calculateAvgResolution(incidents: Incident[]): string {
-  const resolved = incidents.filter((i) => i.resolved_at);
+  const resolved = incidents.filter((i) => i.resolvedAt);
   if (resolved.length === 0) return '--';
 
   const totalMs = resolved.reduce((sum, i) => {
-    const start = new Date(i.started_at).getTime();
-    const end = new Date(i.resolved_at!).getTime();
+    const start = i.startedAt.getTime();
+    const end = i.resolvedAt!.getTime();
     return sum + (end - start);
   }, 0);
 
@@ -113,7 +102,7 @@ export function IncidentCards({incidents}: IncidentCardsProps) {
                   variant={statusVariant(incident.status)}
                 />
                 <span className="ms-auto text-sm font-semibold text-slate-700">
-                  {incident.service_name}
+                  {incident.serviceName}
                 </span>
               </div>
 
@@ -130,11 +119,11 @@ export function IncidentCards({incidents}: IncidentCardsProps) {
               {/* Metadata */}
               <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-400">
                 <span>
-                  {t.platform.startedAt}: {formatTimestamp(incident.started_at)}
+                  {t.platform.startedAt}: {formatTimestamp(incident.startedAt)}
                 </span>
-                {incident.resolved_at && (
+                {incident.resolvedAt && (
                   <span>
-                    {t.platform.resolvedAt}: {formatTimestamp(incident.resolved_at)}
+                    {t.platform.resolvedAt}: {formatTimestamp(incident.resolvedAt)}
                   </span>
                 )}
               </div>

@@ -29,11 +29,13 @@ async function fetchAdmin<T>(path: string, token: string, options?: RequestInit)
 }
 
 export interface FunnelStep {
+  id: string;
   step: string;
   sessions: number;
-  dropOff: number;
-  trend: number;
-  anomaly: boolean;
+  dropPct: string;
+  trend: string;
+  isAnomaly: boolean;
+  recordedAt: string;
 }
 
 export interface CustomerSignals {
