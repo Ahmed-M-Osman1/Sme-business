@@ -40,6 +40,14 @@
   "landing": {
     "heroTitle": "أفضل شركات التأمين.\nأفضل الأسعار.\nتطبيق واحد.",
     "heroSubtitle": "قارن واشترِ التأمين في الإمارات",
+    "heroCards": {
+      "carInsurance": "تأمين السيارات",
+      "healthInsurance": "التأمين الصحي",
+      "homeInsurance": "تأمين المنازل",
+      "petInsurance": "تأمين الحيوانات الأليفة",
+      "smeBusinessInsurance": "تأمين الشركات الصغيرة والمتوسطة",
+      "visitVisaForAgencies": "تأشيرة الزيارة للوكالات"
+    },
     "getQuote": "احصل على عرض أسعار",
     "learnMore": "اعرف المزيد",
     "tabPersonal": "التأمين الشخصي",

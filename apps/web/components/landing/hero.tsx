@@ -13,53 +13,6 @@ type ProductCard = {
   active: boolean;
 };
 
-const PERSONAL_PRODUCTS: ProductCard[] = [
-  {
-    title: 'Car Insurance',
-    image:
-      'https://www.shory.com/media/w2mel21w/car-insurance_card.webp',
-    href: '#',
-    active: false,
-  },
-  {
-    title: 'Health Insurance',
-    image:
-      'https://www.shory.com/media/03dfofzl/health-insurance_card.webp',
-    href: '#',
-    active: false,
-  },
-  {
-    title: 'Home Insurance',
-    image:
-      'https://www.shory.com/media/edaboops/home-insurance_card.webp',
-    href: '#',
-    active: false,
-  },
-  {
-    title: 'Pet Insurance',
-    image:
-      'https://www.shory.com/media/2keaiue0/pet-insurance_card.webp',
-    href: '#',
-    active: false,
-  },
-];
-
-const BUSINESS_PRODUCTS: ProductCard[] = [
-  {
-    title: 'SME Business Insurance',
-    image: 'sme-icon',
-    href: '/quote/start',
-    active: true,
-  },
-  {
-    title: 'Visit Visa for Agencies',
-    image:
-      'https://www.shory.com/media/podicoyv/card-travel_insurance.webp',
-    href: '#',
-    active: false,
-  },
-];
-
 function ProductCardItem({product}: {product: ProductCard}) {
   const {t} = useI18n();
   return (
@@ -104,8 +57,55 @@ export function Hero() {
     'business',
   );
 
+  const personalProducts: ProductCard[] = [
+    {
+      title: t.landing.heroCards.carInsurance,
+      image:
+        'https://www.shory.com/media/w2mel21w/car-insurance_card.webp',
+      href: '#',
+      active: false,
+    },
+    {
+      title: t.landing.heroCards.healthInsurance,
+      image:
+        'https://www.shory.com/media/03dfofzl/health-insurance_card.webp',
+      href: '#',
+      active: false,
+    },
+    {
+      title: t.landing.heroCards.homeInsurance,
+      image:
+        'https://www.shory.com/media/edaboops/home-insurance_card.webp',
+      href: '#',
+      active: false,
+    },
+    {
+      title: t.landing.heroCards.petInsurance,
+      image:
+        'https://www.shory.com/media/2keaiue0/pet-insurance_card.webp',
+      href: '#',
+      active: false,
+    },
+  ];
+
+  const businessProducts: ProductCard[] = [
+    {
+      title: t.landing.heroCards.smeBusinessInsurance,
+      image: 'sme-icon',
+      href: '/quote/start',
+      active: true,
+    },
+    {
+      title: t.landing.heroCards.visitVisaForAgencies,
+      image:
+        'https://www.shory.com/media/podicoyv/card-travel_insurance.webp',
+      href: '#',
+      active: false,
+    },
+  ];
+
   const products =
-    activeTab === 'personal' ? PERSONAL_PRODUCTS : BUSINESS_PRODUCTS;
+    activeTab === 'personal' ? personalProducts : businessProducts;
 
   return (
     <section className="pb-8 pt-12 text-center">

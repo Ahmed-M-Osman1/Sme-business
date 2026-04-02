@@ -40,6 +40,14 @@
   "landing": {
     "heroTitle": "Top insurers.\nBest prices.\nOne app.",
     "heroSubtitle": "Compare and buy insurance from leading insurers in the UAE — car, health, home, business, and more.",
+    "heroCards": {
+      "carInsurance": "Car Insurance",
+      "healthInsurance": "Health Insurance",
+      "homeInsurance": "Home Insurance",
+      "petInsurance": "Pet Insurance",
+      "smeBusinessInsurance": "SME Business Insurance",
+      "visitVisaForAgencies": "Visit Visa for Agencies"
+    },
     "getQuote": "Get a quote",
     "learnMore": "Learn more",
     "tabPersonal": "Personal",
