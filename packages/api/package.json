@@ -15,7 +15,7 @@
   },
   "scripts": {
     "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
-    "build": "tsup src/app.ts --format esm --outDir dist --external:@shory/db --external:@shory/shared",
+    "build": "tsc --project tsconfig.json --outDir dist --declaration",
     "start": "node dist/app.js",
     "lint": "eslint"
   },
