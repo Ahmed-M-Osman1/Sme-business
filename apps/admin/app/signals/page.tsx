@@ -19,10 +19,10 @@ export default async function SignalsPage() {
       adminApi.intelligence.benchmarks(token),
       adminApi.intelligence.scheduledComms(token),
     ]);
-    signals = (signalsRes as {data: ExternalSignal[]}).data ?? signalsRes;
-    triggers = (triggersRes as {data: MidtermTrigger[]}).data ?? triggersRes;
-    benchmarks = (benchmarksRes as {data: PeerBenchmark[]}).data ?? benchmarksRes;
-    scheduledComms = (commsRes as {data: CommsSequence[]}).data ?? commsRes;
+    signals = signalsRes;
+    triggers = triggersRes;
+    benchmarks = benchmarksRes;
+    scheduledComms = commsRes;
   } catch {
     // API might not be running — show empty state
   }
