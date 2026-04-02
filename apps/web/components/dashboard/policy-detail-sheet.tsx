@@ -14,10 +14,9 @@ interface PolicyDetailSheetProps {
   onClose: () => void;
 }
 
-export function PolicyDetailSheet({policy, onClose}: PolicyDetailSheetProps) {
+// Inner component that handles display when policy exists
+function PolicyDetailContent({policy, onClose}: {policy: EnrichedPolicy; onClose: () => void}) {
   const {t, locale} = useI18n();
-
-  if (!policy) return null;
 
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -182,4 +181,10 @@ export function PolicyDetailSheet({policy, onClose}: PolicyDetailSheetProps) {
       </Card>
     </div>
   );
+}
+
+// Outer component that only renders inner component when policy exists
+export function PolicyDetailSheet({policy, onClose}: PolicyDetailSheetProps) {
+  if (!policy) return null;
+  return <PolicyDetailContent policy={policy} onClose={onClose} />;
 }
