@@ -14,19 +14,19 @@ export default async function DashboardPage() {
   let services: ApiService[] = [];
 
   try {
-    const [statsData, alertsData, customersData, incidentsData, servicesData] = await Promise.all([
+    const [statsData, alertsRes, customersRes, incidentsRes, servicesRes] = await Promise.all([
       adminApi.stats(token).catch(() => stats),
-      adminApi.alerts.list(token).catch(() => [] as PortfolioAlert[]),
-      adminApi.customers.list(token, {pageSize: 50}).catch(() => ({data: [] as Customer[], total: 0, page: 1, pageSize: 50})),
-      adminApi.incidents.list(token).catch(() => [] as Incident[]),
-      adminApi.platform.services(token).catch(() => [] as ApiService[]),
+      adminApi.alerts.list(token).catch(() => ({data: [] as PortfolioAlert[]})),
+      adminApi.customers.list(token, {pageSize: 50}).catch(() => ({data: [] as Customer[]})),
+      adminApi.incidents.list(token).catch(() => ({data: [] as Incident[]})),
+      adminApi.platform.services(token).catch(() => ({data: [] as ApiService[]})),
     ]);
 
     stats = statsData;
-    alerts = alertsData;
-    customers = customersData.data;
-    incidents = incidentsData;
-    services = servicesData;
+    alerts = (alertsRes as {data: PortfolioAlert[]}).data ?? [];
+    customers = (customersRes as {data: Customer[]}).data ?? [];
+    incidents = (incidentsRes as {data: Incident[]}).data ?? [];
+    services = (servicesRes as {data: ApiService[]}).data ?? [];
   } catch {
     // API might not be running — show defaults
   }
