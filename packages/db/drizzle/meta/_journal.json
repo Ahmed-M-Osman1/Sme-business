@@ -1,13 +1,20 @@
 {
-  "version": "7",
+  "version": "5",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1775121060750,
+      "version": "5",
+      "when": 1712073600000,
       "tag": "0000_classy_bulldozer",
-      "breakpoints": true
+      "name": "0000_classy_bulldozer"
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1712073601000,
+      "tag": "0001_add_web_users",
+      "name": "0001_add_web_users"
     }
   ]
 }
