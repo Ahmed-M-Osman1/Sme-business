@@ -16,6 +16,8 @@ import * as externalSignalsSchema from './schema/external-signals';
 import * as midtermTriggersSchema from './schema/midterm-triggers';
 import * as peerBenchmarksSchema from './schema/peer-benchmarks';
 import * as platformCorrelationsSchema from './schema/platform-correlations';
+import * as claimsSchema from './schema/claims';
+import * as customerInteractionsSchema from './schema/customer-interactions';
 
 const connectionString = process.env.DATABASE_URL!;
 const client = postgres(connectionString);
@@ -38,5 +40,7 @@ export const db = drizzle(client, {
     ...midtermTriggersSchema,
     ...peerBenchmarksSchema,
     ...platformCorrelationsSchema,
+    ...claimsSchema,
+    ...customerInteractionsSchema,
   },
 });

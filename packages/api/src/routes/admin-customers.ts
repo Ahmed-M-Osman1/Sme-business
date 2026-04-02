@@ -2,6 +2,8 @@ import {Hono} from 'hono';
 import {
   db,
   customers,
+  claims,
+  customerInteractions,
   commsSequences,
   externalSignals,
   midtermTriggers,
@@ -149,6 +151,28 @@ adminCustomersRouter.get('/:id/signals', async (c) => {
   ]);
 
   return c.json({signals, triggers});
+});
+
+// GET /customers/:id/interactions — all interactions for a customer
+adminCustomersRouter.get('/:id/interactions', async (c) => {
+  const id = c.req.param('id');
+  const data = await db
+    .select()
+    .from(customerInteractions)
+    .where(eq(customerInteractions.customerId, id))
+    .orderBy(desc(customerInteractions.createdAt));
+  return c.json(data);
+});
+
+// GET /customers/:id/claims — all claims for a customer
+adminCustomersRouter.get('/:id/claims', async (c) => {
+  const id = c.req.param('id');
+  const data = await db
+    .select()
+    .from(claims)
+    .where(eq(claims.customerId, id))
+    .orderBy(desc(claims.filedAt));
+  return c.json(data);
 });
 
 // GET /customers/:id/platform-context — degraded services affecting this customer's insurer

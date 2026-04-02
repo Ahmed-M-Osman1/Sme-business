@@ -71,3 +71,9 @@ export type {PeerBenchmark, NewPeerBenchmark} from './schema/peer-benchmarks';
 
 export {platformCorrelations} from './schema/platform-correlations';
 export type {PlatformCorrelation, NewPlatformCorrelation} from './schema/platform-correlations';
+
+export {claimStatusEnum, claims} from './schema/claims';
+export type {Claim, NewClaim} from './schema/claims';
+
+export {interactionTypeEnum, customerInteractions} from './schema/customer-interactions';
+export type {CustomerInteraction, NewCustomerInteraction} from './schema/customer-interactions';

@@ -1,7 +1,7 @@
 'use client';
 
 import {useState, useEffect, useCallback} from 'react';
-import type {Customer, CommsSequence, ExternalSignal, MidtermTrigger} from '@shory/db';
+import type {Customer, CommsSequence, ExternalSignal, MidtermTrigger, Claim, CustomerInteraction} from '@shory/db';
 import type {PlaybookResult, CustomerPlatformContext} from '@shory/shared';
 import {useI18n} from '@/lib/i18n';
 import {adminApi} from '@/lib/api-client';
@@ -22,6 +22,8 @@ interface SelectedData {
   signals: ExternalSignal[];
   triggers: MidtermTrigger[];
   platformContext: CustomerPlatformContext;
+  interactions: CustomerInteraction[];
+  claims: Claim[];
 }
 
 export function CustomersView({customers, initialSelectedId, token}: CustomersViewProps) {
@@ -35,12 +37,14 @@ export function CustomersView({customers, initialSelectedId, token}: CustomersVi
   const fetchCustomerData = useCallback(async (customerId: string) => {
     setLoading(true);
     try {
-      const [customer, comms, playbook, signalsData, platformContext] = await Promise.all([
+      const [customer, comms, playbook, signalsData, platformContext, interactions, claims] = await Promise.all([
         adminApi.customers.get(token, customerId),
         adminApi.customers.getComms(token, customerId).catch(() => [] as CommsSequence[]),
         adminApi.customers.getPlaybook(token, customerId).catch(() => null),
         adminApi.customers.getSignals(token, customerId).catch(() => ({externalSignals: [], midtermTriggers: []})),
         adminApi.customers.getPlatformContext(token, customerId).catch(() => ({flag: false, issue: null, detail: null, severity: null}) as CustomerPlatformContext),
+        adminApi.customers.getInteractions(token, customerId).catch(() => [] as CustomerInteraction[]),
+        adminApi.customers.getClaims(token, customerId).catch(() => [] as Claim[]),
       ]);
 
       setSelectedData({
@@ -50,6 +54,8 @@ export function CustomersView({customers, initialSelectedId, token}: CustomersVi
         signals: signalsData.externalSignals,
         triggers: signalsData.midtermTriggers,
         platformContext,
+        interactions,
+        claims,
       });
 
       setPlaybooks((prev) => ({...prev, [customerId]: playbook}));
@@ -128,6 +134,8 @@ export function CustomersView({customers, initialSelectedId, token}: CustomersVi
           <CustomerProfile
             customer={selectedData.customer}
             comms={selectedData.comms}
+            claims={selectedData.claims}
+            interactions={selectedData.interactions}
           />
           <AiPanel
             customer={selectedData.customer}

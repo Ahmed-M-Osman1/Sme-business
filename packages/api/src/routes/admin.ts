@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import {db, quotes, customers, incidents, apiServices, portfolioAlerts} from '@shory/db';
+import {db, quotes, customers, claims, incidents, apiServices, portfolioAlerts} from '@shory/db';
 import {eq, desc, count, gte, or} from 'drizzle-orm';
 import {adminAuth} from '../middleware/auth';
 import {errorResponse} from '../middleware/error-handler';
@@ -84,6 +84,7 @@ adminRouter.get('/stats', async (c) => {
     [{activeIncidents}],
     [{degradedServices}],
     [{unreadAlerts}],
+    [{openClaims}],
   ] = await Promise.all([
     db.select({totalQuotes: count()}).from(quotes),
     db.select({quotesThisWeek: count()}).from(quotes).where(gte(quotes.createdAt, oneWeekAgo)),
@@ -95,6 +96,9 @@ adminRouter.get('/stats', async (c) => {
       or(eq(apiServices.status, 'degraded'), eq(apiServices.status, 'down')),
     ),
     db.select({unreadAlerts: count()}).from(portfolioAlerts).where(eq(portfolioAlerts.isRead, false)),
+    db.select({openClaims: count()}).from(claims).where(
+      or(eq(claims.status, 'open'), eq(claims.status, 'under_review')),
+    ),
   ]);
 
   return c.json({
@@ -106,5 +110,6 @@ adminRouter.get('/stats', async (c) => {
     activeIncidents,
     degradedServices,
     unreadAlerts,
+    openClaims,
   });
 });

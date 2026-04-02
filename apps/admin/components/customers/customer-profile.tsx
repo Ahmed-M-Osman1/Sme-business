@@ -1,18 +1,19 @@
 'use client';
 
 import {useState} from 'react';
-import type {Customer, CommsSequence} from '@shory/db';
+import type {Customer, CommsSequence, Claim, CustomerInteraction} from '@shory/db';
 import {Card, CardContent, CardHeader, CardTitle, Badge, Button} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
 import {RiskBar} from '@/components/shared/risk-bar';
 import {Tag} from '@/components/shared/tag';
-import {StatusDot} from '@/components/shared/status-dot';
 
 type Tab = 'overview' | 'policies' | 'comms' | 'claims' | 'history';
 
 interface CustomerProfileProps {
   customer: Customer;
   comms: CommsSequence[];
+  claims: Claim[];
+  interactions: CustomerInteraction[];
 }
 
 const STAGE_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -21,14 +22,28 @@ const STAGE_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'o
   lapsed: 'destructive',
 };
 
-function formatDaysAgo(date: Date | string | null): string {
+function formatRelativeDate(date: Date | string | null): string {
   if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
-  const diff = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
-  return `${diff}`;
+  const diffMs = Date.now() - d.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 30) return `${diffDays}d ago`;
+  return d.toLocaleDateString();
 }
 
-export function CustomerProfile({customer, comms}: CustomerProfileProps) {
+function formatDate(date: Date | string | null): string {
+  if (!date) return '-';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
+}
+
+export function CustomerProfile({customer, comms, claims, interactions}: CustomerProfileProps) {
   const {t} = useI18n();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
 
@@ -101,20 +116,36 @@ export function CustomerProfile({customer, comms}: CustomerProfileProps) {
         {activeTab === 'overview' && <OverviewTab customer={customer} />}
         {activeTab === 'policies' && <PoliciesTab customer={customer} />}
         {activeTab === 'comms' && <CommsTab comms={comms} />}
-        {activeTab === 'claims' && <ClaimsTab customer={customer} />}
-        {activeTab === 'history' && <HistoryTab />}
+        {activeTab === 'claims' && <ClaimsTab customer={customer} claims={claims} />}
+        {activeTab === 'history' && <HistoryTab interactions={interactions} />}
       </div>
     </div>
   );
 }
 
+/* ─── Overview Tab (enhanced) ───────────────────────────────────────── */
+
 function OverviewTab({customer}: {customer: Customer}) {
   const {t} = useI18n();
+
+  const paymentDotColor =
+    customer.paymentStatus === 'on_time'
+      ? 'bg-emerald-500'
+      : customer.paymentStatus === 'overdue'
+        ? 'bg-red-500'
+        : 'bg-amber-500';
+
+  const paymentLabel =
+    customer.paymentStatus === 'on_time'
+      ? t.customers.onTime
+      : customer.paymentStatus === 'overdue'
+        ? t.customers.overdue
+        : t.customers.pending;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {/* Active Coverage */}
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-xl shadow-sm transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-gray-700">{t.customers.activeCoverage}</CardTitle>
         </CardHeader>
@@ -122,7 +153,12 @@ function OverviewTab({customer}: {customer: Customer}) {
           {customer.products.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
               {customer.products.map((product) => (
-                <Tag key={product} label={product} variant="success" />
+                <div
+                  key={product}
+                  className="cursor-default rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                >
+                  {product}
+                </div>
               ))}
             </div>
           ) : (
@@ -133,7 +169,12 @@ function OverviewTab({customer}: {customer: Customer}) {
               <p className="mb-1.5 text-xs font-medium text-gray-500">{t.customers.coverageGaps}</p>
               <div className="flex flex-wrap gap-1.5">
                 {customer.missingProducts.map((product) => (
-                  <Tag key={product} label={product} variant="warning" />
+                  <div
+                    key={product}
+                    className="cursor-default rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
+                  >
+                    {product}
+                  </div>
                 ))}
               </div>
             </div>
@@ -142,12 +183,12 @@ function OverviewTab({customer}: {customer: Customer}) {
       </Card>
 
       {/* Snapshot */}
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-xl shadow-sm transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-gray-700">{t.customers.snapshot}</CardTitle>
         </CardHeader>
         <CardContent>
-          <dl className="space-y-2 text-sm">
+          <dl className="space-y-2.5 text-sm">
             <SnapshotRow label={t.customers.company} value={customer.company} />
             <SnapshotRow label={t.customers.email} value={customer.email} />
             <SnapshotRow label={t.customers.emirate} value={customer.emirate} />
@@ -156,12 +197,19 @@ function OverviewTab({customer}: {customer: Customer}) {
             <SnapshotRow label={t.customers.policyRef} value={customer.policyRef ?? '-'} />
             <SnapshotRow label={t.customers.premium} value={`${t.common.aed} ${customer.premium}`} />
             <SnapshotRow label={t.customers.ltv} value={`${t.common.aed} ${customer.ltv}`} />
+            <div className="flex items-center justify-between">
+              <dt className="text-gray-500">{t.customers.paymentStatus}</dt>
+              <dd className="flex items-center gap-1.5 font-medium text-gray-900">
+                <span className={`inline-block h-2 w-2 rounded-full ${paymentDotColor}`} />
+                {paymentLabel}
+              </dd>
+            </div>
           </dl>
         </CardContent>
       </Card>
 
       {/* AI Risk Analysis */}
-      <Card className="rounded-xl shadow-sm">
+      <Card className="rounded-xl shadow-sm transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-gray-700">{t.customers.aiRiskAnalysis}</CardTitle>
         </CardHeader>
@@ -181,12 +229,13 @@ function OverviewTab({customer}: {customer: Customer}) {
         </CardContent>
       </Card>
 
-      {/* Revenue Opportunity */}
-      <Card className="rounded-xl shadow-sm">
-        <CardHeader className="pb-3">
+      {/* Revenue Opportunity — gradient background */}
+      <Card className="relative overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent" />
+        <CardHeader className="relative pb-3">
           <CardTitle className="text-sm font-semibold text-gray-700">{t.customers.revenueOpportunity}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <p className="text-2xl font-bold text-blue-600">
             {t.common.aed} {Number(customer.revenueOpp).toLocaleString()}
           </p>
@@ -205,6 +254,8 @@ function SnapshotRow({label, value}: {label: string; value: string}) {
     </div>
   );
 }
+
+/* ─── Policies Tab ──────────────────────────────────────────────────── */
 
 function PoliciesTab({customer}: {customer: Customer}) {
   const {t} = useI18n();
@@ -238,6 +289,8 @@ function PoliciesTab({customer}: {customer: Customer}) {
     </div>
   );
 }
+
+/* ─── Comms Tab ─────────────────────────────────────────────────────── */
 
 function CommsTab({comms}: {comms: CommsSequence[]}) {
   const {t} = useI18n();
@@ -281,10 +334,19 @@ function CommsTab({comms}: {comms: CommsSequence[]}) {
   );
 }
 
-function ClaimsTab({customer}: {customer: Customer}) {
+/* ─── Claims Tab (enhanced) ─────────────────────────────────────────── */
+
+const CLAIM_STATUS_STYLE: Record<string, {variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string}> = {
+  open: {variant: 'outline', className: 'border-amber-300 bg-amber-50 text-amber-700'},
+  under_review: {variant: 'outline', className: 'border-blue-300 bg-blue-50 text-blue-700'},
+  settled: {variant: 'outline', className: 'border-emerald-300 bg-emerald-50 text-emerald-700'},
+  denied: {variant: 'outline', className: 'border-red-300 bg-red-50 text-red-700'},
+};
+
+function ClaimsTab({customer, claims}: {customer: Customer; claims: Claim[]}) {
   const {t} = useI18n();
 
-  if (customer.claimsOpen === 0) {
+  if (claims.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-gray-500">
         <p>{t.customers.noClaims}</p>
@@ -292,35 +354,177 @@ function ClaimsTab({customer}: {customer: Customer}) {
     );
   }
 
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case 'open': return t.customers.claimStatusOpen;
+      case 'under_review': return t.customers.claimStatusUnderReview;
+      case 'settled': return t.customers.claimStatusSettled;
+      case 'denied': return t.customers.claimStatusDenied;
+      default: return status;
+    }
+  };
+
+  const showChurnInsight = (claim: Claim) =>
+    claim.status === 'open' && customer.renewalDays !== null && customer.renewalDays <= 60 && customer.renewalDays > 0;
+
   return (
-    <div className="space-y-3">
-      {Array.from({length: customer.claimsOpen}).map((_, i) => (
-        <Card key={i} className="rounded-xl shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {t.customers.claimRef}: CLM-{String(i + 1).padStart(4, '0')}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {t.customers.reserve}: {t.common.aed} -
-                </p>
+    <div className="space-y-4">
+      {claims.map((claim) => {
+        const style = CLAIM_STATUS_STYLE[claim.status] ?? CLAIM_STATUS_STYLE.open;
+        return (
+          <Card key={claim.id} className="rounded-xl shadow-sm transition-shadow hover:shadow-md">
+            <CardContent className="p-5">
+              {/* Header row */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {claim.claimRef} &middot; {claim.type}
+                  </p>
+                </div>
+                <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${style.className}`}>
+                  {statusLabel(claim.status)}
+                </span>
               </div>
-              <Badge variant="secondary">{t.common.active}</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+
+              {/* Description */}
+              {claim.description && (
+                <p className="mt-2 text-sm text-gray-600">{claim.description}</p>
+              )}
+
+              {/* Details grid */}
+              <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">{t.customers.reserve}</span>
+                  <span className="font-medium text-gray-700">{t.common.aed} {Number(claim.reserve).toLocaleString()}</span>
+                </div>
+                {claim.handlerName && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">{t.customers.claimHandler}</span>
+                    <span className="font-medium text-gray-700">{claim.handlerName}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-400">{t.customers.claimFiledAt}</span>
+                  <span className="font-medium text-gray-700">{formatDate(claim.filedAt)}</span>
+                </div>
+                {claim.resolvedAt && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">{t.customers.claimResolvedAt}</span>
+                    <span className="font-medium text-gray-700">{formatDate(claim.resolvedAt)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* AI churn insight */}
+              {showChurnInsight(claim) && (
+                <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/60 px-3 py-2">
+                  <p className="text-xs font-medium text-indigo-700">
+                    {t.claims.aiInsight}
+                  </p>
+                  <p className="mt-0.5 text-xs text-indigo-600">
+                    {t.customers.aiChurnInsight}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
 
-function HistoryTab() {
+/* ─── History Tab (enhanced) ────────────────────────────────────────── */
+
+const INTERACTION_ICON: Record<string, string> = {
+  outbound_email: '\u{1F4E7}',
+  auto_email: '\u{1F4E7}',
+  inbound_whatsapp: '\u{1F4AC}',
+  outbound_whatsapp: '\u{1F4AC}',
+  auto_whatsapp: '\u{1F4AC}',
+  inbound_chat: '\u{1F4AC}',
+  inbound_call: '\u{1F4DE}',
+  note: '\u{1F4DD}',
+};
+
+function interactionTypeLabel(type: string, t: ReturnType<typeof useI18n>['t']): string {
+  switch (type) {
+    case 'outbound_email':
+    case 'auto_email':
+      return t.customers.interactionEmail;
+    case 'inbound_whatsapp':
+    case 'outbound_whatsapp':
+    case 'auto_whatsapp':
+      return t.customers.interactionWhatsApp;
+    case 'inbound_chat':
+      return t.customers.interactionChat;
+    case 'inbound_call':
+      return t.customers.interactionCall;
+    case 'note':
+      return t.customers.interactionNote;
+    default:
+      return type;
+  }
+}
+
+function HistoryTab({interactions}: {interactions: CustomerInteraction[]}) {
   const {t} = useI18n();
 
+  if (interactions.length === 0) {
+    return (
+      <div className="py-12 text-center text-sm text-gray-500">
+        <p>{t.customers.noHistory}</p>
+      </div>
+    );
+  }
+
+  const sorted = [...interactions].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
-    <div className="py-12 text-center text-sm text-gray-500">
-      <p>{t.customers.noHistory}</p>
+    <div>
+      <h3 className="mb-4 text-sm font-semibold text-gray-700">{t.customers.interactionHistory}</h3>
+      <div className="relative ms-4 border-s-2 border-gray-200">
+        {sorted.map((entry) => {
+          const icon = INTERACTION_ICON[entry.type] ?? '\u{1F4DD}';
+          return (
+            <div key={entry.id} className="relative mb-4 ms-6">
+              {/* Icon circle */}
+              <span
+                className="absolute -start-[33px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-gray-100 text-[10px]"
+                aria-hidden="true"
+              >
+                {icon}
+              </span>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-3 transition-shadow hover:shadow-sm">
+                {/* Type + date */}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-900">
+                    {interactionTypeLabel(entry.type, t)}
+                  </p>
+                  <span className="text-xs text-gray-400">
+                    {formatRelativeDate(entry.createdAt)}
+                  </span>
+                </div>
+
+                {/* Note text */}
+                {entry.note && (
+                  <p className="mt-1 text-sm text-gray-600">{entry.note}</p>
+                )}
+
+                {/* Agent name */}
+                {entry.agentName && (
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    {t.customers.by} {entry.agentName}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

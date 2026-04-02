@@ -5,7 +5,7 @@ import type {DispatchActionInput} from '@shory/shared';
 import type {UpdateServiceInput} from '@shory/shared';
 import type {CreateSignalInput, UpdateSignalInput, UpdateTriggerInput} from '@shory/shared';
 import type {CustomerPlatformContext, PlaybookResult} from '@shory/shared';
-import type {Customer, Incident, PortfolioAlert, Action, CommsSequence, ApiService, ServiceHealthLog} from '@shory/db';
+import type {Customer, Incident, PortfolioAlert, Action, CommsSequence, ApiService, ServiceHealthLog, Claim, CustomerInteraction} from '@shory/db';
 import type {ExternalSignal, MidtermTrigger, PeerBenchmark, BehaviourMetric, PlatformCorrelation} from '@shory/db';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
@@ -100,6 +100,12 @@ export const adminApi = {
 
     getPlaybook: (token: string, id: string) =>
       fetchAdmin<PlaybookResult | null>(`/admin/customers/${id}/playbook`, token),
+
+    getInteractions: (token: string, id: string) =>
+      fetchAdmin<CustomerInteraction[]>(`/admin/customers/${id}/interactions`, token),
+
+    getClaims: (token: string, id: string) =>
+      fetchAdmin<Claim[]>(`/admin/customers/${id}/claims`, token),
   },
 
   incidents: {

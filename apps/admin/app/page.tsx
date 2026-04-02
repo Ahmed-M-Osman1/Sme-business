@@ -1,40 +1,48 @@
 import {auth} from '@/lib/auth';
 import {adminApi} from '@/lib/api-client';
-import {Card, CardContent, CardHeader, CardTitle} from '@shory/ui';
+import {DashboardView} from '@/components/dashboard/dashboard-view';
+import type {PortfolioAlert, Customer, Incident, ApiService} from '@shory/db';
 
 export default async function DashboardPage() {
   const session = await auth();
   const token = session?.user?.email ?? '';
 
   let stats = {totalQuotes: 0, quotesThisWeek: 0, acceptedQuotes: 0, pendingQuotes: 0};
+  let alerts: PortfolioAlert[] = [];
+  let customers: Customer[] = [];
+  let incidents: Incident[] = [];
+  let services: ApiService[] = [];
+
   try {
-    stats = await adminApi.stats(token);
+    const [statsData, alertsData, customersData, incidentsData, servicesData] = await Promise.all([
+      adminApi.stats(token).catch(() => stats),
+      adminApi.alerts.list(token).catch(() => [] as PortfolioAlert[]),
+      adminApi.customers.list(token, {pageSize: 50}).catch(() => ({data: [] as Customer[], total: 0, page: 1, pageSize: 50})),
+      adminApi.incidents.list(token).catch(() => [] as Incident[]),
+      adminApi.platform.services(token).catch(() => [] as ApiService[]),
+    ]);
+
+    stats = statsData;
+    alerts = alertsData;
+    customers = customersData.data;
+    incidents = incidentsData;
+    services = servicesData;
   } catch {
-    // API might not be running — show zeros
+    // API might not be running — show defaults
   }
 
-  const cards = [
-    {title: 'Total Quotes', value: stats.totalQuotes},
-    {title: 'This Week', value: stats.quotesThisWeek},
-    {title: 'Accepted', value: stats.acceptedQuotes},
-    {title: 'Pending Review', value: stats.pendingQuotes},
-  ];
+  // Sort customers by churn score descending for "needing attention"
+  const attentionCustomers = [...customers]
+    .sort((a, b) => b.churnScore - a.churnScore)
+    .filter((c) => c.churnScore > 0);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map((card) => (
-          <Card key={card.title} className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-500">{card.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <DashboardView
+      stats={stats}
+      alerts={alerts}
+      attentionCustomers={attentionCustomers}
+      incidents={incidents}
+      services={services}
+    />
   );
 }

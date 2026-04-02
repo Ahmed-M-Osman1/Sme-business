@@ -15,6 +15,8 @@ import {peerBenchmarks} from './schema/peer-benchmarks';
 import {platformCorrelations} from './schema/platform-correlations';
 import {commsSequences} from './schema/comms-sequences';
 import {portfolioAlerts} from './schema/portfolio-alerts';
+import {claims} from './schema/claims';
+import {customerInteractions} from './schema/customer-interactions';
 import {createHash} from 'node:crypto';
 
 function hashPassword(password: string): string {
@@ -24,17 +26,37 @@ function hashPassword(password: string): string {
 async function seed() {
   console.log('Seeding database...');
 
-  // --- Admin user ---
+  // --- Admin users ---
   await db
     .insert(adminUsers)
-    .values({
-      email: 'admin@shory.ae',
-      name: 'Shory Admin',
-      passwordHash: hashPassword('admin123'),
-      role: 'admin',
-    })
+    .values([
+      {
+        email: 'admin@shory.ae',
+        name: 'Shory Admin',
+        passwordHash: hashPassword('admin123'),
+        role: 'admin',
+      },
+      {
+        email: 'ed@shory.com',
+        name: 'Ed',
+        passwordHash: hashPassword('ed@shory.com'),
+        role: 'admin',
+      },
+      {
+        email: 'doaa@shory.com',
+        name: 'Doaa',
+        passwordHash: hashPassword('doaa@shory.com'),
+        role: 'admin',
+      },
+      {
+        email: 'osman@shory.com',
+        name: 'Osman',
+        passwordHash: hashPassword('osman@shory.com'),
+        role: 'admin',
+      },
+    ])
     .onConflictDoNothing();
-  console.log('Admin user seeded');
+  console.log('Admin users seeded');
 
   // --- Business Types ---
   await db
@@ -254,7 +276,7 @@ async function seed() {
       ltv: '24240',
       policyRef: 'SHR-2024-00138',
       paymentStatus: 'on_time',
-      claimsOpen: 0,
+      claimsOpen: 1,
       products: ['Workers Compensation', 'Professional Indemnity', 'Cyber Liability'],
       missingProducts: ['Directors & Officers', 'Office Insurance'],
       renewalDays: 59,
@@ -825,6 +847,202 @@ async function seed() {
     ])
     .onConflictDoNothing();
   console.log('Portfolio alerts seeded');
+
+  // --- Claims ---
+  if (customer1 && customer2 && customer3) {
+    await db
+      .insert(claims)
+      .values([
+        {
+          claimRef: 'CLM-2024-0018',
+          customerId: customer2.id,
+          type: 'Workers Compensation',
+          status: 'open',
+          reserve: '12000',
+          description: 'Employee injury during clinic sterilisation procedure. Medical treatment and time-off compensation claimed.',
+          handlerName: 'Tariq Mahmoud',
+          filedAt: new Date('2025-04-22T12:00:00'),
+        },
+        {
+          claimRef: 'CLM-2024-0022',
+          customerId: customer1.id,
+          type: 'Public Liability',
+          status: 'settled',
+          reserve: '4500',
+          description: 'Customer slip incident in restaurant. Third-party medical expenses claimed.',
+          handlerName: 'Nadia Al-Sayed',
+          filedAt: new Date('2025-12-10T12:00:00'),
+          resolvedAt: new Date('2025-12-28T12:00:00'),
+        },
+        {
+          claimRef: 'CLM-2024-0031',
+          customerId: customer3.id,
+          type: 'Professional Indemnity',
+          status: 'under_review',
+          reserve: '28000',
+          description: 'Client alleges software deliverable did not meet contractual specifications. Damages claimed for project delay costs.',
+          handlerName: 'Khalid Ibrahim',
+          filedAt: new Date('2026-01-15T12:00:00'),
+        },
+      ])
+      .onConflictDoNothing();
+  }
+  console.log('Claims seeded');
+
+  // --- Customer Interactions ---
+  if (customer1 && customer2 && customer3 && customer4 && customer5) {
+    await db
+      .insert(customerInteractions)
+      .values([
+        // Customer 1 — Mohammed Al-Rashidi
+        {
+          customerId: customer1.id,
+          type: 'inbound_whatsapp' as const,
+          note: 'Customer initiated WhatsApp — asked about renewal quote. Confirmed receipt. Payment link resent.',
+          agentName: 'Khalid Ibrahim',
+          createdAt: new Date('2026-01-20T11:15:00'),
+        },
+        {
+          customerId: customer1.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Day -14 renewal email sent with bundle upgrade offer. Opened — payment link not clicked.',
+          agentName: null,
+          createdAt: new Date('2026-01-14T08:00:00'),
+        },
+        {
+          customerId: customer1.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Day -30 renewal notice sent. Opened same day.',
+          agentName: null,
+          createdAt: new Date('2025-12-01T11:00:00'),
+        },
+        {
+          customerId: customer1.id,
+          type: 'inbound_chat' as const,
+          note: 'Customer initiated chat — requested endorsement for second location. Quote sent by email.',
+          agentName: 'Khalid Ibrahim',
+          createdAt: new Date('2025-11-15T09:30:00'),
+        },
+        {
+          customerId: customer1.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Mid-term email sent with Cyber Liability product card. Opened but link not clicked.',
+          agentName: null,
+          createdAt: new Date('2025-10-10T14:00:00'),
+        },
+        // Customer 2 — Dr. Ahmed Khalil
+        {
+          customerId: customer2.id,
+          type: 'outbound_email' as const,
+          note: 'Sent renewal quote with 3 insurer comparison. RSA, Orient, GIG quotes attached.',
+          agentName: 'Nadia Al-Sayed',
+          createdAt: new Date('2026-01-15T16:30:00'),
+        },
+        {
+          customerId: customer2.id,
+          type: 'auto_whatsapp' as const,
+          note: 'Automated: Day -2 WhatsApp renewal reminder sent. No response.',
+          agentName: null,
+          createdAt: new Date('2026-01-12T10:00:00'),
+        },
+        {
+          customerId: customer2.id,
+          type: 'inbound_call' as const,
+          note: 'Customer called re: open claim CLM-2024-0018. Transferred to claims team. Expressed frustration with timeline.',
+          agentName: 'Reception',
+          createdAt: new Date('2026-01-05T09:00:00'),
+        },
+        {
+          customerId: customer2.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Day -30 renewal notice sent. Opened, clicked comparison link.',
+          agentName: null,
+          createdAt: new Date('2025-12-22T11:00:00'),
+        },
+        {
+          customerId: customer2.id,
+          type: 'note' as const,
+          note: 'Claim CLM-2024-0018 filed. Workers Compensation — employee injury. Reserve set at AED 12,000.',
+          agentName: 'Tariq Mahmoud',
+          createdAt: new Date('2025-04-22T15:00:00'),
+        },
+        // Customer 3 — Sarah Al-Mansouri
+        {
+          customerId: customer3.id,
+          type: 'outbound_email' as const,
+          note: 'Sent D&O brochure following mid-term engagement signal. Customer opened 3x.',
+          agentName: 'System',
+          createdAt: new Date('2026-01-22T14:00:00'),
+        },
+        {
+          customerId: customer3.id,
+          type: 'inbound_chat' as const,
+          note: 'Customer asked about Directors & Officers cover pricing. Sent indicative quote.',
+          agentName: 'Khalid Ibrahim',
+          createdAt: new Date('2026-01-10T11:30:00'),
+        },
+        {
+          customerId: customer3.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Policy inception confirmation and welcome pack sent.',
+          agentName: null,
+          createdAt: new Date('2025-11-15T09:00:00'),
+        },
+        // Customer 4 — Yusuf Al-Mansoori
+        {
+          customerId: customer4.id,
+          type: 'outbound_email' as const,
+          note: 'Final reinstatement attempt. No response to 4 prior messages.',
+          agentName: 'Nadia Al-Sayed',
+          createdAt: new Date('2025-11-20T10:00:00'),
+        },
+        {
+          customerId: customer4.id,
+          type: 'auto_email' as const,
+          note: 'Automated: MOHRE compliance notice sent. Registered mail confirmation.',
+          agentName: null,
+          createdAt: new Date('2025-11-15T09:00:00'),
+        },
+        {
+          customerId: customer4.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Final reinstatement offer (Day 14). No response.',
+          agentName: null,
+          createdAt: new Date('2025-11-01T08:00:00'),
+        },
+        {
+          customerId: customer4.id,
+          type: 'auto_whatsapp' as const,
+          note: 'Automated: Reinstatement reminder WhatsApp. Delivered, not read.',
+          agentName: null,
+          createdAt: new Date('2025-10-20T10:00:00'),
+        },
+        // Customer 5 — Layla Hassan
+        {
+          customerId: customer5.id,
+          type: 'inbound_whatsapp' as const,
+          note: 'Customer sent thank-you message for quick policy issuance. Asked about event cover.',
+          agentName: 'Khalid Ibrahim',
+          createdAt: new Date('2026-01-25T16:00:00'),
+        },
+        {
+          customerId: customer5.id,
+          type: 'auto_email' as const,
+          note: 'Automated: Welcome email + policy documents sent. Opened immediately.',
+          agentName: null,
+          createdAt: new Date('2026-01-10T09:00:00'),
+        },
+        {
+          customerId: customer5.id,
+          type: 'note' as const,
+          note: 'New customer onboarded. NPS survey: 10/10. Tagged as Promoter.',
+          agentName: 'System',
+          createdAt: new Date('2026-01-05T11:00:00'),
+        },
+      ])
+      .onConflictDoNothing();
+  }
+  console.log('Customer interactions seeded');
 
   console.log('\nSeed complete!');
   process.exit(0);
