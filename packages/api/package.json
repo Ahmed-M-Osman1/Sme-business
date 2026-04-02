@@ -15,8 +15,8 @@
   },
   "scripts": {
     "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
-    "build": "tsc --project tsconfig.json --outDir dist --declaration",
-    "start": "node dist/app.js",
+    "build": "echo 'Vercel will handle TypeScript compilation'",
+    "start": "node --import tsx src/index.ts",
     "lint": "eslint"
   },
   "dependencies": {
