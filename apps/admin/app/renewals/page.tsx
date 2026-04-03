@@ -1,8 +1,8 @@
 import {auth} from '@/lib/auth';
 import {adminApi} from '@/lib/api-client';
+import {resolvePlaybook} from '@/lib/playbooks';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {RenewalPipeline} from '@/components/renewals/renewal-pipeline';
-import {resolvePlaybook} from '@shory/api/rules/playbooks';
 import en from '@/lib/i18n/en.json';
 
 export default async function RenewalsPage() {

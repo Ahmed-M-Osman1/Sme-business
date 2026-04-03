@@ -10,12 +10,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@shory/api": "workspace:*",
     "@shory/db": "workspace:*",
     "@shory/shared": "workspace:*",
     "@shory/ui": "workspace:*",
-    "drizzle-orm": "^0.39",
-    "hono": "^4",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
     "next-auth": "5.0.0-beta.30",

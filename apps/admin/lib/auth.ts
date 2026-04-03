@@ -1,15 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import {db, adminUsers} from '@shory/db';
-import {eq} from 'drizzle-orm';
 
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
 
 export const {handlers, signIn, signOut, auth} = NextAuth({
   providers: [
@@ -24,20 +16,20 @@ export const {handlers, signIn, signOut, auth} = NextAuth({
             return null;
           }
 
-          const [user] = await db
-            .select()
-            .from(adminUsers)
-            .where(eq(adminUsers.email, credentials.email as string));
+          const response = await fetch(`${API_URL}/api/admin/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
 
-          if (!user) {
+          if (!response.ok) {
             return null;
           }
 
-          const hashedInput = await hashPassword(credentials.password as string);
-          if (user.passwordHash !== hashedInput) {
-            return null;
-          }
-
+          const user = await response.json();
           return {id: user.id, email: user.email, name: user.name, role: user.role};
         } catch {
           return null;

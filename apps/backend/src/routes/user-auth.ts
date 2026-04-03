@@ -1,0 +1,105 @@
+import {Hono} from 'hono';
+import {db, webUsers} from '@shory/db';
+import {eq} from 'drizzle-orm';
+import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {ZodError} from 'zod';
+import {z} from 'zod';
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+});
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export const userAuthRouter = new Hono();
+
+// POST /user/auth/register
+userAuthRouter.post('/register', async (c) => {
+  try {
+    const body = await c.req.json();
+    const data = registerSchema.parse(body);
+
+    // Check if email already exists
+    const existing = await db
+      .select()
+      .from(webUsers)
+      .where(eq(webUsers.email, data.email));
+
+    if (existing.length > 0) {
+      return errorResponse(c, 'EMAIL_EXISTS', 'Email already registered', 409);
+    }
+
+    const passwordHash = await hashPassword(data.password);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [user] = await db
+      .insert(webUsers)
+      .values({
+        email: data.email,
+        name: data.name,
+        passwordHash,
+        phone: data.phone,
+        company: data.company,
+      } as any)
+      .returning();
+
+    return c.json(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      201
+    );
+  } catch (e) {
+    if (e instanceof ZodError) return handleZodError(c, e);
+    throw e;
+  }
+});
+
+// POST /user/auth/login
+userAuthRouter.post('/login', async (c) => {
+  try {
+    const body = await c.req.json();
+    const data = loginSchema.parse(body);
+
+    const [user] = await db
+      .select()
+      .from(webUsers)
+      .where(eq(webUsers.email, data.email));
+
+    if (!user) {
+      return errorResponse(c, 'INVALID_CREDENTIALS', 'Invalid email or password', 401);
+    }
+
+    const hashedInput = await hashPassword(data.password);
+    if (user.passwordHash !== hashedInput) {
+      return errorResponse(c, 'INVALID_CREDENTIALS', 'Invalid email or password', 401);
+    }
+
+    return c.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      apiToken: user.email,
+    });
+  } catch (e) {
+    if (e instanceof ZodError) return handleZodError(c, e);
+    throw e;
+  }
+});

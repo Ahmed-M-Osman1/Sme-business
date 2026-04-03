@@ -5,8 +5,7 @@ SME insurance platform with a customer-facing quote journey and an internal admi
 ## Tech Stack
 
 - **Monorepo**: pnpm workspaces + Turborepo
-- **Apps**: Next.js 16 (web + admin)
-- **API**: Hono REST API
+- **Apps**: Next.js 16 (web + admin) + Hono backend
 - **Database**: Drizzle ORM + Neon PostgreSQL
 - **UI**: shadcn/ui + Tailwind CSS v4
 - **Language**: TypeScript (strict)
@@ -17,8 +16,8 @@ SME insurance platform with a customer-facing quote journey and an internal admi
 apps/
   web/          → Customer-facing quote journey (port 3000)
   admin/        → Internal admin dashboard (port 3001)
+  backend/      → Deployable Hono backend (port 3002)
 packages/
-  api/          → Hono REST API (port 3002)
   db/           → Drizzle ORM schemas + migrations
   shared/       → Zod schemas + shared types
   ui/           → shadcn/ui component library
@@ -103,7 +102,7 @@ Or start them individually:
 ```bash
 pnpm web      # Customer app → http://localhost:3000
 pnpm admin    # Admin portal → http://localhost:3001
-pnpm api      # Hono API    → http://localhost:3002
+pnpm backend  # Hono API    → http://localhost:3002
 ```
 
 ## Database Commands
@@ -163,6 +162,6 @@ Three separate Vercel projects:
 
 - **web** -> `apps/web`
 - **admin** -> `apps/admin`
-- **api** -> `packages/api`
+- **backend** -> `apps/backend`
 
 Set `DATABASE_URL` and other env vars in each Vercel project's Settings -> Environment Variables.

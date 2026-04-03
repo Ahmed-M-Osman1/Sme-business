@@ -17,9 +17,6 @@ importers:
 
   apps/admin:
     dependencies:
-      '@shory/api':
-        specifier: workspace:*
-        version: link:../../packages/api
       '@shory/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -29,12 +26,6 @@ importers:
       '@shory/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      drizzle-orm:
-        specifier: ^0.39
-        version: 0.39.3(postgres@3.4.8)
-      hono:
-        specifier: ^4
-        version: 4.12.9
       lucide-react:
         specifier: ^1.7.0
         version: 1.7.0(react@19.2.4)
@@ -85,6 +76,55 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  apps/backend:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.39
+        version: 0.39.0
+      '@hono/node-server':
+        specifier: ^1.19.12
+        version: 1.19.12(hono@4.12.9)
+      '@shory/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@shory/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@vercel/blob':
+        specifier: ^0.27
+        version: 0.27.3
+      '@vercel/node':
+        specifier: ^3.0.0
+        version: 3.2.29
+      drizzle-orm:
+        specifier: ^0.39
+        version: 0.39.3(postgres@3.4.8)
+      hono:
+        specifier: ^4
+        version: 4.12.9
+      zod:
+        specifier: ^3
+        version: 3.25.76
+    devDependencies:
+      '@shory/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@shory/typescript-config':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      '@types/node':
+        specifier: ^20
+        version: 20.19.37
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+      tsx:
+        specifier: ^4
+        version: 4.21.0
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   apps/web:
     dependencies:
       '@anthropic-ai/sdk':
@@ -93,9 +133,6 @@ importers:
       '@dotlottie/react-player':
         specifier: ^1.6.19
         version: 1.6.19(react@19.2.4)
-      '@shory/api':
-        specifier: workspace:*
-        version: link:../../packages/api
       '@shory/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -108,12 +145,6 @@ importers:
       '@vercel/blob':
         specifier: ^0.27.3
         version: 0.27.3
-      drizzle-orm:
-        specifier: ^0.39
-        version: 0.39.3(postgres@3.4.8)
-      hono:
-        specifier: ^4
-        version: 4.12.9
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1

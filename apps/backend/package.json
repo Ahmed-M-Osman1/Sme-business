@@ -1,0 +1,35 @@
+{
+  "name": "@shory/backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
+    "prebuild": "pnpm --filter @shory/db build && pnpm --filter @shory/shared build",
+    "build": "pnpm exec tsup index.ts --format esm --external @anthropic-ai/sdk --external @shory/db --external @shory/shared --external @vercel/blob --external drizzle-orm --external hono --external zod --outDir dist",
+    "start": "node dist/index.js",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39",
+    "@hono/node-server": "^1.19.12",
+    "@shory/db": "workspace:*",
+    "@shory/shared": "workspace:*",
+    "@vercel/blob": "^0.27",
+    "@vercel/node": "^3.0.0",
+    "drizzle-orm": "^0.39",
+    "hono": "^4",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@shory/eslint-config": "workspace:*",
+    "@shory/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "tsup": "^8.5.1",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}
