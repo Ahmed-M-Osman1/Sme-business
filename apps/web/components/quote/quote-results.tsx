@@ -727,22 +727,6 @@ export function QuoteResults() {
                 </div>
               </div>
 
-              {/* Coverage gap warning */}
-              {!activeProducts.has('workers-comp') && employeeBand !== '1' && (
-                <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-                  <span className="text-base shrink-0 mt-0.5">&#9888;&#65039;</span>
-                  <div>
-                    <p className="text-xs font-bold text-amber-800">
-                      {locale === 'ar' ? 'فجوة في التغطية' : 'Coverage gap detected'}
-                    </p>
-                    <p className="text-xs text-amber-700 leading-relaxed mt-0.5">
-                      {locale === 'ar'
-                        ? `لديك ${employeeBand} موظفين بدون تأمين تعويض العمال. هذا مطلوب قانونياً في الإمارات و89% من الشركات المشابهة تشمله.`
-                        : `You have ${employeeBand} employees but no Workers Compensation. This is legally required in the UAE and 89% of businesses in your category include it.`}
-                    </p>
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
