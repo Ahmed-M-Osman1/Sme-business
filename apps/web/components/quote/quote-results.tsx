@@ -12,6 +12,7 @@ import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
 import {
   calculateMonthlyPrice,
+  calculateProductPrice,
   calculateQuarterlyPrice,
   calculateTotalPremium,
   formatPriceWithCurrency,
@@ -27,6 +28,63 @@ import type {
 } from '@/types/quote';
 
 const NAVIGATION_DELAY_MS = 800;
+
+const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {name: string; pct: number; reason: string}[]}> = {
+  'Food & Beverage': {
+    insight: 'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
+    riskStat: '1 in 4 UAE restaurants makes a liability claim within 3 years',
+    extras: [
+      {name: 'Business Interruption', pct: 81, reason: 'Fire or equipment failure can close a kitchen for weeks'},
+      {name: 'Food Contamination', pct: 67, reason: 'Required by DHA/food safety regulators in most emirates'},
+      {name: 'Cyber Liability', pct: 23, reason: 'POS data breaches are rising in hospitality'},
+    ],
+  },
+  'Retail': {
+    insight: 'Inventory theft and customer injury claims are the primary risks for UAE retail businesses.',
+    riskStat: '38% of retail businesses file a property claim within 5 years',
+    extras: [
+      {name: 'Business Interruption', pct: 74, reason: 'Supply chain disruption can halt operations'},
+      {name: 'Cyber Liability', pct: 45, reason: 'E-commerce data breaches increasing'},
+      {name: 'Stock Throughput', pct: 31, reason: 'Covers goods in transit and storage'},
+    ],
+  },
+  'Technology': {
+    insight: 'Data breaches and IP disputes are the fastest-growing claims for UAE tech firms.',
+    riskStat: '62% of UAE tech companies report at least one cyber incident per year',
+    extras: [
+      {name: 'Directors & Officers', pct: 55, reason: 'Essential as companies take on investors'},
+      {name: 'Cyber Liability', pct: 85, reason: 'Mandatory under new CBUAE directives'},
+      {name: 'Business Interruption', pct: 42, reason: 'Server downtime impacts revenue directly'},
+    ],
+  },
+  'Healthcare': {
+    insight: 'Medical malpractice and workplace needlestick injuries drive 60% of healthcare claims.',
+    riskStat: '1 in 3 UAE clinics faces a malpractice claim within 5 years',
+    extras: [
+      {name: 'Cyber Liability', pct: 61, reason: 'Patient data protection is legally required'},
+      {name: 'Business Interruption', pct: 38, reason: 'Equipment failure can shut down operations'},
+      {name: 'Directors & Officers', pct: 28, reason: 'Regulatory actions against clinic owners rising'},
+    ],
+  },
+  'Construction & Trades': {
+    insight: 'Falls and equipment accidents account for 70% of construction worker injury claims in UAE.',
+    riskStat: 'Construction has the highest claim frequency of any UAE industry',
+    extras: [
+      {name: 'Business Interruption', pct: 45, reason: 'Project delays from accidents are costly'},
+      {name: 'Fleet Insurance', pct: 74, reason: 'Required for company vehicles on site'},
+      {name: 'Environmental Liability', pct: 22, reason: 'Pollution incidents carry heavy fines'},
+    ],
+  },
+  'Professional Services': {
+    insight: 'Client disputes over deliverables are the #1 claim trigger for UAE professional service firms.',
+    riskStat: '45% of consulting firms face a PI claim within 5 years',
+    extras: [
+      {name: 'Directors & Officers', pct: 52, reason: 'Partners need personal liability protection'},
+      {name: 'Cyber Liability', pct: 48, reason: 'Client data is a prime target'},
+      {name: 'Business Interruption', pct: 35, reason: 'Key person loss can halt engagements'},
+    ],
+  },
+};
 
 type ResultsTab = 'individual' | 'bundles';
 
@@ -75,9 +133,8 @@ export function QuoteResults() {
   const [selectedBundleId, setSelectedBundleId] = useState<
     string | null
   >(null);
-  const [paymentDisplay] = useState<'quarterly' | 'annual'>(
-    'quarterly',
-  );
+  const [monthly, setMonthly] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -153,6 +210,10 @@ export function QuoteResults() {
   const sizeFactor = getSizeFactor(employeeBand);
   const formatMoney = (amount: number) =>
     formatPriceWithCurrency(amount, t.common.currency, locale);
+  const displayPrice = (annualAmount: number) =>
+    monthly
+      ? `${formatMoney(Math.round(annualAmount * 1.08 / 12))}${t.common.perMonth}`
+      : `${formatMoney(annualAmount)}/${locale === 'ar' ? 'سنوياً' : 'yr'}`;
   const formatMonthlyTotal = (amount: number) =>
     `${formatMoney(calculateMonthlyPrice(amount))}${t.common.perMonth}`;
 
@@ -304,7 +365,18 @@ export function QuoteResults() {
     setSelectedInsurerId(null);
   }
 
+  const mandatoryProducts = useMemo(() => {
+    const mandatory = new Set<string>();
+    if (employeeBand !== '1') mandatory.add('workers-comp');
+    if (emirate === 'Dubai' || emirate === 'Abu Dhabi') {
+      // Health insurance mandatory in DXB/AUH if product exists
+      if (availableProductIds.includes('health')) mandatory.add('health');
+    }
+    return mandatory;
+  }, [employeeBand, emirate, availableProductIds]);
+
   function toggleProduct(productId: string) {
+    if (mandatoryProducts.has(productId)) return;
     clearBundleSelection();
 
     setActiveProducts((current) => {
@@ -438,12 +510,30 @@ export function QuoteResults() {
               </svg>
               {t.common.back}
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {t.results.title}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                  {t.results.title}
+                </h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 shrink-0">
+                <button
+                  onClick={() => setMonthly(false)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${!monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                >
+                  {locale === 'ar' ? 'سنوي' : 'Annual'}
+                </button>
+                <button
+                  onClick={() => setMonthly(true)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                >
+                  {locale === 'ar' ? 'شهري' : 'Monthly'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -506,7 +596,7 @@ export function QuoteResults() {
                     />
                     <SummaryRow
                       label={t.results.summaryFrom}
-                      value={formatMonthlyTotal(resultsHeadingPrice)}
+                      value={displayPrice(resultsHeadingPrice)}
                       valueClassName="text-primary"
                     />
                   </div>
@@ -532,14 +622,17 @@ export function QuoteResults() {
 
                     const isActive = activeProducts.has(productId);
 
+                    const isMandatory = mandatoryProducts.has(productId);
                     return (
                       <button
                         key={productId}
                         onClick={() => toggleProduct(productId)}
                         className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
-                          isActive
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'border border-gray-200 bg-white text-gray-500 hover:border-primary/40'
+                          isMandatory
+                            ? 'bg-primary text-white shadow-sm cursor-default'
+                            : isActive
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'border border-gray-200 bg-white text-gray-500 hover:border-primary/40'
                         }`}>
                         {PRODUCT_ICONS[productId] ? (
                           PRODUCT_ICONS[productId]({
@@ -549,6 +642,11 @@ export function QuoteResults() {
                           <span>{product.icon}</span>
                         )}
                         <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.shortName || product.shortName}</span>
+                        {isMandatory && (
+                          <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-bold uppercase">
+                            {locale === 'ar' ? 'مطلوب' : 'Required'}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -595,29 +693,88 @@ export function QuoteResults() {
                         <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.name || product.name}</span>
                       </div>
 
-                      <select
-                        value={coverageLimits[productId] ?? '1M'}
-                        onChange={(event) =>
-                          updateCoverageLimit(
-                            productId,
-                            event.target.value,
-                          )
-                        }
-                        className="cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <option value="1M">
-                          {t.results.coverageLimit1m}
-                        </option>
-                        <option value="2M">
-                          {t.results.coverageLimit2m}
-                        </option>
-                        <option value="5M">
-                          {t.results.coverageLimit5m}
-                        </option>
-                      </select>
+                      <div className="flex gap-1">
+                        {(['1M', '2M', '5M'] as const).map((limit) => {
+                          const isActive = (coverageLimits[productId] ?? '1M') === limit;
+                          return (
+                            <button
+                              key={limit}
+                              onClick={() => updateCoverageLimit(productId, limit)}
+                              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                                isActive
+                                  ? 'bg-primary text-white shadow-sm'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
+                            >
+                              {limit}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
               </div>
+
+              {/* AI Insights panel */}
+              {(() => {
+                const category = businessType?.title ?? '';
+                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
+                const peer = peerKey ? PEER_DATA[peerKey] : null;
+                const teaserExtra = peer?.extras[0];
+
+                if (!peer) return null;
+
+                return (
+                  <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setShowInsights((p) => !p)}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-start transition-colors ${showInsights ? 'bg-gradient-to-r from-primary/10 to-primary/5' : 'bg-white hover:bg-gray-50'}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-primary">{locale === 'ar' ? 'رؤى شوري الذكية' : 'Shory AI Insights'}</p>
+                        {!showInsights && teaserExtra && (
+                          <p className="text-[11px] text-gray-500 mt-0.5 truncate">
+                            {teaserExtra.pct}% {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses add'} {teaserExtra.name}
+                          </p>
+                        )}
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`shrink-0 text-gray-400 transition-transform ${showInsights ? 'rotate-180' : ''}`}>
+                        <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+
+                    {showInsights && (
+                      <div className="border-t border-gray-100 px-4 py-4 space-y-4 animate-in slide-in-from-top-1 duration-200">
+                        <div className="rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 p-3">
+                          <p className="text-sm font-medium text-gray-900 italic">{peer.insight}</p>
+                          <p className="text-[11px] text-primary mt-1">{peer.riskStat}</p>
+                        </div>
+
+                        <div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            {locale === 'ar' ? 'ما تضيفه الشركات المشابهة' : 'What similar businesses add'}
+                          </p>
+                          <div className="space-y-2.5">
+                            {peer.extras.map((extra) => (
+                              <div key={extra.name} className={`rounded-xl border p-3 ${extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-xs font-semibold text-gray-900">{extra.name}</span>
+                                  <span className="text-[10px] font-bold text-primary">{extra.pct}%</span>
+                                </div>
+                                <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
+                                  <div className="h-full rounded-full bg-primary transition-all" style={{width: `${extra.pct}%`}} />
+                                </div>
+                                <p className="text-[11px] text-gray-500">{extra.reason}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="flex flex-col gap-4">
@@ -793,16 +950,32 @@ export function QuoteResults() {
                       const lowestPrice = Math.min(...insurerQuotes.map((q) => q.total));
                       const isBest = insurer.total === lowestPrice;
                       const categoryLabel = (t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title || '';
+                      const lines = activeProductIds.map((pid) => {
+                        const product = productsMap[pid];
+                        if (!product) return null;
+                        const limit = coverageLimits[pid] ?? '1M';
+                        const price = Math.round(calculateProductPrice(pid, businessType?.riskFactor ?? 1, sizeFactor, limit, productsMap) * insurer.priceMultiplier);
+                        const productT = (t.products as Record<string, {name: string; shortName: string}>)[pid];
+                        return {
+                          name: productT?.name || product.name,
+                          icon: product.icon,
+                          limit: `AED ${limit === '1M' ? '1,000,000' : limit === '2M' ? '2,000,000' : '5,000,000'}`,
+                          price,
+                          mandatory: mandatoryProducts.has(pid),
+                        };
+                      }).filter(Boolean) as {name: string; icon: string; limit: string; price: number; mandatory: boolean}[];
                       return (
                         <QuoteCard
                           key={insurer.id}
                           insurer={insurer}
                           coverageType={coverageType}
                           benefits={benefits}
+                          productLines={lines}
                           isBestPrice={isBest}
                           isRecommended={idx === 0}
                           businessCategory={categoryLabel}
                           isSelected={insurer.id === selectedInsurerId}
+                          monthly={monthly}
                           onSelect={() =>
                             handleSelectToggle(insurer.id)
                           }
@@ -864,7 +1037,7 @@ export function QuoteResults() {
                   ] || selectedQuote.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {formatMonthlyTotal(selectedQuote.total)} · {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
+                  {displayPrice(selectedQuote.total)} · {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
                 </p>
               </div>
             </div>
