@@ -115,7 +115,7 @@ export function CustomerProfile({customer, comms, claims, interactions, token = 
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        {activeTab === 'overview' && <OverviewTab customer={customer} />}
+        {activeTab === 'overview' && <OverviewTab customer={customer} token={token} />}
         {activeTab === 'policies' && <PoliciesTab customer={customer} token={token} />}
         {activeTab === 'comms' && <CommsTab comms={comms} />}
         {activeTab === 'claims' && <ClaimsTab customer={customer} claims={claims} />}
@@ -127,8 +127,29 @@ export function CustomerProfile({customer, comms, claims, interactions, token = 
 
 /* ─── Overview Tab (enhanced) ───────────────────────────────────────── */
 
-function OverviewTab({customer}: {customer: Customer}) {
+function OverviewTab({customer, token}: {customer: Customer; token: string}) {
   const {t} = useI18n();
+  const [policies, setPolicies] = useState<Array<{id: string; policyNumber: string; status: string; startDate: string; endDate: string; products: string[]; businessName: string; providerName: string; annualPremium: string}>>([]);
+
+  useEffect(() => {
+    if (token && customer.id) {
+      adminApi.customers.getPolicies(token, customer.id)
+        .then((data) => setPolicies(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }
+  }, [token, customer.id]);
+
+  // Enrich customer data from real policies if CRM fields are empty
+  const activePolicies = policies.filter((p) => p.status === 'active');
+  const policyProducts = activePolicies.flatMap((p) => p.products);
+  const totalPremium = activePolicies.reduce((sum, p) => sum + Number(p.annualPremium), 0);
+  const latestPolicy = activePolicies[0];
+
+  const displayProducts = customer.products.length > 0 ? customer.products : policyProducts;
+  const displayPremium = Number(customer.premium) > 0 ? customer.premium : String(totalPremium);
+  const displayPolicyRef = customer.policyRef || latestPolicy?.policyNumber || '-';
+  const displayCompany = customer.company || latestPolicy?.businessName || '-';
+  const displayInsurer = customer.insurerId || latestPolicy?.providerName || '-';
 
   const paymentDotColor =
     customer.paymentStatus === 'on_time'
@@ -152,9 +173,9 @@ function OverviewTab({customer}: {customer: Customer}) {
           <CardTitle className="text-sm font-semibold text-gray-700">{t.customers.activeCoverage}</CardTitle>
         </CardHeader>
         <CardContent>
-          {customer.products.length > 0 ? (
+          {displayProducts.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
-              {customer.products.map((product) => (
+              {displayProducts.map((product) => (
                 <div
                   key={product}
                   className="cursor-default rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
@@ -191,13 +212,17 @@ function OverviewTab({customer}: {customer: Customer}) {
         </CardHeader>
         <CardContent>
           <dl className="space-y-2.5 text-sm">
-            <SnapshotRow label={t.customers.company} value={customer.company} />
+            <SnapshotRow label={t.customers.company} value={displayCompany} />
             <SnapshotRow label={t.customers.email} value={customer.email} />
-            <SnapshotRow label={t.customers.emirate} value={customer.emirate} />
-            <SnapshotRow label={t.customers.category} value={customer.category} />
-            <SnapshotRow label={t.customers.employees} value={String(customer.employees)} />
-            <SnapshotRow label={t.customers.policyRef} value={customer.policyRef ?? '-'} />
-            <SnapshotRow label={t.customers.premium} value={`${t.common.aed} ${customer.premium}`} />
+            <SnapshotRow label={t.customers.emirate} value={customer.emirate || '-'} />
+            <SnapshotRow label={t.customers.category} value={customer.category || '-'} />
+            <SnapshotRow label={t.customers.employees} value={customer.employees > 0 ? String(customer.employees) : '-'} />
+            <SnapshotRow label={t.customers.policyRef} value={displayPolicyRef} />
+            <SnapshotRow label={t.customers.insurer} value={displayInsurer} />
+            <SnapshotRow label={t.customers.premium} value={`${t.common.aed} ${Number(displayPremium).toLocaleString()}`} />
+            {activePolicies.length > 0 && (
+              <SnapshotRow label="Active Policies" value={String(activePolicies.length)} />
+            )}
             <SnapshotRow label={t.customers.ltv} value={`${t.common.aed} ${customer.ltv}`} />
             <div className="flex items-center justify-between">
               <dt className="text-gray-500">{t.customers.paymentStatus}</dt>
