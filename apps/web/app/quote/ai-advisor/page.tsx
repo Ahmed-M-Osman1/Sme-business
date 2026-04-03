@@ -217,6 +217,19 @@ export default function AiAdvisorPage() {
 
     if (convo.step === 'business') {
       addChatMessages({role: 'user', content: userChatMessage});
+
+      // PDF §1.3 — Handle irrelevant or harmful questions before processing
+      if (isHarmful(userChatMessage)) {
+        addChatMessages({role: 'ai', content: t.ai.harmful});
+        inputRef.current?.focus();
+        return;
+      }
+      if (isOutOfScope(userChatMessage)) {
+        addChatMessages({role: 'ai', content: `${t.ai.outOfScope}\n\n${t.ai.fallbackSuggestion}`});
+        inputRef.current?.focus();
+        return;
+      }
+
       setIsProcessing(true);
 
       setTimeout(() => {
@@ -238,7 +251,7 @@ export default function AiAdvisorPage() {
             });
             return;
           }
-          addChatMessages({role: 'ai', content: analysis.response});
+          addChatMessages({role: 'ai', content: `${analysis.response}\n\n${t.ai.fallbackSuggestion}`});
           setIsProcessing(false);
           inputRef.current?.focus();
           return;
@@ -558,6 +571,29 @@ function renderContent(text: string) {
     }
     return part;
   });
+}
+
+// --- Out-of-scope and harmful input detection ---
+
+const OUT_OF_SCOPE_KEYWORDS = [
+  'weather', 'stock', 'crypto', 'bitcoin', 'recipe', 'joke',
+  'movie', 'game', 'sports', 'politics', 'news', 'translate',
+  'write me', 'code', 'program', 'hack', 'password',
+];
+
+const HARMFUL_KEYWORDS = [
+  'fraud', 'scam', 'fake claim', 'forge', 'launder',
+  'illegal', 'bypass', 'exploit',
+];
+
+function isOutOfScope(text: string): boolean {
+  const lower = text.toLowerCase();
+  return OUT_OF_SCOPE_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
+function isHarmful(text: string): boolean {
+  const lower = text.toLowerCase();
+  return HARMFUL_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
 // --- Classification ---

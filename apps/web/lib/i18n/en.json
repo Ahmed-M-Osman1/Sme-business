@@ -203,7 +203,11 @@
     "coverKeyRisks": "These cover the key risks for your type of business.",
     "needMore": "Could you tell me a bit more? For example, what products or services does your business offer?",
     "defaultRecommend": "Based on your description, I'd recommend a",
-    "defaultCover": "These cover the most common risks for businesses like yours."
+    "defaultCover": "These cover the most common risks for businesses like yours.",
+    "outOfScope": "That's outside what I can help with here. I specialise in UAE business insurance. Try describing your business activity instead.",
+    "harmful": "I'm not able to help with that request. Let's focus on finding the right insurance for your business.",
+    "fallbackSuggestion": "Here's what you can do:\n• Describe your business activity (e.g. \"I run a café in Dubai\")\n• Tap a business type below\n• Or choose Manual Entry for a step-by-step form",
+    "lowConfidence": "I'm not fully certain about that classification. You can adjust it later if needed."
   },
   "upload": {
     "title": "Upload trade licence",
