@@ -1,7 +1,17 @@
 import {cors} from 'hono/cors';
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'https://sme-business-web.vercel.app',
+  'https://sme-business-admin.vercel.app',
+  'https://sme-business-backend.vercel.app',
+];
+
 export const corsMiddleware = cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  origin: (origin) =>
+    allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   exposeHeaders: ['Content-Length'],
