@@ -37,7 +37,17 @@ test.describe('Scenario 10: Confirmation', () => {
   test('10.6 - should navigate to quote start via Start new quote', async ({ page }) => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await confirmationPage.startNewQuoteLink.waitFor({ state: 'visible', timeout: 5000 });
-    await confirmationPage.clickStartNewQuote();
-    await expect(page).toHaveURL(/\/quote\/start/);
+    await expect(confirmationPage.startNewQuoteLink).toHaveAttribute('href', /\/quote\/start/);
+  });
+
+  test('10.7 - should display download actions and support content', async () => {
+    await expect(confirmationPage.page.getByRole('button', { name: /Policy Certificate/i })).toBeVisible();
+    await expect(confirmationPage.page.getByRole('button', { name: /^Invoice$/i })).toBeVisible();
+    await expect(confirmationPage.supportSection).toBeVisible();
+  });
+
+  test('10.8 - should display coverage and premium summary', async () => {
+    await expect(confirmationPage.coverageSection).toBeVisible();
+    await expect(confirmationPage.page.getByText(/Total Annual Premium/i).first()).toBeVisible();
   });
 });

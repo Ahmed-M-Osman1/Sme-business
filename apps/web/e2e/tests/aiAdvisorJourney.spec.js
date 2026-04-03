@@ -32,4 +32,27 @@ test.describe('Scenario 3: AI Advisor Journey', () => {
     await aiAdvisorPage.chatInput.pressSequentially(aiAdvisorPrompt);
     await expect(aiAdvisorPage.chatInput).not.toHaveValue('');
   });
+
+  test('3.5 - should complete the quick-select conversation and show quotes CTA', async ({ page }) => {
+    await aiAdvisorPage.selectBusinessType('cafe');
+    await expect(page.getByText(/How many people work in your business/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectEmployeeChip('2-5');
+    await expect(page.getByText(/estimated annual revenue/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectRevenueChip('500 thousand');
+    await expect(page.getByText(/Which emirate is your business based in/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectEmirateChip('Dubai');
+    await expect(aiAdvisorPage.seeMyQuotesButton).toBeVisible({ timeout: 10000 });
+  });
+
+  test('3.6 - should navigate to results from the AI flow CTA', async ({ page }) => {
+    await aiAdvisorPage.selectBusinessType('cafe');
+    await expect(page.getByText(/How many people work in your business/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectEmployeeChip('2-5');
+    await expect(page.getByText(/estimated annual revenue/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectRevenueChip('500 thousand');
+    await expect(page.getByText(/Which emirate is your business based in/i)).toBeVisible({ timeout: 10000 });
+    await aiAdvisorPage.selectEmirateChip('Dubai');
+    await aiAdvisorPage.clickSeeMyQuotes();
+    await expect(page).toHaveURL(/\/quote\/results/);
+  });
 });

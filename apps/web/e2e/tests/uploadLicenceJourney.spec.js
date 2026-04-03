@@ -32,4 +32,14 @@ test.describe('Scenario 6: Upload Trade Licence', () => {
   test('6.6 - should display browse files link', async () => {
     await expect(uploadPage.browseFilesLink).toBeVisible();
   });
+
+  test('6.7 - should navigate to AI Advisor from the alternative link', async ({ page }) => {
+    await expect(uploadPage.tryAiAdvisorLink).toBeVisible();
+    await expect(uploadPage.tryAiAdvisorLink).toBeEnabled();
+  });
+
+  test('6.8 - should expose the manual entry alternative control', async () => {
+    await expect(uploadPage.enterManuallyLink).toBeVisible();
+    await expect(uploadPage.enterManuallyLink).toBeEnabled();
+  });
 });

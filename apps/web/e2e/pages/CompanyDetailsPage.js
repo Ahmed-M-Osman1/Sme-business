@@ -12,19 +12,19 @@ class CompanyDetailsPage extends BasePage {
 
     // Choice mode
     this.uploadZone = page.getByText(/drop.*licen[cs]e|drag.*drop/i).first();
-    this.manualEntryCard = page.getByText(/Enter manually/i).first();
+    this.manualEntryCard = page.getByRole('button', { name: /Enter details manually/i });
     this.skipButton = page.getByRole('button', { name: /skip/i });
 
     // Manual form fields
-    this.companyNameInput = page.getByPlaceholder(/company name/i);
-    this.licenseNumberInput = page.getByPlaceholder(/licen[cs]e/i);
+    this.companyNameInput = page.locator('input:not([type="hidden"])').first();
+    this.licenseNumberInput = page.locator('input:not([type="hidden"])').nth(1);
     this.activityDropdown = page.getByRole('combobox').first();
     this.expiryDateInput = page.getByPlaceholder(/DD\/MM\/YYYY/i);
     this.emirateDropdown = page.getByRole('combobox').last();
 
     // Buttons
-    this.verifyButton = page.getByRole('button', { name: /Verify/i });
-    this.continueButton = page.getByRole('button', { name: /Continue/i });
+    this.verifyButton = page.getByRole('button', { name: /Verify\s*&\s*Continue/i });
+    this.continueButton = page.getByRole('button', { name: /^Continue$/i });
     this.backButton = page.getByRole('button', { name: /back/i });
 
     // Validation errors
@@ -48,7 +48,7 @@ class CompanyDetailsPage extends BasePage {
 
   async clickManualEntry() {
     await this.manualEntryCard.click();
-    await this.page.waitForTimeout(500);
+    await this.verifyButton.waitFor({ state: 'visible', timeout: 10000 });
   }
 
   async clickSkip() {
@@ -57,11 +57,19 @@ class CompanyDetailsPage extends BasePage {
   }
 
   async fillCompanyName(name) {
-    await this.companyNameInput.fill(name);
+    const field = this.page
+      .locator('input:not([type="hidden"])')
+      .filter({ hasNot: this.page.locator('[placeholder*="DD/MM/YYYY"]') })
+      .first();
+    await field.fill(name);
   }
 
   async fillLicenseNumber(number) {
-    await this.licenseNumberInput.fill(number);
+    const field = this.page
+      .locator('input:not([type="hidden"])')
+      .filter({ hasNot: this.page.locator('[placeholder*="DD/MM/YYYY"]') })
+      .nth(1);
+    await field.fill(number);
   }
 
   async fillExpiryDate(date) {

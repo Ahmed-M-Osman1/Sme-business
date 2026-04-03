@@ -63,4 +63,43 @@ test.describe('Scenario 5: Manual Form Journey', () => {
   test('5.10 - should display Continue button', async () => {
     await expect(manualFormPage.continueButton).toBeVisible();
   });
+
+  test('5.11 - should advance to step 2 after confirming classification', async () => {
+    await manualFormPage.fillBusinessDescription(validBusiness.description);
+    await expect(manualFormPage.classifyButton).toBeEnabled({ timeout: 5000 });
+    await manualFormPage.clickClassify();
+    await expect(manualFormPage.confirmClassificationBtn).toBeVisible({ timeout: 15000 });
+    await manualFormPage.confirmClassification();
+    await manualFormPage.selectEmployees('2-5');
+    await manualFormPage.selectRevenue('Under AED 500,000');
+    await manualFormPage.clickContinue();
+    await expect(manualFormPage.getMyQuotesButton).toBeVisible({ timeout: 10000 });
+  });
+
+  test('5.12 - should navigate back from step 2 to step 1', async () => {
+    await manualFormPage.fillBusinessDescription(validBusiness.description);
+    await expect(manualFormPage.classifyButton).toBeEnabled({ timeout: 5000 });
+    await manualFormPage.clickClassify();
+    await manualFormPage.confirmClassification();
+    await manualFormPage.selectEmployees('2-5');
+    await manualFormPage.selectRevenue('Under AED 500,000');
+    await manualFormPage.clickContinue();
+    await manualFormPage.backButton.click();
+    await expect(manualFormPage.twoToFiveButton).toBeVisible();
+    await expect(manualFormPage.continueButton).toBeVisible();
+  });
+
+  test('5.13 - should complete the manual flow and reach results', async ({ page }) => {
+    await manualFormPage.fillBusinessDescription(validBusiness.description);
+    await expect(manualFormPage.classifyButton).toBeEnabled({ timeout: 5000 });
+    await manualFormPage.clickClassify();
+    await manualFormPage.confirmClassification();
+    await manualFormPage.selectEmployees('2-5');
+    await manualFormPage.selectRevenue('Under AED 500,000');
+    await manualFormPage.clickContinue();
+    await manualFormPage.selectEmirate(validBusiness.emirate);
+    await manualFormPage.selectCoverageArea('uae');
+    await manualFormPage.clickGetMyQuotes();
+    await expect(page).toHaveURL(/\/quote\/results/);
+  });
 });

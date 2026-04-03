@@ -6,7 +6,11 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: 'html',
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
+  ],
+  outputDir: './test-results',
   timeout: 60000,
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
@@ -22,4 +26,10 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  webServer: {
+    command: 'pnpm --filter @shory/web dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
+  },
 });

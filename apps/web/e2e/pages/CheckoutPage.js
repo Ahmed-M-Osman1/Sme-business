@@ -5,27 +5,28 @@ class CheckoutPage extends BasePage {
     super(page);
 
     // Step indicator
-    this.stepIndicator = page.getByText(/Step 6 of 6/i);
+    this.stepIndicator = page.getByText(/Step 6 of 6/i).first();
 
     // Page heading
     this.pageHeading = page.getByRole('heading').first();
 
     // Order summary
-    this.orderSummary = page.getByText(/Order summary/i);
-    this.totalPremium = page.getByText(/Total premium/i);
+    this.orderSummary = page.getByText(/Order summary/i).first();
+    this.totalPremium = page.getByText(/Total premium/i).first();
 
     // Contact form fields
-    this.fullNameInput = page.getByPlaceholder(/name/i).first();
-    this.emailInput = page.getByPlaceholder(/email/i).first();
-    this.phoneInput = page.getByPlaceholder(/phone|mobile/i).first();
+    this.fullNameInput = page.getByPlaceholder(/your full name|name/i).first();
+    this.emailInput = page.getByPlaceholder(/you@example\.com|email/i).first();
+    this.phoneInput = page.getByPlaceholder(/55 123 4567|phone|mobile/i).first();
 
     // Validation errors
     this.nameError = page.getByText(/name.*required/i);
-    this.emailError = page.getByText(/invalid email/i);
-    this.phoneError = page.getByText(/invalid phone/i);
+    this.emailError = page.getByText(/valid email address/i);
+    this.phoneError = page.getByText(/valid UAE mobile number/i);
 
     // Pay button
     this.payButton = page.getByRole('button', { name: /Pay/i });
+    this.declarationCheckbox = page.locator('input[type="checkbox"]').last();
 
     // Processing state
     this.processingIndicator = page.getByText(/processing/i);

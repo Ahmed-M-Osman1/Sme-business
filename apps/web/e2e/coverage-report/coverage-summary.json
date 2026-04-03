@@ -1,0 +1,190 @@
+{
+  "fileCount": 26,
+  "usedBytes": 62964,
+  "totalBytes": 72858,
+  "pct": 86.42,
+  "files": [
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_app_115rvq5._.css",
+      "type": "css",
+      "totalBytes": 72858,
+      "usedBytes": 62964,
+      "pct": 86.42
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0s~p~.3._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_compiled_react-server-dom-turbopack_12hfz8l._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_compiled_0t32xc2._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_0rqeker._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0i4a_%40swc_helpers_cjs_0hvz.20._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_0wpeqf6._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/turbopack-apps_web_0o.onbj._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/_10rashm._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_app_layout_tsx_040uxy6._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0e-y_%40dotlottie_react-player_dist_index_09uz2gw.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/node_modules__pnpm_0ydn9_4._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_compiled_react-dom_098v.dj._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_compiled_next-devtools_index_0l2pd07.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_app_quote_results_page_tsx_13j.b83._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_client_10dbxs4._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_dist_client_components_builtin_global-error_13j.b83.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_0dqm.gc._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/node_modules__pnpm_09j0yww._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_08553_-._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0yjw1oe._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/0avu_next_navigation_13iu3ru.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_app_quote_company-details_page_tsx_13j.b83._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_0pd~iu1._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_app_quote_checkout_page_tsx_13j.b83._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    },
+    {
+      "url": "http://localhost:3000/_next/static/chunks/apps_web_019mm26._.js",
+      "type": "js",
+      "totalBytes": 0,
+      "usedBytes": 0,
+      "pct": 100
+    }
+  ]
+}

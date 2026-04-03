@@ -31,4 +31,15 @@ test.describe('Scenario 1: Homepage & Navigation', () => {
   test('1.5 - should display trust indicators', async () => {
     await expect(homePage.trustBadge).toBeVisible();
   });
+
+  test('1.6 - should navigate to quote start from the secondary CTA', async ({ page }) => {
+    await homePage.clickGetStarted();
+    await expect(page).toHaveURL(/\/quote\/start/);
+  });
+
+  test('1.7 - should expose primary navigation links', async () => {
+    await expect(homePage.logo).toBeVisible();
+    await expect(homePage.getAQuoteButton).toBeVisible();
+    await expect(homePage.statsSection).toBeVisible();
+  });
 });

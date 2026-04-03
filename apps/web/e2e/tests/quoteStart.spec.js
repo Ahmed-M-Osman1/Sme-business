@@ -17,6 +17,11 @@ test.describe('Scenario 2: Quote Start — Method Selection', () => {
     await quoteStartPage.verifyAllOptionsVisible();
   });
 
+  test('2.2a - should show the recommended and fastest badges', async () => {
+    await expect(quoteStartPage.recommendedBadge).toBeVisible();
+    await expect(quoteStartPage.fastestBadge).toBeVisible();
+  });
+
   test('2.3 - should navigate to AI Advisor page', async ({ page }) => {
     await quoteStartPage.selectAiAdvisor();
     await expect(page).toHaveURL(/\/quote\/ai-advisor/);

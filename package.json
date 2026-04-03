@@ -9,6 +9,12 @@
     "api": "pnpm --filter @shory/backend dev",
     "build": "turbo build",
     "lint": "turbo lint",
+    "e2e": "pnpm exec playwright test -c apps/web/e2e/playwright.config.js",
+    "e2e:install": "pnpm exec playwright install chromium",
+    "e2e:results": "pnpm exec playwright test -c apps/web/e2e/playwright.config.js apps/web/e2e/tests/resultsPage.spec.js",
+    "e2e:report": "pnpm exec playwright show-report apps/web/e2e/playwright-report",
+    "e2e:coverage:clean": "node apps/web/e2e/scripts/generate-coverage-report.js --clean",
+    "e2e:coverage": "node apps/web/e2e/scripts/generate-coverage-report.js --clean && SHORY_E2E_COVERAGE=1 pnpm exec playwright test -c apps/web/e2e/playwright.config.js apps/web/e2e/tests/resultsPage.spec.js && node apps/web/e2e/scripts/generate-coverage-report.js",
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
     "db:push": "turbo db:push",
@@ -16,6 +22,7 @@
     "setup:db": "bash scripts/apply-migration.sh"
   },
   "devDependencies": {
+    "@playwright/test": "1.51.1",
     "next-auth": "5.0.0-beta.30",
     "turbo": "^2"
   },

@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const CheckoutPage = require('../pages/CheckoutPage');
-const { contactDetails } = require('../helpers/testData');
+const { contactDetails, invalidContact } = require('../helpers/testData');
 
 test.describe('Scenario 9: Checkout', () => {
   let checkoutPage;
@@ -59,7 +59,38 @@ test.describe('Scenario 9: Checkout', () => {
     await emailInput.pressSequentially(contactDetails.email, { delay: 10 });
     await phoneInput.click();
     await phoneInput.pressSequentially(contactDetails.phone, { delay: 10 });
+    await checkoutPage.declarationCheckbox.check();
     // Verify Pay button is present and clickable
     await expect(checkoutPage.payButton).toBeVisible();
+  });
+
+  test('9.8 - should show validation errors for invalid contact details', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(500);
+    await checkoutPage.fillFullName(invalidContact.fullName);
+    await checkoutPage.fillEmail(invalidContact.email);
+    await checkoutPage.fillPhone(invalidContact.phone);
+    await checkoutPage.declarationCheckbox.check();
+    await checkoutPage.clickPay();
+    await expect(checkoutPage.emailError).toBeVisible();
+    await expect(checkoutPage.phoneError).toBeVisible();
+  });
+
+  test('9.9 - should clear validation errors after entering valid contact data', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(500);
+    await checkoutPage.fillFullName(invalidContact.fullName);
+    await checkoutPage.fillEmail(invalidContact.email);
+    await checkoutPage.fillPhone(invalidContact.phone);
+    await checkoutPage.declarationCheckbox.check();
+    await checkoutPage.clickPay();
+
+    await checkoutPage.fillFullName(contactDetails.fullName);
+    await checkoutPage.fillEmail(contactDetails.email);
+    await checkoutPage.fillPhone(contactDetails.phone);
+
+    await expect(checkoutPage.nameError).toBeHidden();
+    await expect(checkoutPage.emailError).toBeHidden();
+    await expect(checkoutPage.phoneError).toBeHidden();
   });
 });

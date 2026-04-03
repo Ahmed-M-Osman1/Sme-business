@@ -34,4 +34,22 @@ test.describe('Scenario 4: Pre-configured Business Type', () => {
   test('4.5 - should display step 2 of 6 indicator', async () => {
     await expect(businessTypePage.stepIndicator).toBeVisible();
   });
+
+  test('4.6 - should toggle the IT detail panel open and closed', async () => {
+    await businessTypePage.selectIT();
+    await expect(businessTypePage.quickOverviewHeading).toBeVisible({ timeout: 5000 });
+    await businessTypePage.selectIT();
+    await expect(businessTypePage.quickOverviewHeading).toBeHidden();
+  });
+
+  test('4.7 - should route to manual flow when business type is not listed', async ({ page }) => {
+    await page.getByRole('link', { name: /isn't listed|fill in manually/i }).click();
+    await expect(page).toHaveURL(/\/quote\/manual/);
+  });
+
+  test('4.8 - should continue from a selected type to results', async ({ page }) => {
+    await businessTypePage.selectIT();
+    await businessTypePage.proceedWithSelectedType();
+    await expect(page).toHaveURL(/\/quote\/results/);
+  });
 });
