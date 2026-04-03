@@ -302,7 +302,7 @@ export function Checkout() {
                   <span className="text-text">+ {extraName}</span>
                 </div>
                 <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
-                  {formatPriceWithCurrency(EXTRA_PRICES[extraName] ?? 300, t.common.currency, locale)}{locale === 'ar' ? '/سنوياً' : '/yr'}
+                  {locale === 'ar' ? 'مشمول' : 'Covered'}
                 </span>
               </div>
             ))}
