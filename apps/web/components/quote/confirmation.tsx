@@ -846,6 +846,35 @@ export function Confirmation() {
           </button>
         </div>
 
+        {/* WhatsApp share */}
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(locale === 'ar' ? `تأمنت مع شوري في أقل من 3 دقائق! جربها: https://shory.ae` : `I just got insured with Shory in under 3 minutes! Try it: https://shory.ae`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#25D366] text-white text-sm font-semibold hover:bg-[#20BD5A] transition-colors"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.917.918l4.458-1.495A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.37 0-4.567-.82-6.29-2.19l-.44-.36-3.05 1.023 1.022-3.05-.36-.44A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          {locale === 'ar' ? 'شارك عبر واتساب' : 'Share via WhatsApp'}
+        </a>
+
+        {/* Feedback rating */}
+        <FeedbackRating locale={locale} />
+
+        {/* Referral card */}
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+          <p className="text-lg font-bold text-primary">{locale === 'ar' ? 'أحِل صاحب عمل' : 'Refer a Business Owner'}</p>
+          <p className="text-xs text-gray-600 mt-1">{locale === 'ar' ? 'كلاكما يحصل على خصم 200 درهم على التجديد' : 'You both get AED 200 off renewal'}</p>
+          <button
+            onClick={() => {
+              const code = `REF-${policyNumber.slice(-6)}`;
+              navigator.clipboard?.writeText(`https://shory.ae?ref=${code}`);
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary text-white px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition-colors"
+          >
+            {locale === 'ar' ? 'نسخ رابط الإحالة' : 'Copy Referral Link'}
+          </button>
+        </div>
+
         {/* Go to Dashboard button */}
         {session?.user && (
           <Link href="/dashboard" className="w-full">
@@ -921,6 +950,48 @@ export function Confirmation() {
           </svg>
         </Link>
       </div>
+    </div>
+  );
+}
+
+function FeedbackRating({locale}: {locale: 'en' | 'ar'}) {
+  const [rating, setRating] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+
+  if (submitted) {
+    return (
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+        <p className="text-sm font-semibold text-emerald-700">
+          {locale === 'ar' ? 'شكراً على تقييمك!' : 'Thank you for your feedback!'}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+      <p className="text-sm font-semibold text-gray-900 mb-3">
+        {locale === 'ar' ? 'كيف كانت تجربتك؟' : 'How was your experience?'}
+      </p>
+      <div className="flex items-center justify-center gap-1 mb-3">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating(star)}
+            className={`text-2xl transition-colors ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      {rating > 0 && (
+        <button
+          onClick={() => setSubmitted(true)}
+          className="rounded-lg bg-primary text-white px-4 py-1.5 text-xs font-semibold hover:bg-primary/90 transition-colors"
+        >
+          {locale === 'ar' ? 'إرسال' : 'Submit'}
+        </button>
+      )}
     </div>
   );
 }

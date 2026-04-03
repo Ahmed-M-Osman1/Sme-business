@@ -83,6 +83,7 @@ export function Checkout() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [declared, setDeclared] = useState(false);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -412,8 +413,24 @@ export function Checkout() {
           </CardContent>
         </Card>
 
+        {/* Declaration checkbox */}
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={declared}
+            onChange={(e) => setDeclared(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary shrink-0"
+          />
+          <span className="text-xs text-gray-600 leading-relaxed">
+            {locale === 'ar'
+              ? 'أؤكد أن المعلومات المقدمة صحيحة ودقيقة. قد تؤدي المعلومات الخاطئة إلى إبطال وثيقة التأمين.'
+              : 'I confirm the information provided is accurate and complete. False or misleading information may void my policy.'}
+          </span>
+        </label>
+
         {/* Pay Button */}
         <Button
+          disabled={!declared}
           onClick={handlePay}
           className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm">
           {t.checkout.payNow} —{' '}

@@ -135,6 +135,7 @@ export function QuoteResults() {
   >(null);
   const [monthly, setMonthly] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
+  const [addedExtras, setAddedExtras] = useState<Set<string>>(new Set());
   const [detailExpanded, setDetailExpanded] = useState(true);
   const detailContentRef = useRef<HTMLDivElement>(null);
   const [detailHeight, setDetailHeight] = useState(0);
@@ -146,7 +147,7 @@ export function QuoteResults() {
   }, [detailExpanded, activeProducts]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDetailExpanded(false), 5000);
+    const timer = setTimeout(() => setDetailExpanded(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -671,6 +672,25 @@ export function QuoteResults() {
                 </div>
               </div>
 
+              {/* Popular adds nudge */}
+              {(() => {
+                const category = businessType?.title ?? '';
+                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
+                const peer = peerKey ? PEER_DATA[peerKey] : null;
+                const topMissing = peer?.extras.find((e) => !activeProducts.has(e.name.toLowerCase().replace(/\s+/g, '-')));
+                if (!topMissing) return null;
+                return (
+                  <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5">
+                    <span className="text-base shrink-0">💡</span>
+                    <p className="text-xs text-amber-800">
+                      <span className="font-bold">{topMissing.pct}%</span>{' '}
+                      {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses also add'}{' '}
+                      <span className="font-semibold">{topMissing.name}</span>
+                    </p>
+                  </div>
+                );
+              })()}
+
               {/* Coverage gap warning */}
               {!activeProducts.has('workers-comp') && employeeBand !== '1' && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
@@ -937,8 +957,10 @@ export function QuoteResults() {
                             {locale === 'ar' ? 'ما تضيفه الشركات المشابهة' : 'What similar businesses add'}
                           </p>
                           <div className="space-y-2.5">
-                            {peer.extras.map((extra) => (
-                              <div key={extra.name} className={`rounded-xl border p-3 ${extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                            {peer.extras.map((extra) => {
+                              const isAdded = addedExtras.has(extra.name);
+                              return (
+                              <div key={extra.name} className={`rounded-xl border p-3 ${isAdded ? 'border-primary bg-primary/5' : extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
                                 <div className="flex items-center justify-between mb-1.5">
                                   <span className="text-xs font-semibold text-gray-900">{extra.name}</span>
                                   <span className="text-[10px] font-bold text-primary">{extra.pct}%</span>
@@ -946,9 +968,29 @@ export function QuoteResults() {
                                 <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
                                   <div className="h-full rounded-full bg-primary transition-all" style={{width: `${extra.pct}%`}} />
                                 </div>
-                                <p className="text-[11px] text-gray-500">{extra.reason}</p>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[11px] text-gray-500 flex-1">{extra.reason}</p>
+                                  <button
+                                    onClick={() => setAddedExtras((prev) => {
+                                      const next = new Set(prev);
+                                      if (next.has(extra.name)) next.delete(extra.name);
+                                      else next.add(extra.name);
+                                      return next;
+                                    })}
+                                    className={`shrink-0 ms-2 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition-all ${
+                                      isAdded
+                                        ? 'bg-primary text-white'
+                                        : 'border border-primary text-primary hover:bg-primary/5'
+                                    }`}
+                                  >
+                                    {isAdded
+                                      ? (locale === 'ar' ? '✓ مضاف' : '✓ Added')
+                                      : (locale === 'ar' ? '+ إضافة' : '+ Add')}
+                                  </button>
+                                </div>
                               </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
@@ -1017,6 +1059,7 @@ export function QuoteResults() {
                           onSelect={() =>
                             handleSelectToggle(insurer.id)
                           }
+                          onBuy={() => handleNavigate(insurer.id, insurer.total)}
                         />
                       );
                     })

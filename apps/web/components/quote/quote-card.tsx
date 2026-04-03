@@ -26,7 +26,7 @@ interface QuoteCardProps {
   isSelected?: boolean;
   monthly?: boolean;
   onSelect: () => void;
-  onProceed?: () => void;
+  onBuy?: () => void;
 }
 
 export function QuoteCard({
@@ -40,6 +40,7 @@ export function QuoteCard({
   isSelected = false,
   monthly = false,
   onSelect,
+  onBuy,
 }: QuoteCardProps) {
   const {t, locale} = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -256,15 +257,25 @@ export function QuoteCard({
             <div className="flex items-center justify-end gap-2">
               <Button
                 size="sm"
+                variant="outline"
                 onClick={(e) => { e.stopPropagation(); onSelect(); }}
-                className={`rounded-xl text-sm px-6 ${
+                className={`rounded-xl text-sm px-5 ${
                   isSelected
-                    ? 'bg-primary/10 text-primary border-2 border-primary hover:bg-primary/20'
-                    : 'bg-primary text-white hover:bg-primary/90'
+                    ? 'bg-primary/10 text-primary border-2 border-primary'
+                    : 'border-gray-200 text-gray-700 hover:border-primary/40'
                 }`}
               >
                 {isSelected ? t.results.selected : t.common.select}
               </Button>
+              {onBuy && (
+                <Button
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); onBuy(); }}
+                  className="rounded-xl text-sm px-5 bg-primary text-white hover:bg-primary/90"
+                >
+                  {locale === 'ar' ? 'اختر واشتري' : 'Select & Buy'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
