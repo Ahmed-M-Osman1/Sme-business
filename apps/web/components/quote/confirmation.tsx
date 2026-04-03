@@ -47,6 +47,8 @@ export function Confirmation() {
   const emirate = searchParams.get('emirate') ?? 'Dubai';
   const employees = searchParams.get('employees') ?? '';
   const extras = (searchParams.get('extras') ?? '').split(',').filter(Boolean);
+  const payMethod = searchParams.get('payMethod') ?? 'card';
+  const payRef = searchParams.get('payRef') ?? '';
 
   const businessType =
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
@@ -512,6 +514,22 @@ export function Confirmation() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-5">
+        {/* Payment method confirmation */}
+        <div className={`rounded-xl px-4 py-3 text-sm ${payMethod === 'bank_transfer' ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'}`}>
+          {payMethod === 'finwall' && (
+            <p>{locale === 'ar' ? `أول قسط شهري بقيمة ${formatPriceWithCurrency(Math.round(total * 1.08 / 12), t.common.currency, locale)} سيتم تحصيله قريباً. المرجع: ${payRef}` : `Your first monthly payment of ${formatPriceWithCurrency(Math.round(total * 1.08 / 12), t.common.currency, locale)} will be collected soon. Reference: ${payRef}`}</p>
+          )}
+          {payMethod === 'apple_pay' && (
+            <p>{locale === 'ar' ? `تم اعتماد الدفع بقيمة ${formatPriceWithCurrency(total, t.common.currency, locale)} عبر Apple Pay.` : `Payment of ${formatPriceWithCurrency(total, t.common.currency, locale)} authorised via Apple Pay.`}</p>
+          )}
+          {payMethod === 'bank_transfer' && (
+            <p>{locale === 'ar' ? `سيتم تفعيل وثيقتك خلال يوم عمل واحد من استلام التحويل. المرجع: ${payRef}` : `Your policy will be activated within 1 business day of payment receipt. Reference: ${payRef}`}</p>
+          )}
+          {payMethod === 'card' && (
+            <p>{locale === 'ar' ? `تم اعتماد الدفع بقيمة ${formatPriceWithCurrency(total, t.common.currency, locale)}. وثيقتك فعالة الآن.` : `Payment of ${formatPriceWithCurrency(total, t.common.currency, locale)} authorised. Your policy is now active.`}</p>
+          )}
+        </div>
+
         {/* Policy card */}
         <Card className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
           {/* Insurer header */}

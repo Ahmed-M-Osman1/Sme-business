@@ -91,6 +91,10 @@ export function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [declared, setDeclared] = useState(false);
+  const [payMethod, setPayMethod] = useState<'card' | 'apple_pay' | 'bank_transfer' | 'finwall'>('card');
+  const [finwallAgreed, setFinwallAgreed] = useState(false);
+  const [cardForm, setCardForm] = useState({num: '', exp: '', cvv: '', name: ''});
+  const monthlyAmount = Math.round(total * 1.08 / 12);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -137,6 +141,9 @@ export function Checkout() {
       if (licenseNumber) params.set('licenseNumber', licenseNumber);
       if (employees) params.set('employees', employees);
       if (extras.length > 0) params.set('extras', extras.join(','));
+      params.set('payMethod', payMethod);
+      if (payMethod === 'finwall') params.set('payRef', `FW-${Math.random().toString(36).slice(2, 10).toUpperCase()}`);
+      if (payMethod === 'bank_transfer') params.set('payRef', `SHRY-${Date.now().toString(36).toUpperCase()}`);
       window.scrollTo({top: 0, behavior: 'smooth'});
       router.push(`/quote/confirmation?${params.toString()}`);
     }, PAYMENT_PROCESSING_MS);
@@ -453,31 +460,132 @@ export function Checkout() {
           </span>
         </label>
 
+        {/* Payment Methods */}
+        <Card className="rounded-2xl border-2 border-border bg-white shadow-sm overflow-hidden">
+          <CardContent className="p-5 flex flex-col gap-3">
+            <p className="text-sm font-bold text-text">{locale === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method'}</p>
+
+            {/* Card Payment */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('card')}
+              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">💳</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text">{locale === 'ar' ? 'بطاقة ائتمان' : 'Card Payment'}</p>
+                  <p className="text-[11px] text-text-muted">Visa · Mastercard · Amex · 3D Secure</p>
+                </div>
+              </div>
+              {payMethod === 'card' && (
+                <div className="mt-3 grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text" inputMode="numeric" placeholder="Card number"
+                    value={cardForm.num}
+                    onChange={(e) => setCardForm((p) => ({...p, num: e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()}))}
+                    className="col-span-2 rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary tracking-widest"
+                  />
+                  <input
+                    type="text" inputMode="numeric" placeholder="MM/YY"
+                    value={cardForm.exp}
+                    onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); setCardForm((p) => ({...p, exp: d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d})); }}
+                    className="rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <input
+                    type="text" inputMode="numeric" placeholder="CVV"
+                    value={cardForm.cvv}
+                    onChange={(e) => setCardForm((p) => ({...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 3)}))}
+                    className="rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              )}
+            </button>
+
+            {/* Apple Pay */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('apple_pay')}
+              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'apple_pay' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🍎</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text">Apple Pay</p>
+                  <p className="text-[11px] text-text-muted">{locale === 'ar' ? 'ادفع بلمسة واحدة' : 'One-tap payment via Apple Wallet'}</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Monthly Instalments (Finwall) */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('finwall')}
+              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'finwall' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">📅</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text">{locale === 'ar' ? 'أقساط شهرية' : 'Monthly Instalments'}</p>
+                  <p className="text-[11px] text-text-muted">
+                    {formatPriceWithCurrency(monthlyAmount, t.common.currency, locale)}{t.common.perMonth} × 12 · {locale === 'ar' ? 'مقدم من' : 'Powered by'} Finwall
+                  </p>
+                </div>
+              </div>
+              {payMethod === 'finwall' && (
+                <div className="mt-3 space-y-2" onClick={(e) => e.stopPropagation()}>
+                  <p className="text-[11px] text-text-muted">0% {locale === 'ar' ? 'فائدة · بدون رسوم خفية' : 'interest · No hidden fees'}</p>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" checked={finwallAgreed} onChange={(e) => setFinwallAgreed(e.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary shrink-0" />
+                    <span className="text-[10px] text-text-muted leading-relaxed">
+                      {locale === 'ar' ? 'أوافق على شروط وأحكام Finwall وأفهم أنه سيتم تحصيل المدفوعات شهرياً' : 'I agree to the Finwall Terms & Conditions and understand payments will be collected monthly'}
+                    </span>
+                  </label>
+                </div>
+              )}
+            </button>
+
+            {/* Bank Transfer */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('bank_transfer')}
+              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'bank_transfer' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🏦</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text">{locale === 'ar' ? 'تحويل بنكي' : 'Bank Transfer'}</p>
+                  <p className="text-[11px] text-text-muted">{locale === 'ar' ? 'تحويل عبر البنك الإماراتي' : 'UAE bank transfer'}</p>
+                </div>
+              </div>
+              {payMethod === 'bank_transfer' && (
+                <div className="mt-3 space-y-1.5 text-[11px] text-text-muted bg-surface rounded-lg p-3" onClick={(e) => e.stopPropagation()}>
+                  <p><span className="font-semibold text-text">Bank:</span> Emirates NBD</p>
+                  <p><span className="font-semibold text-text">Account:</span> Shory Technology LLC</p>
+                  <p><span className="font-semibold text-text">IBAN:</span> AE07 0260 0015 0318 6700 201</p>
+                  <p className="text-[10px]">{locale === 'ar' ? 'سيتم تفعيل وثيقتك خلال يوم عمل واحد' : 'Policy activated within 1 business day of receipt'}</p>
+                </div>
+              )}
+            </button>
+
+            {/* Security badges */}
+            <div className="flex items-center justify-center gap-4 text-[10px] text-text-muted pt-1">
+              <span>🔒 SSL</span>
+              <span>🏦 PCI DSS</span>
+              <span>🛡️ 3D Secure</span>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Pay Button */}
         <Button
-          disabled={!declared}
+          disabled={!declared || (payMethod === 'finwall' && !finwallAgreed)}
           onClick={handlePay}
-          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm">
-          {t.checkout.payNow} —{' '}
-          {formatPriceWithCurrency(
-            calculateMonthlyPrice(total),
-            t.common.currency,
-            locale,
-          )}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            className="ms-2 inline rtl:rotate-180">
-            <path
-              d="M6 3.333L10.667 8L6 12.667"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          className="w-full rounded-xl bg-primary text-white py-3.5 text-base font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm disabled:opacity-50">
+          {payMethod === 'apple_pay' ? 'Pay with Apple Pay' : payMethod === 'bank_transfer' ? (locale === 'ar' ? 'تأكيد التحويل' : 'Confirm Transfer') : t.checkout.payNow}
+          {' — '}
+          {formatPriceWithCurrency(payMethod === 'finwall' ? monthlyAmount : total, t.common.currency, locale)}
+          {payMethod === 'finwall' ? t.common.perMonth : (locale === 'ar' ? '/سنوياً' : '/yr')}
         </Button>
 
         <AuthModal
