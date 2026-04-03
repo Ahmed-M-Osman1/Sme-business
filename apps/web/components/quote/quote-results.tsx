@@ -123,6 +123,18 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
   },
 };
 
+/** Fixed annual price per add-on extra (AED). */
+const EXTRA_PRICES: Record<string, number> = {
+  'Business Interruption': 350,
+  'Food Contamination': 280,
+  'Cyber Liability': 420,
+  'Stock Throughput': 300,
+  'Directors & Officers': 480,
+  'Environmental Liability': 250,
+  'Fleet Insurance': 550,
+  'Cargo Insurance': 400,
+};
+
 type ResultsTab = 'individual' | 'bundles';
 
 interface EnrichedInsurerQuote extends InsurerQuote {
@@ -173,6 +185,7 @@ export function QuoteResults() {
   const [monthly, setMonthly] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [addedExtras, setAddedExtras] = useState<Set<string>>(new Set());
+  const extrasTotal = useMemo(() => Array.from(addedExtras).reduce((sum, name) => sum + (EXTRA_PRICES[name] ?? 300), 0), [addedExtras]);
   const [detailExpanded, setDetailExpanded] = useState(true);
   const detailContentRef = useRef<HTMLDivElement>(null);
   const [detailHeight, setDetailHeight] = useState(0);
@@ -466,16 +479,21 @@ export function QuoteResults() {
   }
 
   function handleNavigate(insurerId: string, total: number) {
+    const totalWithExtras = total + extrasTotal;
     const params = new URLSearchParams({
       type: typeId,
       insurer: insurerId,
-      total: String(total),
+      total: String(totalWithExtras),
       products: activeProductIds.join(','),
       limits: JSON.stringify(coverageLimits),
       source,
       employees: employeeBand,
       emirate,
     });
+
+    if (addedExtras.size > 0) {
+      params.set('extras', Array.from(addedExtras).join(','));
+    }
 
     if (revenue) params.set('revenue', revenue);
     if (coverageArea) params.set('coverageArea', coverageArea);
@@ -1077,13 +1095,23 @@ export function QuoteResults() {
                           mandatory: mandatoryProducts.has(pid),
                         };
                       }).filter(Boolean) as {name: string; icon: string; limit: string; price: number; mandatory: boolean}[];
+                      // Append added extras as line items
+                      const extraLines = Array.from(addedExtras).map((extraName) => ({
+                        name: `+ ${extraName}`,
+                        icon: '🛡️',
+                        limit: 'Add-on',
+                        price: EXTRA_PRICES[extraName] ?? 300,
+                        mandatory: false,
+                      }));
+                      const allLines = [...lines, ...extraLines];
+                      const cardTotal = insurer.total + extrasTotal;
                       return (
                         <QuoteCard
                           key={insurer.id}
-                          insurer={insurer}
+                          insurer={{...insurer, total: cardTotal}}
                           coverageType={coverageType}
                           benefits={benefits}
-                          productLines={lines}
+                          productLines={allLines}
                           isBestPrice={isBest}
                           isRecommended={idx === 0}
                           businessCategory={categoryLabel}
@@ -1092,7 +1120,7 @@ export function QuoteResults() {
                           onSelect={() =>
                             handleSelectToggle(insurer.id)
                           }
-                          onBuy={() => handleNavigate(insurer.id, insurer.total)}
+                          onBuy={() => handleNavigate(insurer.id, cardTotal)}
                         />
                       );
                     })

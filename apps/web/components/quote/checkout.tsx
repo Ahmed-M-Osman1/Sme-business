@@ -62,6 +62,13 @@ export function Checkout() {
   // instead of trusting URL params (BUG-001 fix)
   const productsMap: Record<string, ProductInfo> = {};
   Object.values(productsConfig).forEach((p) => { productsMap[p.id] = p; });
+  const extras = (searchParams.get('extras') ?? '').split(',').filter(Boolean);
+  const EXTRA_PRICES: Record<string, number> = {
+    'Business Interruption': 350, 'Food Contamination': 280, 'Cyber Liability': 420,
+    'Stock Throughput': 300, 'Directors & Officers': 480, 'Environmental Liability': 250,
+    'Fleet Insurance': 550, 'Cargo Insurance': 400,
+  };
+  const extrasTotal = extras.reduce((sum, name) => sum + (EXTRA_PRICES[name] ?? 300), 0);
   const verifiedTotal = calculateTotalPremium(
     {
       productIds,
@@ -71,7 +78,7 @@ export function Checkout() {
       insurerMultiplier: insurer.priceMultiplier,
     },
     productsMap,
-  );
+  ) + extrasTotal;
   const total = verifiedTotal;
 
   const eidName = searchParams.get('eidName') ?? '';
@@ -129,6 +136,7 @@ export function Checkout() {
       const employees = searchParams.get('employees');
       if (licenseNumber) params.set('licenseNumber', licenseNumber);
       if (employees) params.set('employees', employees);
+      if (extras.length > 0) params.set('extras', extras.join(','));
       window.scrollTo({top: 0, behavior: 'smooth'});
       router.push(`/quote/confirmation?${params.toString()}`);
     }, PAYMENT_PROCESSING_MS);
@@ -285,6 +293,19 @@ export function Checkout() {
                   </div>
                 );
               })}
+
+            {/* Add-on extras */}
+            {extras.length > 0 && extras.map((extraName) => (
+              <div key={extraName} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <span>🛡️</span>
+                  <span className="text-text">+ {extraName}</span>
+                </div>
+                <span className="text-xs text-text-muted bg-surface rounded-full px-2 py-0.5">
+                  {formatPriceWithCurrency(EXTRA_PRICES[extraName] ?? 300, t.common.currency, locale)}{locale === 'ar' ? '/سنوياً' : '/yr'}
+                </span>
+              </div>
+            ))}
 
             <div className="h-px bg-border" />
 

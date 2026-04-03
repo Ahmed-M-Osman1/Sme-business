@@ -46,6 +46,7 @@ export function Confirmation() {
   const licenseNumber = searchParams.get('licenseNumber') ?? '';
   const emirate = searchParams.get('emirate') ?? 'Dubai';
   const employees = searchParams.get('employees') ?? '';
+  const extras = (searchParams.get('extras') ?? '').split(',').filter(Boolean);
 
   const businessType =
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
@@ -118,12 +119,18 @@ export function Confirmation() {
       ? setDownloadingInvoice
       : setDownloadingCert;
     setter(true);
-    const products = productIds
-      .filter((id) => productsConfig[id])
-      .map((id) => ({
-        name: productsConfig[id].name,
-        limit: limits[id] ?? '1M',
-      }));
+    const products = [
+      ...productIds
+        .filter((id) => productsConfig[id])
+        .map((id) => ({
+          name: productsConfig[id].name,
+          limit: limits[id] ?? '1M',
+        })),
+      ...extras.map((extraName) => ({
+        name: `+ ${extraName}`,
+        limit: 'Add-on',
+      })),
+    ];
 
     const translatedInsurerName =
       (t.insurers as Record<string, string>)[
@@ -729,6 +736,18 @@ export function Confirmation() {
                     );
                   })}
               </div>
+              {/* Add-on extras */}
+              {extras.length > 0 && extras.map((extraName) => (
+                <div key={extraName} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">🛡️</span>
+                    <span className="text-sm text-gray-900">+ {extraName}</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-600 bg-gray-50 rounded-full px-3 py-1">
+                    Add-on
+                  </span>
+                </div>
+              ))}
             </div>
 
             {/* Total */}
