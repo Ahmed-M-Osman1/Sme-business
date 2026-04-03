@@ -38,10 +38,8 @@ userPoliciesRouter.post('/policies', async (c) => {
     const data = createPolicySchema.parse(body);
     const webUser = c.get('webUser') as Customer;
 
-    // Verify the userId in the payload matches the authenticated user
-    if (data.userId !== webUser.id) {
-      return errorResponse(c, 'FORBIDDEN', 'Cannot create policy for another user', 403);
-    }
+    // Always use the authenticated user's ID (ignore payload userId)
+    data.userId = webUser.id;
 
     // Create quote
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
