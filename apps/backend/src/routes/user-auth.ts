@@ -41,7 +41,12 @@ userAuthRouter.post('/register', async (c) => {
       .where(eq(customers.email, data.email));
 
     if (existing.length > 0) {
-      // If user already exists, return them (allows re-registration gracefully)
+      // Update password so user can login with what they just typed
+      const newHash = await hashPassword(data.password);
+      await db
+        .update(customers)
+        .set({passwordHash: newHash, updatedAt: new Date()} as any)
+        .where(eq(customers.email, data.email));
       return c.json({id: existing[0].id, email: existing[0].email, name: existing[0].name}, 200);
     }
 
