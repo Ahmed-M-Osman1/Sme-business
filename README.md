@@ -1,14 +1,40 @@
 # Shory SME Insurance Platform
 
-SME insurance platform with a customer-facing quote journey and an internal admin portal.
+Full-stack SME insurance platform with a customer-facing quote journey, internal admin portal, and REST API. Built as a monorepo with Next.js 16, Hono, and PostgreSQL.
+
+## Documentation
+
+### Technical
+- [System Architecture](docs/technical/architecture.md) — Apps, packages, data flow, deployment
+- [Database Schema](docs/technical/database.md) — 27 tables across 6 domains
+- [API Reference](docs/technical/api-reference.md) — All REST endpoints with auth requirements
+- [Web App](docs/technical/web-app.md) — Quote journey, pricing engine, security
+- [Admin App](docs/technical/admin-app.md) — Operations dashboard, AI playbooks, platform health
+- [Testing](docs/technical/testing.md) — 65 Playwright E2E tests, type checking
+
+### Business
+- [Executive Summary](docs/business/Shory_Executive_Summary.md)
+- [User Stories](docs/business/Shory_User_Stories_v2_Complete.md) — 54 stories across 20 epics
+- [Demo Walkthrough](docs/business/Shory_Demo_Walkthrough_Guide.md)
 
 ## Tech Stack
 
-- **Monorepo**: pnpm workspaces + Turborepo
-- **Apps**: Next.js 16 (web + admin) + Hono backend
-- **Database**: Drizzle ORM + Neon PostgreSQL
-- **UI**: shadcn/ui + Tailwind CSS v4
-- **Language**: TypeScript (strict)
+- **Next.js 16** — Frontend (Customer + Admin)
+- **React 19** — UI Framework
+- **Hono** — REST API
+- **PostgreSQL (Neon)** — Database
+- **Drizzle ORM** — Database ORM
+- **Zod** — Validation
+- **TypeScript** — Language (strict mode)
+- **Tailwind CSS v4** — Styling
+- **shadcn/ui** — UI Components
+- **Auth.js (NextAuth v5)** — Authentication
+- **Claude API (Anthropic)** — AI
+- **jsPDF** — PDF Generation
+- **Vercel Blob** — File Storage
+- **Vercel** — Deployment (3 projects)
+- **Playwright** — E2E Testing
+- **pnpm + Turborepo** — Monorepo Tooling
 
 ## Project Structure
 
@@ -16,9 +42,9 @@ SME insurance platform with a customer-facing quote journey and an internal admi
 apps/
   web/          → Customer-facing quote journey (port 3000)
   admin/        → Internal admin dashboard (port 3001)
-  backend/      → Deployable Hono backend (port 3002)
+  backend/      → Hono REST API (port 3002)
 packages/
-  db/           → Drizzle ORM schemas + migrations
+  db/           → Drizzle ORM schemas + migrations (27 tables)
   shared/       → Zod schemas + shared types
   ui/           → shadcn/ui component library
 tooling/
@@ -27,141 +53,95 @@ tooling/
   tailwind/     → Shared Tailwind config
 ```
 
-## Prerequisites
+## Quick Start
 
-- **Node.js** >= 20
-- **pnpm** >= 9 (`npm install -g pnpm`)
-- A [Neon](https://neon.tech) PostgreSQL database (free tier works)
+### Prerequisites
 
-## Getting Started
+- Node.js >= 20
+- pnpm >= 9 (`npm install -g pnpm`)
+- [Neon](https://neon.tech) PostgreSQL database (free tier works)
 
-### 1. Clone and install
+### Setup
 
 ```bash
+# 1. Clone and install
 git clone <repo-url>
 cd shory-sme
 pnpm install
-```
 
-### 2. Set up environment variables
-
-Copy the example and fill in your values:
-
-```bash
+# 2. Configure environment
 cp .env.example .env
-```
+# Edit .env with your DATABASE_URL, AUTH_SECRET, etc.
 
-Required variables:
+# 3. Push schema + seed data
+source .env && export DATABASE_URL
+pnpm --filter @shory/db db:push
+pnpm --filter @shory/db db:seed
 
-| Variable | Description | Example |
-|---|---|---|
-| `DATABASE_URL` | Neon PostgreSQL connection string | `postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require` |
-| `AUTH_SECRET` | Auth.js secret (generate with `npx auth secret`) | `qJAJp...` |
-| `AUTH_URL` | Admin app URL | `http://localhost:3001` |
-| `NEXT_PUBLIC_ADMIN_URL` | Admin app URL (public) | `http://localhost:3001` |
-| `NEXT_PUBLIC_API_URL` | Backend URL | `https://sme-business-backend.vercel.app` |
-| `ANTHROPIC_API_KEY` | Claude API key (for AI advisor) | `sk-ant-...` |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob token (for file uploads) | `vercel_blob_...` |
-
-### 3. Set up the database
-
-Push the schema to your Neon database:
-
-```bash
-DATABASE_URL="your-neon-connection-string" pnpm --filter @shory/db run db:push
-```
-
-Or run migrations (for fresh databases):
-
-```bash
-DATABASE_URL="your-neon-connection-string" pnpm --filter @shory/db run db:migrate
-```
-
-### 4. Seed the database
-
-This creates the default admin user and all catalog data (business types, products, insurers, quote options):
-
-```bash
-DATABASE_URL="your-neon-connection-string" pnpm --filter @shory/db run db:seed
-```
-
-**Default admin credentials:**
-- Email: `admin@shory.ae`
-- Password: `admin123`
-
-### 5. Run the dev servers
-
-Start all three apps at once:
-
-```bash
+# 4. Run all apps
 pnpm dev
 ```
 
-Or start them individually:
+Apps will be available at:
+- **Web:** http://localhost:3000
+- **Admin:** http://localhost:3001 (login: `osman@shory.com` / `osman@shory.com`)
+- **API:** http://localhost:3002
 
-```bash
-pnpm web      # Customer app → http://localhost:3000
-pnpm admin    # Admin portal → http://localhost:3001
-pnpm backend  # Hono API    → http://localhost:3002
-```
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | Neon PostgreSQL connection string |
+| `AUTH_SECRET` | Yes | Auth.js secret (`npx auth secret`) |
+| `AUTH_URL` | Yes | Admin app URL (`http://localhost:3001`) |
+| `NEXT_PUBLIC_API_URL` | Yes | Backend URL (`http://localhost:3002`) |
+| `ANTHROPIC_API_KEY` | No | Claude API key (for AI advisor) |
+| `BLOB_READ_WRITE_TOKEN` | No | Vercel Blob token (for uploads) |
 
 ## Database Commands
 
-All database commands require `DATABASE_URL` to be set (either in `.env` or inline):
-
-| Command | Description |
-|---|---|
-| `pnpm --filter @shory/db run db:push` | Push schema changes directly (no migration files) |
-| `pnpm --filter @shory/db run db:generate` | Generate SQL migration files |
-| `pnpm --filter @shory/db run db:migrate` | Run pending migrations |
-| `pnpm --filter @shory/db run db:seed` | Seed reference data + admin user |
-| `pnpm --filter @shory/db run db:studio` | Open Drizzle Studio (visual DB browser) |
-
-## Viewing the Database
-
-**Drizzle Studio** (recommended for quick checks):
 ```bash
-DATABASE_URL="your-neon-connection-string" pnpm --filter @shory/db run db:studio
+pnpm --filter @shory/db db:push      # Push schema changes
+pnpm --filter @shory/db db:generate  # Generate migration files
+pnpm --filter @shory/db db:migrate   # Run migrations
+pnpm --filter @shory/db db:seed      # Seed reference + demo data
+pnpm --filter @shory/db db:studio    # Open Drizzle Studio
 ```
 
-**DBeaver:**
-1. New Connection -> PostgreSQL
-2. Host: `<endpoint>.neon.tech`, Port: `5432`
-3. Database: `neondb`, Username/Password from your connection string
-4. SSL tab -> check "Use SSL", mode = `require`
-
-**Neon Console:** [console.neon.tech](https://console.neon.tech) -> Tables tab
-
-## Build
+## Testing
 
 ```bash
-pnpm build
+# E2E tests (65 tests, Playwright)
+cd apps/web/e2e && npx playwright test
+
+# Type checking
+cd apps/web && npx tsc --noEmit
+cd apps/admin && npx tsc --noEmit
+cd apps/backend && npx tsc --noEmit
 ```
-
-## API Endpoints
-
-The API runs at `http://localhost:3002/api`. Key routes:
-
-| Route | Description |
-|---|---|
-| `GET /api/health` | Health check |
-| `GET /api/catalog/business-types` | List business types |
-| `GET /api/catalog/products` | List insurance products |
-| `GET /api/catalog/insurers` | List insurers |
-| `GET /api/catalog/quote-options` | Get all quote form options |
-| `POST /api/quotes` | Create a draft quote |
-| `POST /api/quotes/:id/submit` | Submit quote for pricing |
-| `GET /api/quotes/:id/results` | Get pricing results |
-| `POST /api/quotes/:id/accept` | Accept a quote -> create policy |
-| `POST /api/uploads` | Upload trade license document |
-| `POST /api/ai/recommend` | Get AI coverage recommendations |
 
 ## Deployment
 
-Three separate Vercel projects:
+Three Vercel projects deploying from the monorepo:
 
-- **web** -> `apps/web`
-- **admin** -> `apps/admin`
-- **backend** -> `apps/backend`
+| Project | Root Directory | Production URL |
+|---------|---------------|----------------|
+| Web | `apps/web` | `sme-business-web.vercel.app` |
+| Admin | `apps/admin` | `sme-business-admin.vercel.app` |
+| Backend | `apps/backend` | `sme-business-backend.vercel.app` |
 
-Set `DATABASE_URL` and other env vars in each Vercel project's Settings -> Environment Variables.
+Set `DATABASE_URL` and other env vars in each Vercel project's Settings.
+
+## Key API Routes
+
+| Route | Description |
+|-------|-------------|
+| `GET /api/health` | Health check |
+| `GET /api/catalog/*` | Business types, products, insurers |
+| `POST /api/quotes` | Create quote |
+| `POST /api/quotes/:id/submit` | Get pricing |
+| `POST /api/admin/auth/login` | Admin login |
+| `GET /api/admin/customers` | Customer list |
+| `GET /api/admin/stats` | Dashboard KPIs |
+
+Full API reference: [docs/technical/api-reference.md](docs/technical/api-reference.md)
