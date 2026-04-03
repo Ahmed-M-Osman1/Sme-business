@@ -69,48 +69,50 @@ export function Confirmation() {
     });
   }
 
-  // Persist policy to database on mount (only once when session is ready)
+  // Persist policy to database on mount — retry if session not ready yet
   useEffect(() => {
-    // Guard: only save once
     if (hasSaved.current) return;
 
-    // Guard: wait for session to be fully loaded
-    if (!session?.user?.id || !session?.user?.email) {
-      console.log('⏳ Waiting for session to load...');
-      return;
+    function attemptSave() {
+      if (hasSaved.current) return;
+      if (!session?.user?.id || !session?.user?.email) return false;
+
+      hasSaved.current = true;
+      api.user.policies
+        .create(
+          {
+            userId: session.user.id!,
+            businessName,
+            emirate,
+            typeId,
+            insurerId,
+            products: productIds,
+            limits,
+            total,
+            name,
+            email,
+            phone,
+            licenseNumber,
+            employees,
+          },
+          session.user.email!,
+        )
+        .then(() => console.log('✅ Policy saved successfully'))
+        .catch((err) => console.error('❌ Policy save failed:', err));
+      return true;
     }
 
-    // Mark as saved IMMEDIATELY to prevent any re-runs
-    hasSaved.current = true;
+    // Try immediately
+    if (attemptSave()) return;
 
-    console.log(
-      '💾 Persisting policy with email:',
-      session.user.email,
-    );
-    api.user.policies
-      .create(
-        {
-          userId: session.user.id!,
-          businessName,
-          emirate,
-          typeId,
-          insurerId,
-          products: productIds,
-          limits,
-          total,
-          name,
-          email,
-          phone,
-          licenseNumber,
-          employees,
-        },
-        session.user.email!,
-      )
-      .then(() => console.log('✅ Policy saved successfully'))
-      .catch((err) => {
-        console.error('❌ Policy save failed:', err);
-      });
-  }, []); // Empty array: run only once on mount
+    // Retry every 1s for up to 10s while session loads
+    const interval = setInterval(() => {
+      if (attemptSave()) clearInterval(interval);
+    }, 1000);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => { clearInterval(interval); clearTimeout(timeout); };
+  }, [session]); // Re-run when session changes
 
   const [downloadingCert, setDownloadingCert] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
