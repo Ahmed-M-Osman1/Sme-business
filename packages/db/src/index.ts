@@ -15,6 +15,9 @@ export type {Document, NewDocument} from './schema/documents';
 export {aiRecommendations} from './schema/ai-recommendations';
 export type {AiRecommendation, NewAiRecommendation} from './schema/ai-recommendations';
 
+export {aiFallbackLog, fallbackReasonEnum} from './schema/ai-fallback-log';
+export type {AiFallbackLog, NewAiFallbackLog} from './schema/ai-fallback-log';
+
 export {adminRoleEnum, adminUsers} from './schema/admin-users';
 export type {AdminUser, NewAdminUser} from './schema/admin-users';
 
