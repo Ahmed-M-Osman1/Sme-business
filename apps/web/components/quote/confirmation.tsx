@@ -150,11 +150,11 @@ export function Confirmation() {
   <title>Shory Invoice - ${policyNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 48px; max-width: 900px; margin: 0 auto; background: white; }
-    .header { display: flex; justify-content: space-between; margin-bottom: 48px; }
-    .logo { font-size: 28px; font-weight: 900; font-style: italic; color: #1D68FF; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 32px; max-width: 900px; margin: 0 auto; background: white; font-size: 12px; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 32px; }
+    .logo { font-size: 24px; font-weight: 900; font-style: italic; color: #1D68FF; }
     .invoice-info { text-align: right; }
-    .invoice-info h1 { font-size: 32px; color: #1a1a1a; margin-bottom: 8px; }
+    .invoice-info h1 { font-size: 26px; color: #1a1a1a; margin-bottom: 6px; }
     .invoice-info p { font-size: 13px; color: #666; margin: 4px 0; }
     .addresses { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
     .address-block h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; font-weight: 600; margin-bottom: 8px; }
@@ -175,7 +175,7 @@ export function Confirmation() {
     .total-row.final { font-size: 18px; font-weight: 700; color: #1D68FF; }
     .total-label { font-size: 14px; }
     .total-amount { text-align: right; font-weight: 600; }
-    .payment-section { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 40px; }
+    .payment-section { background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
     .payment-section h4 { font-size: 13px; font-weight: 600; text-transform: uppercase; color: #1a1a1a; margin-bottom: 12px; }
     .payment-section p { font-size: 13px; line-height: 1.6; color: #666; margin: 8px 0; }
     .footer { border-top: 1px solid #e5e7eb; padding-top: 20px; font-size: 11px; color: #999; text-align: center; }
@@ -224,7 +224,7 @@ export function Confirmation() {
       </tr>
     </thead>
     <tbody>
-      ${products.map((p) => `<tr><td class="product">${p.name}</td><td class="limit">AED ${p.limit}</td><td class="price">AED ${formatPrice(Math.round(monthlyPrice / products.length))}</td></tr>`).join('')}
+      ${products.map((p) => `<tr><td class="product">${p.name}</td><td class="limit">${p.limit === 'Add-on' ? 'Covered' : `AED ${p.limit}`}</td><td class="price">AED ${formatPrice(Math.round(monthlyPrice / products.length))}</td></tr>`).join('')}
     </tbody>
   </table>
 
@@ -397,7 +397,7 @@ export function Confirmation() {
         </tr>
       </thead>
       <tbody>
-        ${products.map((p) => `<tr><td>${p.name}</td><td>AED ${p.limit}</td></tr>`).join('')}
+        ${products.map((p) => `<tr><td>${p.name}</td><td>${p.limit === 'Add-on' ? 'Covered' : `AED ${p.limit}`}</td></tr>`).join('')}
       </tbody>
     </table>
   </div>
@@ -455,9 +455,20 @@ export function Confirmation() {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // If content fits one page, render it. Otherwise paginate.
+      if (imgHeight <= pdfPageHeight) {
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+      } else {
+        let yOffset = 0;
+        while (yOffset < imgHeight) {
+          if (yOffset > 0) pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, -yOffset, pdfWidth, imgHeight);
+          yOffset += pdfPageHeight;
+        }
+      }
       const prefix = isInvoice ? 'Shory-Invoice' : 'Shory-Policy';
       pdf.save(`${prefix}-${policyNumber}.pdf`);
     } finally {
