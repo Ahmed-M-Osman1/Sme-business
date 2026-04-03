@@ -259,9 +259,10 @@ export default function AiAdvisorPage() {
 
         setSelectedTagId(analysis.businessType);
         const translatedLabel = (t.businessType as Record<string, string>)[analysis.businessType] ?? analysis.label;
+        const confidenceNote = analysis.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
         addChatMessages({
           role: 'ai',
-          content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}`,
+          content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}${confidenceNote}`,
         });
 
         setIsProcessing(false);
@@ -598,7 +599,7 @@ function isHarmful(text: string): boolean {
 
 // --- Classification ---
 
-function analyzeInput(text: string, needMoreText: string): {response: string; businessType: string; label: string; needsMore?: boolean} {
+function analyzeInput(text: string, needMoreText: string): {response: string; businessType: string; label: string; needsMore?: boolean; lowConfidence?: boolean} {
   const lower = text.toLowerCase();
 
   const mappings: Array<{keywords: string[]; type: string; label: string}> = [
@@ -624,5 +625,5 @@ function analyzeInput(text: string, needMoreText: string): {response: string; bu
     return {businessType: match.type, label: match.label, response: ''};
   }
 
-  return {businessType: 'general-trading', label: 'General Trading', response: ''};
+  return {businessType: 'general-trading', label: 'General Trading', response: '', lowConfidence: true};
 }
