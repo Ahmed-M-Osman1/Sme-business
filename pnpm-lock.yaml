@@ -207,52 +207,6 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  packages/api:
-    dependencies:
-      '@anthropic-ai/sdk':
-        specifier: ^0.39
-        version: 0.39.0
-      '@hono/node-server':
-        specifier: ^1.19.12
-        version: 1.19.12(hono@4.12.9)
-      '@shory/db':
-        specifier: workspace:*
-        version: link:../db
-      '@shory/shared':
-        specifier: workspace:*
-        version: link:../shared
-      '@vercel/blob':
-        specifier: ^0.27
-        version: 0.27.3
-      '@vercel/node':
-        specifier: ^3.0.0
-        version: 3.2.29
-      drizzle-orm:
-        specifier: ^0.39
-        version: 0.39.3(postgres@3.4.8)
-      hono:
-        specifier: ^4
-        version: 4.12.9
-      zod:
-        specifier: ^3
-        version: 3.25.76
-    devDependencies:
-      '@shory/typescript-config':
-        specifier: workspace:*
-        version: link:../../tooling/typescript
-      '@types/node':
-        specifier: ^20
-        version: 20.19.37
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
-      tsx:
-        specifier: ^4
-        version: 4.21.0
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
   packages/db:
     dependencies:
       drizzle-orm:

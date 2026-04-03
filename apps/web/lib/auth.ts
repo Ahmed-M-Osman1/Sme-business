@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import {getWebApiBaseUrl} from './api-base-url';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -22,8 +23,10 @@ export const {handlers, signIn, signOut, auth} = (NextAuth as any)({
             return null;
           }
 
+          const apiBaseUrl = getWebApiBaseUrl();
+
           // Call the API to login (API-first pattern)
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/auth/login`, {
+          const response = await fetch(`${apiBaseUrl}/api/user/auth/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

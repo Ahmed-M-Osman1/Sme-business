@@ -3,6 +3,7 @@
 import {useState, useEffect, useRef} from 'react';
 import {useRouter} from 'next/navigation';
 import {useI18n} from '@/lib/i18n';
+import {getAdminApiBaseUrl} from '@/lib/api-base-url';
 
 interface Alert {
   id: string;
@@ -33,12 +34,13 @@ export function AlertTray({onClose, token}: AlertTrayProps) {
   const router = useRouter();
   const trayRef = useRef<HTMLDivElement>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const apiBaseUrl = getAdminApiBaseUrl();
 
   useEffect(() => {
     async function fetchAlerts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/alerts`,
+          `${apiBaseUrl}/api/admin/alerts`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
@@ -50,7 +52,7 @@ export function AlertTray({onClose, token}: AlertTrayProps) {
       }
     }
     fetchAlerts();
-  }, []);
+  }, [apiBaseUrl, token]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

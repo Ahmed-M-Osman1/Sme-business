@@ -1,9 +1,10 @@
 import {auth} from '@/lib/auth';
+import {getAdminApiBaseUrl} from '@/lib/api-base-url';
 import {Card, CardContent, CardHeader, CardTitle} from '@shory/ui';
 import {StatusBadge} from '@/components/quotes/status-badge';
 import {StatusActions} from '@/components/quotes/status-actions';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
+const API_URL = getAdminApiBaseUrl();
 
 interface QuoteDetailPageProps {
   params: Promise<{id: string}>;

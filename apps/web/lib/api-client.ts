@@ -6,8 +6,9 @@ import type {
   Recommendation,
 } from '@shory/shared';
 import type { Quote, QuoteResult, Policy, Document as ShoryDocument } from '@shory/db';
+import {getWebApiBaseUrl} from './api-base-url';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const API_URL = getWebApiBaseUrl();
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {

@@ -59,7 +59,7 @@ Required variables:
 | `AUTH_SECRET` | Auth.js secret (generate with `npx auth secret`) | `qJAJp...` |
 | `AUTH_URL` | Admin app URL | `http://localhost:3001` |
 | `NEXT_PUBLIC_ADMIN_URL` | Admin app URL (public) | `http://localhost:3001` |
-| `NEXT_PUBLIC_API_URL` | API URL | `http://localhost:3002` |
+| `NEXT_PUBLIC_API_URL` | Backend URL | `https://sme-business-backend.vercel.app` |
 | `ANTHROPIC_API_KEY` | Claude API key (for AI advisor) | `sk-ant-...` |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token (for file uploads) | `vercel_blob_...` |
 

@@ -1,7 +1,8 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import {getAdminApiBaseUrl} from './api-base-url';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002';
+const API_URL = getAdminApiBaseUrl();
 
 export const {handlers, signIn, signOut, auth} = NextAuth({
   providers: [

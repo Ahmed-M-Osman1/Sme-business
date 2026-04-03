@@ -2,9 +2,10 @@
 
 import {useState, useEffect, useCallback, useRef} from 'react';
 import {useI18n} from '@/lib/i18n';
+import {getWebApiBaseUrl} from '@/lib/api-base-url';
 import {NotificationPanel} from './notification-panel';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const API_URL = getWebApiBaseUrl();
 const POLL_INTERVAL = 30_000;
 const QUOTE_SESSION_KEY = 'shory-quote-id';
 

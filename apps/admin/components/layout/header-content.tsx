@@ -4,6 +4,7 @@ import {useState, useEffect, useRef} from 'react';
 import Link from 'next/link';
 import {signOut} from 'next-auth/react';
 import {useI18n} from '@/lib/i18n';
+import {getAdminApiBaseUrl} from '@/lib/api-base-url';
 import {StatusDot} from '@/components/shared/status-dot';
 import {AlertTray} from './alert-tray';
 
@@ -35,6 +36,7 @@ function getInitials(name: string | null | undefined): string {
 
 export function HeaderContent({session, token}: HeaderContentProps) {
   const {t} = useI18n();
+  const apiBaseUrl = getAdminApiBaseUrl();
   const [degradedCount, setDegradedCount] = useState(0);
   const [alertCounts, setAlertCounts] = useState<AlertSummary>({criticalCount: 0, highCount: 0});
   const [trayOpen, setTrayOpen] = useState(false);
@@ -47,7 +49,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
     async function fetchServiceStatus() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/platform/services`,
+          `${apiBaseUrl}/api/admin/platform/services`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
@@ -63,7 +65,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
       }
     }
     fetchServiceStatus();
-  }, [token]);
+  }, [apiBaseUrl, token]);
 
   useEffect(() => {
     if (!token) return;
@@ -71,7 +73,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
     async function fetchAlertCounts() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/admin/alerts`,
+          `${apiBaseUrl}/api/admin/alerts`,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         if (res.ok) {
@@ -86,7 +88,7 @@ export function HeaderContent({session, token}: HeaderContentProps) {
       }
     }
     fetchAlertCounts();
-  }, [token]);
+  }, [apiBaseUrl, token]);
 
   const totalAlertBadge = alertCounts.criticalCount + alertCounts.highCount;
   const isHealthy = degradedCount === 0;

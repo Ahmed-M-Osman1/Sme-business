@@ -9,11 +9,10 @@ SME insurance platform with a customer-facing quote journey and an internal admi
 See `.claude/commands/architecture.md` for full rules. Key points:
 
 - **Monorepo**: pnpm workspaces + Turborepo
-- **Apps**: `apps/web` (customer), `apps/admin` (internal)
-- **API**: `packages/api` (Hono REST API — the only layer that talks to DB, Claude, Blob)
+- **Apps**: `apps/web` (customer), `apps/admin` (internal), `apps/backend` (Hono REST API)
 - **Packages**: `@shory/db` (Drizzle + Neon Postgres), `@shory/ui` (shadcn), `@shory/shared` (Zod + types)
 - **Tooling**: shared ESLint, TypeScript, Tailwind configs in `tooling/`
-- **Deploy**: 3 Vercel projects (web, admin, api) — see system architecture spec
+- **Deploy**: 3 Vercel projects (web, admin, backend) — see system architecture spec
 
 ## Critical Rules
 
@@ -35,7 +34,7 @@ See `.claude/commands/architecture.md` for full rules. Key points:
 - **Responsive design is a must** — every page and component must work on mobile, tablet, and desktop. Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`) and test all breakpoints
 
 ### Data & API
-- **API-first**: All data access goes through the Hono API in `packages/api/`
+- **API-first**: All data access goes through the Hono API in `apps/backend/`
 - Next.js apps call the API via typed fetch wrappers in `lib/api-client.ts`
 - Drizzle ORM + Neon PostgreSQL — schema in `packages/db/src/schema/`
 - Zod validation in `@shory/shared` — reused in API + frontend forms

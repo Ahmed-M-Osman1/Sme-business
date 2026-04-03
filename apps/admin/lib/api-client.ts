@@ -7,8 +7,9 @@ import type {CreateSignalInput, UpdateSignalInput, UpdateTriggerInput} from '@sh
 import type {CustomerPlatformContext, PlaybookResult} from '@shory/shared';
 import type {Customer, Incident, PortfolioAlert, Action, CommsSequence, ApiService, ServiceHealthLog, Claim, CustomerInteraction} from '@shory/db';
 import type {ExternalSignal, MidtermTrigger, PeerBenchmark, BehaviourMetric, PlatformCorrelation} from '@shory/db';
+import {getAdminApiBaseUrl} from './api-base-url';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const API_URL = getAdminApiBaseUrl();
 
 async function fetchAdmin<T>(path: string, token: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {
