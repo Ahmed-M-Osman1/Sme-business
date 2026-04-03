@@ -30,95 +30,245 @@ import type {
 const NAVIGATION_DELAY_MS = 800;
 
 /** Peer data keyed by business type ID for guaranteed matching. */
-const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {name: string; pct: number; reason: string}[]}> = {
+const PEER_DATA: Record<
+  string,
+  {
+    insight: string;
+    riskStat: string;
+    extras: {name: string; pct: number; reason: string}[];
+  }
+> = {
   'cafe-restaurant': {
-    insight: 'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
-    riskStat: '1 in 4 UAE restaurants makes a liability claim within 3 years',
+    insight:
+      'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
+    riskStat:
+      '1 in 4 UAE restaurants makes a liability claim within 3 years',
     extras: [
-      {name: 'Business Interruption', pct: 81, reason: 'Fire or equipment failure can close a kitchen for weeks'},
-      {name: 'Food Contamination', pct: 67, reason: 'Required by DHA/food safety regulators in most emirates'},
-      {name: 'Cyber Liability', pct: 23, reason: 'POS data breaches are rising in hospitality'},
+      {
+        name: 'Business Interruption',
+        pct: 81,
+        reason:
+          'Fire or equipment failure can close a kitchen for weeks',
+      },
+      {
+        name: 'Food Contamination',
+        pct: 67,
+        reason:
+          'Required by DHA/food safety regulators in most emirates',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 23,
+        reason: 'POS data breaches are rising in hospitality',
+      },
     ],
   },
   'retail-trading': {
-    insight: 'Inventory theft and customer injury claims are the primary risks for UAE retail businesses.',
-    riskStat: '38% of retail businesses file a property claim within 5 years',
+    insight:
+      'Inventory theft and customer injury claims are the primary risks for UAE retail businesses.',
+    riskStat:
+      '38% of retail businesses file a property claim within 5 years',
     extras: [
-      {name: 'Business Interruption', pct: 74, reason: 'Supply chain disruption can halt operations'},
-      {name: 'Cyber Liability', pct: 45, reason: 'E-commerce data breaches increasing'},
-      {name: 'Stock Throughput', pct: 31, reason: 'Covers goods in transit and storage'},
+      {
+        name: 'Business Interruption',
+        pct: 74,
+        reason: 'Supply chain disruption can halt operations',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 45,
+        reason: 'E-commerce data breaches increasing',
+      },
+      {
+        name: 'Stock Throughput',
+        pct: 31,
+        reason: 'Covers goods in transit and storage',
+      },
     ],
   },
   'it-technology': {
-    insight: 'Data breaches and IP disputes are the fastest-growing claims for UAE tech firms.',
-    riskStat: '62% of UAE tech companies report at least one cyber incident per year',
+    insight:
+      'Data breaches and IP disputes are the fastest-growing claims for UAE tech firms.',
+    riskStat:
+      '62% of UAE tech companies report at least one cyber incident per year',
     extras: [
-      {name: 'Directors & Officers', pct: 55, reason: 'Essential as companies take on investors'},
-      {name: 'Cyber Liability', pct: 85, reason: 'Mandatory under new CBUAE directives'},
-      {name: 'Business Interruption', pct: 42, reason: 'Server downtime impacts revenue directly'},
+      {
+        name: 'Directors & Officers',
+        pct: 55,
+        reason: 'Essential as companies take on investors',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 85,
+        reason: 'Mandatory under new CBUAE directives',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 42,
+        reason: 'Server downtime impacts revenue directly',
+      },
     ],
   },
-  'healthcare': {
-    insight: 'Medical malpractice and workplace needlestick injuries drive 60% of healthcare claims.',
-    riskStat: '1 in 3 UAE clinics faces a malpractice claim within 5 years',
+  healthcare: {
+    insight:
+      'Medical malpractice and workplace needlestick injuries drive 60% of healthcare claims.',
+    riskStat:
+      '1 in 3 UAE clinics faces a malpractice claim within 5 years',
     extras: [
-      {name: 'Cyber Liability', pct: 61, reason: 'Patient data protection is legally required'},
-      {name: 'Business Interruption', pct: 38, reason: 'Equipment failure can shut down operations'},
-      {name: 'Directors & Officers', pct: 28, reason: 'Regulatory actions against clinic owners rising'},
+      {
+        name: 'Cyber Liability',
+        pct: 61,
+        reason: 'Patient data protection is legally required',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 38,
+        reason: 'Equipment failure can shut down operations',
+      },
+      {
+        name: 'Directors & Officers',
+        pct: 28,
+        reason: 'Regulatory actions against clinic owners rising',
+      },
     ],
   },
-  'construction': {
-    insight: 'Falls and equipment accidents account for 70% of construction worker injury claims in UAE.',
-    riskStat: 'Construction has the highest claim frequency of any UAE industry',
+  construction: {
+    insight:
+      'Falls and equipment accidents account for 70% of construction worker injury claims in UAE.',
+    riskStat:
+      'Construction has the highest claim frequency of any UAE industry',
     extras: [
-      {name: 'Business Interruption', pct: 45, reason: 'Project delays from accidents are costly'},
-      {name: 'Fleet Insurance', pct: 74, reason: 'Required for company vehicles on site'},
-      {name: 'Environmental Liability', pct: 22, reason: 'Pollution incidents carry heavy fines'},
+      {
+        name: 'Business Interruption',
+        pct: 45,
+        reason: 'Project delays from accidents are costly',
+      },
+      {
+        name: 'Fleet Insurance',
+        pct: 74,
+        reason: 'Required for company vehicles on site',
+      },
+      {
+        name: 'Environmental Liability',
+        pct: 22,
+        reason: 'Pollution incidents carry heavy fines',
+      },
     ],
   },
   'law-firm': {
-    insight: 'Client disputes and data breaches are the top risks for UAE legal practices.',
-    riskStat: '52% of law firms face a professional indemnity claim within 5 years',
+    insight:
+      'Client disputes and data breaches are the top risks for UAE legal practices.',
+    riskStat:
+      '52% of law firms face a professional indemnity claim within 5 years',
     extras: [
-      {name: 'Directors & Officers', pct: 58, reason: 'Partners face personal liability exposure'},
-      {name: 'Cyber Liability', pct: 62, reason: 'Client confidentiality breaches carry heavy penalties'},
-      {name: 'Business Interruption', pct: 30, reason: 'Key person absence can halt casework'},
+      {
+        name: 'Directors & Officers',
+        pct: 58,
+        reason: 'Partners face personal liability exposure',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 62,
+        reason:
+          'Client confidentiality breaches carry heavy penalties',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 30,
+        reason: 'Key person absence can halt casework',
+      },
     ],
   },
-  'consulting': {
-    insight: 'Client disputes over deliverables are the #1 claim trigger for UAE consulting firms.',
-    riskStat: '45% of consulting firms face a PI claim within 5 years',
+  consulting: {
+    insight:
+      'Client disputes over deliverables are the #1 claim trigger for UAE consulting firms.',
+    riskStat:
+      '45% of consulting firms face a PI claim within 5 years',
     extras: [
-      {name: 'Directors & Officers', pct: 52, reason: 'Partners need personal liability protection'},
-      {name: 'Cyber Liability', pct: 48, reason: 'Client data is a prime target'},
-      {name: 'Business Interruption', pct: 35, reason: 'Key person loss can halt engagements'},
+      {
+        name: 'Directors & Officers',
+        pct: 52,
+        reason: 'Partners need personal liability protection',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 48,
+        reason: 'Client data is a prime target',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 35,
+        reason: 'Key person loss can halt engagements',
+      },
     ],
   },
   'general-trading': {
-    insight: 'Import/export businesses face cargo damage and third-party liability as top claim drivers.',
-    riskStat: '41% of general trading companies file a property or cargo claim within 4 years',
+    insight:
+      'Import/export businesses face cargo damage and third-party liability as top claim drivers.',
+    riskStat:
+      '41% of general trading companies file a property or cargo claim within 4 years',
     extras: [
-      {name: 'Business Interruption', pct: 68, reason: 'Supply chain delays can halt revenue'},
-      {name: 'Stock Throughput', pct: 55, reason: 'Covers goods from warehouse to customer'},
-      {name: 'Cyber Liability', pct: 28, reason: 'Digital invoicing and payment fraud on the rise'},
+      {
+        name: 'Business Interruption',
+        pct: 68,
+        reason: 'Supply chain delays can halt revenue',
+      },
+      {
+        name: 'Stock Throughput',
+        pct: 55,
+        reason: 'Covers goods from warehouse to customer',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 28,
+        reason: 'Digital invoicing and payment fraud on the rise',
+      },
     ],
   },
-  'logistics': {
-    insight: 'Vehicle accidents and cargo damage account for 65% of logistics insurance claims in UAE.',
-    riskStat: 'Logistics has the second-highest claim frequency after construction',
+  logistics: {
+    insight:
+      'Vehicle accidents and cargo damage account for 65% of logistics insurance claims in UAE.',
+    riskStat:
+      'Logistics has the second-highest claim frequency after construction',
     extras: [
-      {name: 'Fleet Insurance', pct: 82, reason: 'Required for all commercial delivery vehicles'},
-      {name: 'Business Interruption', pct: 56, reason: 'Vehicle downtime directly impacts revenue'},
-      {name: 'Cargo Insurance', pct: 71, reason: 'Protects against goods damage in transit'},
+      {
+        name: 'Fleet Insurance',
+        pct: 82,
+        reason: 'Required for all commercial delivery vehicles',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 56,
+        reason: 'Vehicle downtime directly impacts revenue',
+      },
+      {
+        name: 'Cargo Insurance',
+        pct: 71,
+        reason: 'Protects against goods damage in transit',
+      },
     ],
   },
   'real-estate': {
-    insight: 'Property damage and tenant disputes are the primary claim triggers for UAE real estate firms.',
-    riskStat: '35% of real estate firms face a professional liability claim within 5 years',
+    insight:
+      'Property damage and tenant disputes are the primary claim triggers for UAE real estate firms.',
+    riskStat:
+      '35% of real estate firms face a professional liability claim within 5 years',
     extras: [
-      {name: 'Directors & Officers', pct: 45, reason: 'Developer liability exposure is increasing'},
-      {name: 'Cyber Liability', pct: 32, reason: 'Tenant data and payment processing at risk'},
-      {name: 'Business Interruption', pct: 40, reason: 'Project delays carry significant cost'},
+      {
+        name: 'Directors & Officers',
+        pct: 45,
+        reason: 'Developer liability exposure is increasing',
+      },
+      {
+        name: 'Cyber Liability',
+        pct: 32,
+        reason: 'Tenant data and payment processing at risk',
+      },
+      {
+        name: 'Business Interruption',
+        pct: 40,
+        reason: 'Project delays carry significant cost',
+      },
     ],
   },
 };
@@ -184,8 +334,17 @@ export function QuoteResults() {
   >(null);
   const [monthly, setMonthly] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
-  const [addedExtras, setAddedExtras] = useState<Set<string>>(new Set());
-  const extrasTotal = useMemo(() => Array.from(addedExtras).reduce((sum, name) => sum + (EXTRA_PRICES[name] ?? 300), 0), [addedExtras]);
+  const [addedExtras, setAddedExtras] = useState<Set<string>>(
+    new Set(),
+  );
+  const extrasTotal = useMemo(
+    () =>
+      Array.from(addedExtras).reduce(
+        (sum, name) => sum + (EXTRA_PRICES[name] ?? 300),
+        0,
+      ),
+    [addedExtras],
+  );
   const [detailExpanded, setDetailExpanded] = useState(true);
   const detailContentRef = useRef<HTMLDivElement>(null);
   const [detailHeight, setDetailHeight] = useState(0);
@@ -277,7 +436,7 @@ export function QuoteResults() {
     formatPriceWithCurrency(amount, t.common.currency, locale);
   const displayPrice = (annualAmount: number) =>
     monthly
-      ? `${formatMoney(Math.round(annualAmount * 1.08 / 12))}${t.common.perMonth}`
+      ? `${formatMoney(Math.round((annualAmount * 1.08) / 12))}${t.common.perMonth}`
       : `${formatMoney(annualAmount)}/${locale === 'ar' ? 'سنوياً' : 'yr'}`;
   const formatMonthlyTotal = (amount: number) =>
     `${formatMoney(calculateMonthlyPrice(amount))}${t.common.perMonth}`;
@@ -368,12 +527,26 @@ export function QuoteResults() {
   const activeProductIds = Array.from(activeProducts);
   const coverageType = activeProductIds
     .map(
-      (productId) => ((t.products as Record<string, {name: string; shortName: string}>)[productId]?.shortName) || (productsMap[productId]?.shortName ?? productId),
+      (productId) =>
+        (
+          t.products as Record<
+            string,
+            {name: string; shortName: string}
+          >
+        )[productId]?.shortName ||
+        (productsMap[productId]?.shortName ?? productId),
     )
     .join(' + ');
 
   const benefits = activeProductIds.map((productId) => ({
-    name: ((t.products as Record<string, {name: string; shortName: string}>)[productId]?.name) || (productsMap[productId]?.name ?? productId),
+    name:
+      (
+        t.products as Record<
+          string,
+          {name: string; shortName: string}
+        >
+      )[productId]?.name ||
+      (productsMap[productId]?.name ?? productId),
     included: true,
   }));
 
@@ -435,7 +608,8 @@ export function QuoteResults() {
     if (employeeBand !== '1') mandatory.add('workers-comp');
     if (emirate === 'Dubai' || emirate === 'Abu Dhabi') {
       // Health insurance mandatory in DXB/AUH if product exists
-      if (availableProductIds.includes('health')) mandatory.add('health');
+      if (availableProductIds.includes('health'))
+        mandatory.add('health');
     }
     return mandatory;
   }, [employeeBand, emirate, availableProductIds]);
@@ -585,7 +759,13 @@ export function QuoteResults() {
                 {t.results.title}
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                {(t.businessType as Record<string, string>)[
+                  businessType?.id ?? ''
+                ] || businessType?.title}{' '}
+                &middot;{' '}
+                {(t.options.emirates as Record<string, string>)[
+                  emirate
+                ] || emirate}
               </p>
             </div>
           </div>
@@ -624,23 +804,48 @@ export function QuoteResults() {
                 <button
                   type="button"
                   onClick={() => setDetailExpanded((p) => !p)}
-                  className="w-full flex items-center justify-between gap-3 px-5 py-4 text-start"
-                >
+                  className="w-full flex items-center justify-between gap-3 px-5 py-4 text-start">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-2xl shrink-0">{businessType?.icon}</span>
+                    <span className="text-2xl shrink-0">
+                      {businessType?.icon}
+                    </span>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-gray-900 truncate">
-                        {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title}
+                        {(t.businessType as Record<string, string>)[
+                          businessType?.id ?? ''
+                        ] || businessType?.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {(t.options.employeeBands as Record<string, string>)[employeeBand] || employeeBand} {t.results.employees} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                        {(
+                          t.options.employeeBands as Record<
+                            string,
+                            string
+                          >
+                        )[employeeBand] || employeeBand}{' '}
+                        {t.results.employees} &middot;{' '}
+                        {(
+                          t.options.emirates as Record<string, string>
+                        )[emirate] || emirate}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm font-bold text-primary">{displayPrice(resultsHeadingPrice)}</span>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`text-gray-400 transition-transform duration-300 ${detailExpanded ? 'rotate-180' : ''}`}>
-                      <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <span className="text-sm font-bold text-primary">
+                      {displayPrice(resultsHeadingPrice)}
+                    </span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      className={`text-gray-400 transition-transform duration-300 ${detailExpanded ? 'rotate-180' : ''}`}>
+                      <path
+                        d="M3.5 5.25L7 8.75L10.5 5.25"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -648,20 +853,44 @@ export function QuoteResults() {
                 {/* Expandable detail */}
                 <div
                   className="overflow-hidden transition-all duration-300 ease-in-out"
-                  style={{maxHeight: detailExpanded ? `${detailHeight + 20}px` : '0px', opacity: detailExpanded ? 1 : 0}}
-                >
-                  <div ref={detailContentRef} className="border-t border-gray-100 px-5 pb-5 pt-4">
+                  style={{
+                    maxHeight: detailExpanded
+                      ? `${detailHeight + 20}px`
+                      : '0px',
+                    opacity: detailExpanded ? 1 : 0,
+                  }}>
+                  <div
+                    ref={detailContentRef}
+                    className="border-t border-gray-100 px-5 pb-5 pt-4">
                     <p className="text-sm text-gray-500 mb-4">
-                      {(t.businessTypeDescriptions as Record<string, string>)[businessType?.id ?? ''] || businessType?.description}
+                      {(
+                        t.businessTypeDescriptions as Record<
+                          string,
+                          string
+                        >
+                      )[businessType?.id ?? ''] ||
+                        businessType?.description}
                     </p>
                     <div className="space-y-3 text-sm text-gray-600">
                       <SummaryRow
                         label={t.results.industry}
-                        value={((t.businessType as Record<string, string>)[businessType?.id ?? '']) || (businessType?.title ?? '-')}
+                        value={
+                          (t.businessType as Record<string, string>)[
+                            businessType?.id ?? ''
+                          ] ||
+                          (businessType?.title ?? '-')
+                        }
                       />
                       <SummaryRow
                         label={t.results.emirate}
-                        value={(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                        value={
+                          (
+                            t.options.emirates as Record<
+                              string,
+                              string
+                            >
+                          )[emirate] || emirate
+                        }
                       />
                       <SummaryRow
                         label={t.results.coverage}
@@ -696,7 +925,8 @@ export function QuoteResults() {
 
                     const isActive = activeProducts.has(productId);
 
-                    const isMandatory = mandatoryProducts.has(productId);
+                    const isMandatory =
+                      mandatoryProducts.has(productId);
                     return (
                       <button
                         key={productId}
@@ -715,7 +945,15 @@ export function QuoteResults() {
                         ) : (
                           <span>{product.icon}</span>
                         )}
-                        <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.shortName || product.shortName}</span>
+                        <span>
+                          {(
+                            t.products as Record<
+                              string,
+                              {name: string; shortName: string}
+                            >
+                          )[productId]?.shortName ||
+                            product.shortName}
+                        </span>
                         {isMandatory && (
                           <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-bold uppercase">
                             {locale === 'ar' ? 'مطلوب' : 'Required'}
@@ -726,7 +964,6 @@ export function QuoteResults() {
                   })}
                 </div>
               </div>
-
 
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
@@ -748,32 +985,46 @@ export function QuoteResults() {
                         ) : (
                           <span>{product.icon}</span>
                         )}
-                        <span>{(t.products as Record<string, {name: string; shortName: string}>)[productId]?.name || product.name}</span>
+                        <span>
+                          {(
+                            t.products as Record<
+                              string,
+                              {name: string; shortName: string}
+                            >
+                          )[productId]?.name || product.name}
+                        </span>
                       </div>
 
                       <div className="flex gap-1">
-                        {(['1M', '2M', '5M'] as const).map((limit) => {
-                          const isActive = (coverageLimits[productId] ?? '1M') === limit;
-                          return (
-                            <button
-                              key={limit}
-                              onClick={() => updateCoverageLimit(productId, limit)}
-                              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
-                                isActive
-                                  ? 'bg-primary text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                              }`}
-                            >
-                              {limit}
-                            </button>
-                          );
-                        })}
+                        {(['1M', '2M', '5M'] as const).map(
+                          (limit) => {
+                            const isActive =
+                              (coverageLimits[productId] ?? '1M') ===
+                              limit;
+                            return (
+                              <button
+                                key={limit}
+                                onClick={() =>
+                                  updateCoverageLimit(
+                                    productId,
+                                    limit,
+                                  )
+                                }
+                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                                  isActive
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}>
+                                {limit}
+                              </button>
+                            );
+                          },
+                        )}
                       </div>
                     </div>
                   );
                 })}
               </div>
-
             </div>
 
             <div className="flex flex-col gap-4">
@@ -840,14 +1091,12 @@ export function QuoteResults() {
                   <div className="flex items-center gap-0.5 rounded-lg bg-gray-100 p-0.5 shrink-0">
                     <button
                       onClick={() => setMonthly(false)}
-                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${!monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
-                    >
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${!monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}>
                       {locale === 'ar' ? 'سنوي' : 'Annual'}
                     </button>
                     <button
                       onClick={() => setMonthly(true)}
-                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
-                    >
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}>
                       {locale === 'ar' ? 'شهري' : 'Monthly'}
                     </button>
                   </div>
@@ -945,68 +1194,113 @@ export function QuoteResults() {
                   <div className="rounded-2xl border border-gray-200 overflow-hidden">
                     <button
                       onClick={() => setShowInsights((p) => !p)}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-start transition-colors ${showInsights ? 'bg-linear-to-r from-primary/10 to-primary/5' : 'bg-white hover:bg-gray-50'}`}
-                    >
+                      className={`w-full flex items-center justify-between px-4 py-3 text-start transition-colors ${showInsights ? 'bg-linear-to-r from-primary/10 to-primary/5' : 'bg-white hover:bg-gray-50'}`}>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-primary">{locale === 'ar' ? 'رؤى شوري الذكية' : 'Shory AI Insights'}</p>
+                        <p className="text-xs font-bold text-primary">
+                          {locale === 'ar'
+                            ? 'رؤى شوري الذكية'
+                            : 'Shory AI Insights'}
+                        </p>
                         {!showInsights && teaserExtra && (
                           <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                            {teaserExtra.pct}% {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses add'} {teaserExtra.name}
+                            {teaserExtra.pct}%{' '}
+                            {locale === 'ar'
+                              ? 'من الشركات المشابهة تضيف'
+                              : 'of similar businesses add'}{' '}
+                            {teaserExtra.name}
                           </p>
                         )}
                       </div>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`shrink-0 text-gray-400 transition-transform duration-300 ${showInsights ? 'rotate-180' : ''}`}>
-                        <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        className={`shrink-0 text-gray-400 transition-transform duration-300 ${showInsights ? 'rotate-180' : ''}`}>
+                        <path
+                          d="M3.5 5.25L7 8.75L10.5 5.25"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </button>
 
                     <div
                       className="overflow-hidden transition-all duration-300 ease-in-out"
-                      style={{maxHeight: showInsights ? '600px' : '0px', opacity: showInsights ? 1 : 0}}
-                    >
+                      style={{
+                        maxHeight: showInsights ? '600px' : '0px',
+                        opacity: showInsights ? 1 : 0,
+                      }}>
                       <div className="border-t border-gray-100 px-4 py-4 space-y-4">
                         <div className="rounded-xl bg-linear-to-r from-primary/10 to-primary/5 p-3">
-                          <p className="text-sm font-medium text-gray-900 italic">{peer.insight}</p>
-                          <p className="text-[11px] text-primary mt-1">{peer.riskStat}</p>
+                          <p className="text-sm font-medium text-gray-900 italic">
+                            {peer.insight}
+                          </p>
+                          <p className="text-[11px] text-primary mt-1">
+                            {peer.riskStat}
+                          </p>
                         </div>
 
                         <div>
                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                            {locale === 'ar' ? 'ما تضيفه الشركات المشابهة' : 'What similar businesses add'}
+                            {locale === 'ar'
+                              ? 'ما تضيفه الشركات المشابهة'
+                              : 'What similar businesses add'}
                           </p>
                           <div className="space-y-2.5">
                             {peer.extras.map((extra) => {
-                              const isAdded = addedExtras.has(extra.name);
+                              const isAdded = addedExtras.has(
+                                extra.name,
+                              );
                               return (
-                              <div key={extra.name} className={`rounded-xl border p-3 ${isAdded ? 'border-primary bg-primary/5' : extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
-                                <div className="flex items-center justify-between mb-1.5">
-                                  <span className="text-xs font-semibold text-gray-900">{extra.name}</span>
-                                  <span className="text-[10px] font-bold text-primary">{extra.pct}%</span>
+                                <div
+                                  key={extra.name}
+                                  className={`rounded-xl border p-3 ${isAdded ? 'border-primary bg-primary/5' : extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-xs font-semibold text-gray-900">
+                                      {extra.name}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-primary">
+                                      {extra.pct}%
+                                    </span>
+                                  </div>
+                                  <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
+                                    <div
+                                      className="h-full rounded-full bg-primary transition-all"
+                                      style={{width: `${extra.pct}%`}}
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-[11px] text-gray-500 flex-1">
+                                      {extra.reason}
+                                    </p>
+                                    <button
+                                      onClick={() =>
+                                        setAddedExtras((prev) => {
+                                          const next = new Set(prev);
+                                          if (next.has(extra.name))
+                                            next.delete(extra.name);
+                                          else next.add(extra.name);
+                                          return next;
+                                        })
+                                      }
+                                      className={`shrink-0 ms-2 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition-all ${
+                                        isAdded
+                                          ? 'bg-primary text-white'
+                                          : 'border border-primary text-primary hover:bg-primary/5'
+                                      }`}>
+                                      {isAdded
+                                        ? locale === 'ar'
+                                          ? '✓ مضاف'
+                                          : '✓ Added'
+                                        : locale === 'ar'
+                                          ? '+ إضافة'
+                                          : '+ Add'}
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
-                                  <div className="h-full rounded-full bg-primary transition-all" style={{width: `${extra.pct}%`}} />
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <p className="text-[11px] text-gray-500 flex-1">{extra.reason}</p>
-                                  <button
-                                    onClick={() => setAddedExtras((prev) => {
-                                      const next = new Set(prev);
-                                      if (next.has(extra.name)) next.delete(extra.name);
-                                      else next.add(extra.name);
-                                      return next;
-                                    })}
-                                    className={`shrink-0 ms-2 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition-all ${
-                                      isAdded
-                                        ? 'bg-primary text-white'
-                                        : 'border border-primary text-primary hover:bg-primary/5'
-                                    }`}
-                                  >
-                                    {isAdded
-                                      ? (locale === 'ar' ? '✓ مضاف' : '✓ Added')
-                                      : (locale === 'ar' ? '+ إضافة' : '+ Add')}
-                                  </button>
-                                </div>
-                              </div>
                               );
                             })}
                           </div>
@@ -1045,31 +1339,61 @@ export function QuoteResults() {
                     </Card>
                   ) : (
                     insurerQuotes.map((insurer, idx) => {
-                      const lowestPrice = Math.min(...insurerQuotes.map((q) => q.total));
+                      const lowestPrice = Math.min(
+                        ...insurerQuotes.map((q) => q.total),
+                      );
                       const isBest = insurer.total === lowestPrice;
-                      const categoryLabel = (t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title || '';
-                      const lines = activeProductIds.map((pid) => {
-                        const product = productsMap[pid];
-                        if (!product) return null;
-                        const limit = coverageLimits[pid] ?? '1M';
-                        const price = Math.round(calculateProductPrice(pid, businessType?.riskFactor ?? 1, sizeFactor, limit, productsMap) * insurer.priceMultiplier);
-                        const productT = (t.products as Record<string, {name: string; shortName: string}>)[pid];
-                        return {
-                          name: productT?.name || product.name,
-                          icon: product.icon,
-                          limit: `AED ${limit === '1M' ? '1,000,000' : limit === '2M' ? '2,000,000' : '5,000,000'}`,
-                          price,
-                          mandatory: mandatoryProducts.has(pid),
-                        };
-                      }).filter(Boolean) as {name: string; icon: string; limit: string; price: number; mandatory: boolean}[];
+                      const categoryLabel =
+                        (t.businessType as Record<string, string>)[
+                          businessType?.id ?? ''
+                        ] ||
+                        businessType?.title ||
+                        '';
+                      const lines = activeProductIds
+                        .map((pid) => {
+                          const product = productsMap[pid];
+                          if (!product) return null;
+                          const limit = coverageLimits[pid] ?? '1M';
+                          const price = Math.round(
+                            calculateProductPrice(
+                              pid,
+                              businessType?.riskFactor ?? 1,
+                              sizeFactor,
+                              limit,
+                              productsMap,
+                            ) * insurer.priceMultiplier,
+                          );
+                          const productT = (
+                            t.products as Record<
+                              string,
+                              {name: string; shortName: string}
+                            >
+                          )[pid];
+                          return {
+                            name: productT?.name || product.name,
+                            icon: product.icon,
+                            limit: `AED ${limit === '1M' ? '1,000,000' : limit === '2M' ? '2,000,000' : '5,000,000'}`,
+                            price,
+                            mandatory: mandatoryProducts.has(pid),
+                          };
+                        })
+                        .filter(Boolean) as {
+                        name: string;
+                        icon: string;
+                        limit: string;
+                        price: number;
+                        mandatory: boolean;
+                      }[];
                       // Append added extras as line items
-                      const extraLines = Array.from(addedExtras).map((extraName) => ({
-                        name: `+ ${extraName}`,
-                        icon: '🛡️',
-                        limit: 'Add-on',
-                        price: EXTRA_PRICES[extraName] ?? 300,
-                        mandatory: false,
-                      }));
+                      const extraLines = Array.from(addedExtras).map(
+                        (extraName) => ({
+                          name: `+ ${extraName}`,
+                          icon: '🛡️',
+                          limit: 'Add-on',
+                          price: EXTRA_PRICES[extraName] ?? 300,
+                          mandatory: false,
+                        }),
+                      );
                       const allLines = [...lines, ...extraLines];
                       const cardTotal = insurer.total + extrasTotal;
                       return (
@@ -1082,12 +1406,16 @@ export function QuoteResults() {
                           isBestPrice={isBest}
                           isRecommended={idx === 0}
                           businessCategory={categoryLabel}
-                          isSelected={insurer.id === selectedInsurerId}
+                          isSelected={
+                            insurer.id === selectedInsurerId
+                          }
                           monthly={monthly}
                           onSelect={() =>
                             handleSelectToggle(insurer.id)
                           }
-                          onBuy={() => handleNavigate(insurer.id, cardTotal)}
+                          onBuy={() =>
+                            handleNavigate(insurer.id, cardTotal)
+                          }
                         />
                       );
                     })
@@ -1100,37 +1428,55 @@ export function QuoteResults() {
               ) : (
                 <div className="flex flex-col gap-4">
                   {bundles.map((bundle) => {
-                    const eligibleInsurers = insurers.filter((ins) => bundle.eligibleInsurerIds.includes(ins.id));
+                    const eligibleInsurers = insurers.filter((ins) =>
+                      bundle.eligibleInsurerIds.includes(ins.id),
+                    );
                     const bundlePrices = eligibleInsurers.map((ins) =>
                       calculateTotalPremium(
-                        {productIds: bundle.productIds, riskFactor: businessType?.riskFactor ?? 1, sizeFactor, coverageLimits, insurerMultiplier: ins.priceMultiplier},
+                        {
+                          productIds: bundle.productIds,
+                          riskFactor: businessType?.riskFactor ?? 1,
+                          sizeFactor,
+                          coverageLimits,
+                          insurerMultiplier: ins.priceMultiplier,
+                        },
                         productsMap,
                       ),
                     );
-                    const lowestBundlePrice = bundlePrices.length > 0 ? Math.min(...bundlePrices) : bundle.annualPrice;
-                    const discountRate = bundle.benchmarkAnnualPrice > 0 ? 1 - (bundle.annualPrice / bundle.benchmarkAnnualPrice) : 0.1;
-                    const discountedPrice = Math.round(lowestBundlePrice * (1 - discountRate));
+                    const lowestBundlePrice =
+                      bundlePrices.length > 0
+                        ? Math.min(...bundlePrices)
+                        : bundle.annualPrice;
+                    const discountRate =
+                      bundle.benchmarkAnnualPrice > 0
+                        ? 1 -
+                          bundle.annualPrice /
+                            bundle.benchmarkAnnualPrice
+                        : 0.1;
+                    const discountedPrice = Math.round(
+                      lowestBundlePrice * (1 - discountRate),
+                    );
                     return (
-                    <BundleCard
-                      key={bundle.id}
-                      title={bundleCopy[bundle.copyKey].title}
-                      description={
-                        bundleCopy[bundle.copyKey].description
-                      }
-                      annualPrice={discountedPrice}
-                      savings={lowestBundlePrice - discountedPrice}
-                      chips={bundle.productIds.map((productId) => ({
-                        id: productId,
-                        shortName:
-                          productsMap[productId]?.shortName ??
-                          productId,
-                        icon: productsMap[productId]?.icon ?? '•',
-                      }))}
-                      ctaLabel={bundleCopy[bundle.copyKey].cta}
-                      badgeLabel={t.results.mostPopular}
-                      featured={bundle.featured}
-                      onSelect={() => handleBundleSelect(bundle)}
-                    />
+                      <BundleCard
+                        key={bundle.id}
+                        title={bundleCopy[bundle.copyKey].title}
+                        description={
+                          bundleCopy[bundle.copyKey].description
+                        }
+                        annualPrice={discountedPrice}
+                        savings={lowestBundlePrice - discountedPrice}
+                        chips={bundle.productIds.map((productId) => ({
+                          id: productId,
+                          shortName:
+                            productsMap[productId]?.shortName ??
+                            productId,
+                          icon: productsMap[productId]?.icon ?? '•',
+                        }))}
+                        ctaLabel={bundleCopy[bundle.copyKey].cta}
+                        badgeLabel={t.results.mostPopular}
+                        featured={bundle.featured}
+                        onSelect={() => handleBundleSelect(bundle)}
+                      />
                     );
                   })}
                 </div>
@@ -1140,51 +1486,57 @@ export function QuoteResults() {
         </div>
       </div>
 
-      {selectedQuote && (activeTab === 'individual' || selectedBundle) && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-lg">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50 p-0.5">
-                <img
-                  src={selectedQuote.logo}
-                  alt={selectedQuote.name}
-                  className="h-full w-full object-contain"
-                />
+      {selectedQuote &&
+        (activeTab === 'individual' || selectedBundle) && (
+          <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-lg">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50 p-0.5">
+                  <img
+                    src={selectedQuote.logo}
+                    alt={selectedQuote.name}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-900">
+                    {t.results.continueWith}{' '}
+                    {(t.insurers as Record<string, string>)[
+                      selectedQuote.id.toLowerCase()
+                    ] || selectedQuote.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {displayPrice(selectedQuote.total)} ·{' '}
+                    {t.results.finwallPrefix}{' '}
+                    <span className="font-semibold">
+                      {t.results.finwallBrand}
+                    </span>
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">
-                  {t.results.continueWith} {(t.insurers as Record<string, string>)[
-                    selectedQuote.id.toLowerCase()
-                  ] || selectedQuote.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {displayPrice(selectedQuote.total)} · {t.results.finwallPrefix} <span className="font-semibold">{t.results.finwallBrand}</span>
-                </p>
-              </div>
-            </div>
 
-            <Button
-              onClick={handleProceed}
-              className="shrink-0 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary/90">
-              {t.common.continue}
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                className="ms-1.5 inline rtl:rotate-180">
-                <path
-                  d="M6 3.333L10.667 8L6 12.667"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Button>
+              <Button
+                onClick={handleProceed}
+                className="shrink-0 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary/90">
+                {t.common.continue}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className="ms-1.5 inline rtl:rotate-180">
+                  <path
+                    d="M6 3.333L10.667 8L6 12.667"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }
