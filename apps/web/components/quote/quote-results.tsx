@@ -29,8 +29,9 @@ import type {
 
 const NAVIGATION_DELAY_MS = 800;
 
+/** Peer data keyed by business type ID for guaranteed matching. */
 const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {name: string; pct: number; reason: string}[]}> = {
-  'Food & Beverage': {
+  'cafe-restaurant': {
     insight: 'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
     riskStat: '1 in 4 UAE restaurants makes a liability claim within 3 years',
     extras: [
@@ -39,7 +40,7 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
       {name: 'Cyber Liability', pct: 23, reason: 'POS data breaches are rising in hospitality'},
     ],
   },
-  'Retail': {
+  'retail-trading': {
     insight: 'Inventory theft and customer injury claims are the primary risks for UAE retail businesses.',
     riskStat: '38% of retail businesses file a property claim within 5 years',
     extras: [
@@ -48,7 +49,7 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
       {name: 'Stock Throughput', pct: 31, reason: 'Covers goods in transit and storage'},
     ],
   },
-  'Technology': {
+  'it-technology': {
     insight: 'Data breaches and IP disputes are the fastest-growing claims for UAE tech firms.',
     riskStat: '62% of UAE tech companies report at least one cyber incident per year',
     extras: [
@@ -57,7 +58,7 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
       {name: 'Business Interruption', pct: 42, reason: 'Server downtime impacts revenue directly'},
     ],
   },
-  'Healthcare': {
+  'healthcare': {
     insight: 'Medical malpractice and workplace needlestick injuries drive 60% of healthcare claims.',
     riskStat: '1 in 3 UAE clinics faces a malpractice claim within 5 years',
     extras: [
@@ -66,7 +67,7 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
       {name: 'Directors & Officers', pct: 28, reason: 'Regulatory actions against clinic owners rising'},
     ],
   },
-  'Construction & Trades': {
+  'construction': {
     insight: 'Falls and equipment accidents account for 70% of construction worker injury claims in UAE.',
     riskStat: 'Construction has the highest claim frequency of any UAE industry',
     extras: [
@@ -75,13 +76,49 @@ const PEER_DATA: Record<string, {insight: string; riskStat: string; extras: {nam
       {name: 'Environmental Liability', pct: 22, reason: 'Pollution incidents carry heavy fines'},
     ],
   },
-  'Professional Services': {
-    insight: 'Client disputes over deliverables are the #1 claim trigger for UAE professional service firms.',
+  'law-firm': {
+    insight: 'Client disputes and data breaches are the top risks for UAE legal practices.',
+    riskStat: '52% of law firms face a professional indemnity claim within 5 years',
+    extras: [
+      {name: 'Directors & Officers', pct: 58, reason: 'Partners face personal liability exposure'},
+      {name: 'Cyber Liability', pct: 62, reason: 'Client confidentiality breaches carry heavy penalties'},
+      {name: 'Business Interruption', pct: 30, reason: 'Key person absence can halt casework'},
+    ],
+  },
+  'consulting': {
+    insight: 'Client disputes over deliverables are the #1 claim trigger for UAE consulting firms.',
     riskStat: '45% of consulting firms face a PI claim within 5 years',
     extras: [
       {name: 'Directors & Officers', pct: 52, reason: 'Partners need personal liability protection'},
       {name: 'Cyber Liability', pct: 48, reason: 'Client data is a prime target'},
       {name: 'Business Interruption', pct: 35, reason: 'Key person loss can halt engagements'},
+    ],
+  },
+  'general-trading': {
+    insight: 'Import/export businesses face cargo damage and third-party liability as top claim drivers.',
+    riskStat: '41% of general trading companies file a property or cargo claim within 4 years',
+    extras: [
+      {name: 'Business Interruption', pct: 68, reason: 'Supply chain delays can halt revenue'},
+      {name: 'Stock Throughput', pct: 55, reason: 'Covers goods from warehouse to customer'},
+      {name: 'Cyber Liability', pct: 28, reason: 'Digital invoicing and payment fraud on the rise'},
+    ],
+  },
+  'logistics': {
+    insight: 'Vehicle accidents and cargo damage account for 65% of logistics insurance claims in UAE.',
+    riskStat: 'Logistics has the second-highest claim frequency after construction',
+    extras: [
+      {name: 'Fleet Insurance', pct: 82, reason: 'Required for all commercial delivery vehicles'},
+      {name: 'Business Interruption', pct: 56, reason: 'Vehicle downtime directly impacts revenue'},
+      {name: 'Cargo Insurance', pct: 71, reason: 'Protects against goods damage in transit'},
+    ],
+  },
+  'real-estate': {
+    insight: 'Property damage and tenant disputes are the primary claim triggers for UAE real estate firms.',
+    riskStat: '35% of real estate firms face a professional liability claim within 5 years',
+    extras: [
+      {name: 'Directors & Officers', pct: 45, reason: 'Developer liability exposure is increasing'},
+      {name: 'Cyber Liability', pct: 32, reason: 'Tenant data and payment processing at risk'},
+      {name: 'Business Interruption', pct: 40, reason: 'Project delays carry significant cost'},
     ],
   },
 };
@@ -674,9 +711,7 @@ export function QuoteResults() {
 
               {/* Popular adds nudge */}
               {(() => {
-                const category = businessType?.title ?? '';
-                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
-                const peer = peerKey ? PEER_DATA[peerKey] : null;
+                const peer = PEER_DATA[typeId] ?? null;
                 const topMissing = peer?.extras.find((e) => !activeProducts.has(e.name.toLowerCase().replace(/\s+/g, '-')));
                 if (!topMissing) return null;
                 return (
@@ -916,9 +951,7 @@ export function QuoteResults() {
 
               {/* AI Insights panel */}
               {(() => {
-                const category = businessType?.title ?? '';
-                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
-                const peer = peerKey ? PEER_DATA[peerKey] : null;
+                const peer = PEER_DATA[typeId] ?? null;
                 const teaserExtra = peer?.extras[0];
 
                 if (!peer) return null;
