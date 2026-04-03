@@ -91,7 +91,7 @@ export function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [declared, setDeclared] = useState(false);
-  const [payMethod, setPayMethod] = useState<'card' | 'apple_pay' | 'bank_transfer' | 'finwall'>('card');
+  const [payMethod, setPayMethod] = useState<'card' | 'apple_pay' | 'bank_transfer' | 'finwall'>('apple_pay');
   const [finwallAgreed, setFinwallAgreed] = useState(false);
   const [cardForm, setCardForm] = useState({num: '', exp: '', cvv: '', name: ''});
   const monthlyAmount = Math.round(total * 1.08 / 12);
@@ -109,6 +109,15 @@ export function Checkout() {
       !UAE_PHONE_REGEX.test(form.phone.replace(/\s/g, ''))
     ) {
       newErrors.phone = t.checkout.invalidPhone;
+    }
+    if (payMethod === 'card') {
+      const digits = cardForm.num.replace(/\s/g, '');
+      if (digits.length < 15) newErrors.cardNum = locale === 'ar' ? 'رقم البطاقة غير صالح' : 'Invalid card number';
+      const expParts = cardForm.exp.split('/');
+      if (expParts.length !== 2 || !expParts[0] || !expParts[1]) {
+        newErrors.cardExp = locale === 'ar' ? 'تاريخ الانتهاء مطلوب' : 'Expiry date required';
+      }
+      if (cardForm.cvv.length < 3) newErrors.cardCvv = locale === 'ar' ? 'CVV مطلوب' : 'CVV required';
     }
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
@@ -465,44 +474,7 @@ export function Checkout() {
           <CardContent className="p-5 flex flex-col gap-3">
             <p className="text-sm font-bold text-text">{locale === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method'}</p>
 
-            {/* Card Payment */}
-            <button
-              type="button"
-              onClick={() => setPayMethod('card')}
-              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💳</span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-text">{locale === 'ar' ? 'بطاقة ائتمان' : 'Card Payment'}</p>
-                  <p className="text-[11px] text-text-muted">Visa · Mastercard · Amex · 3D Secure</p>
-                </div>
-              </div>
-              {payMethod === 'card' && (
-                <div className="mt-3 grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
-                  <input
-                    type="text" inputMode="numeric" placeholder="Card number"
-                    value={cardForm.num}
-                    onChange={(e) => setCardForm((p) => ({...p, num: e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()}))}
-                    className="col-span-2 rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary tracking-widest"
-                  />
-                  <input
-                    type="text" inputMode="numeric" placeholder="MM/YY"
-                    value={cardForm.exp}
-                    onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); setCardForm((p) => ({...p, exp: d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d})); }}
-                    className="rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <input
-                    type="text" inputMode="numeric" placeholder="CVV"
-                    value={cardForm.cvv}
-                    onChange={(e) => setCardForm((p) => ({...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 3)}))}
-                    className="rounded-lg border border-border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              )}
-            </button>
-
-            {/* Apple Pay */}
+            {/* 1. Apple Pay */}
             <button
               type="button"
               onClick={() => setPayMethod('apple_pay')}
@@ -517,7 +489,7 @@ export function Checkout() {
               </div>
             </button>
 
-            {/* Monthly Instalments (Finwall) */}
+            {/* 2. Monthly Instalments (Finwall) */}
             <button
               type="button"
               onClick={() => setPayMethod('finwall')}
@@ -545,7 +517,53 @@ export function Checkout() {
               )}
             </button>
 
-            {/* Bank Transfer */}
+            {/* 3. Card Payment */}
+            <button
+              type="button"
+              onClick={() => setPayMethod('card')}
+              className={`w-full text-start rounded-xl border-2 p-4 transition-all ${payMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">💳</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-text">{locale === 'ar' ? 'بطاقة ائتمان' : 'Card Payment'}</p>
+                  <p className="text-[11px] text-text-muted">Visa · Mastercard · Amex · 3D Secure</p>
+                </div>
+              </div>
+              {payMethod === 'card' && (
+                <div className="mt-3 grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="col-span-2">
+                    <input
+                      type="text" inputMode="numeric" placeholder={locale === 'ar' ? 'رقم البطاقة' : 'Card number'}
+                      value={cardForm.num}
+                      onChange={(e) => { setCardForm((p) => ({...p, num: e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()})); clearError('cardNum'); }}
+                      className={`w-full rounded-lg border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary tracking-widest ${errors.cardNum ? 'border-red-400' : 'border-border'}`}
+                    />
+                    {errors.cardNum && <p className="mt-1 text-[10px] text-red-500">{errors.cardNum}</p>}
+                  </div>
+                  <div>
+                    <input
+                      type="text" inputMode="numeric" placeholder="MM/YY"
+                      value={cardForm.exp}
+                      onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); setCardForm((p) => ({...p, exp: d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d})); clearError('cardExp'); }}
+                      className={`w-full rounded-lg border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary ${errors.cardExp ? 'border-red-400' : 'border-border'}`}
+                    />
+                    {errors.cardExp && <p className="mt-1 text-[10px] text-red-500">{errors.cardExp}</p>}
+                  </div>
+                  <div>
+                    <input
+                      type="text" inputMode="numeric" placeholder="CVV"
+                      value={cardForm.cvv}
+                      onChange={(e) => { setCardForm((p) => ({...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 3)})); clearError('cardCvv'); }}
+                      className={`w-full rounded-lg border px-3 py-2.5 text-sm bg-white text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary ${errors.cardCvv ? 'border-red-400' : 'border-border'}`}
+                    />
+                    {errors.cardCvv && <p className="mt-1 text-[10px] text-red-500">{errors.cardCvv}</p>}
+                  </div>
+                </div>
+              )}
+            </button>
+
+            {/* 4. Bank Transfer */}
             <button
               type="button"
               onClick={() => setPayMethod('bank_transfer')}
