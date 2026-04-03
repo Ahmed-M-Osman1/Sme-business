@@ -315,16 +315,20 @@ export function Checkout() {
                   {t.checkout.totalPremium}
                 </span>
                 <span className="font-bold text-primary text-xl">
-                  {formatPriceWithCurrency(
-                    calculateMonthlyPrice(total),
-                    t.common.currency,
-                    locale,
-                  )}
+                  {formatPriceWithCurrency(total, t.common.currency, locale)}
                   <span className="text-xs font-normal text-text-muted">
-                    {t.common.perMonth}
+                    {locale === 'ar' ? '/سنوياً' : '/yr'}
                   </span>
                 </span>
               </div>
+              <p className="text-xs text-text-muted">
+                {locale === 'ar' ? 'أو' : 'or'}{' '}
+                <span className="font-semibold text-text">
+                  {formatPriceWithCurrency(Math.round(total * 1.08 / 12), t.common.currency, locale)}
+                </span>
+                {t.common.perMonth}
+                <span className="text-[10px] text-text-muted ms-1">({locale === 'ar' ? 'رسوم أقساط 8%' : '8% instalment fee'})</span>
+              </p>
               <p className="text-xs text-text-muted">
                 {t.results.finwallPrefix}{' '}
                 <span className="font-semibold text-text">
