@@ -17,6 +17,8 @@ import {commsSequences} from './schema/comms-sequences';
 import {portfolioAlerts} from './schema/portfolio-alerts';
 import {claims} from './schema/claims';
 import {customerInteractions} from './schema/customer-interactions';
+import {quotes} from './schema/quotes';
+import {serviceHealthLogs} from './schema/service-health-logs';
 import {createHash} from 'node:crypto';
 
 function hashPassword(password: string): string {
@@ -1043,6 +1045,127 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log('Customer interactions seeded');
+
+  // --- Quotes ---
+  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+  const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  await db
+    .insert(quotes)
+    .values([
+      {
+        businessName: 'Blue Ocean Trading LLC',
+        emirate: 'Dubai',
+        industry: 'Retail',
+        businessType: 'retail-trading',
+        employeesCount: 15,
+        coverageType: 'workers-comp',
+        status: 'submitted',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        businessName: 'Falcon Tech Solutions',
+        emirate: 'Abu Dhabi',
+        industry: 'Technology',
+        businessType: 'it-technology',
+        employeesCount: 32,
+        coverageType: 'professional-indemnity',
+        status: 'quoted',
+        createdAt: yesterday,
+        updatedAt: yesterday,
+      },
+      {
+        businessName: 'Oasis Café & Bakery',
+        emirate: 'Sharjah',
+        industry: 'Food & Beverage',
+        businessType: 'cafe-restaurant',
+        employeesCount: 8,
+        coverageType: 'public-liability',
+        status: 'accepted',
+        createdAt: threeDaysAgo,
+        updatedAt: threeDaysAgo,
+      },
+      {
+        businessName: 'Summit Construction Co.',
+        emirate: 'Dubai',
+        industry: 'Construction',
+        businessType: 'construction',
+        employeesCount: 75,
+        coverageType: 'workers-comp',
+        status: 'draft',
+        createdAt: fiveDaysAgo,
+        updatedAt: fiveDaysAgo,
+      },
+      {
+        businessName: 'Greenfield Medical Centre',
+        emirate: 'Abu Dhabi',
+        industry: 'Healthcare',
+        businessType: 'healthcare',
+        employeesCount: 22,
+        coverageType: 'professional-indemnity',
+        status: 'quoted',
+        createdAt: oneWeekAgo,
+        updatedAt: oneWeekAgo,
+      },
+      {
+        businessName: 'Pearl Legal Consultants',
+        emirate: 'Dubai',
+        industry: 'Professional Services',
+        businessType: 'law-firm',
+        employeesCount: 6,
+        coverageType: 'professional-indemnity',
+        status: 'accepted',
+        createdAt: oneWeekAgo,
+        updatedAt: oneWeekAgo,
+      },
+      {
+        businessName: 'Gulf Star Logistics',
+        emirate: 'Ajman',
+        industry: 'Logistics',
+        businessType: 'logistics',
+        employeesCount: 40,
+        coverageType: 'fleet',
+        status: 'expired',
+        createdAt: twoWeeksAgo,
+        updatedAt: twoWeeksAgo,
+      },
+      {
+        businessName: 'Noor IT Consulting',
+        emirate: 'Dubai',
+        industry: 'Technology',
+        businessType: 'it-technology',
+        employeesCount: 5,
+        coverageType: 'professional-indemnity',
+        status: 'rejected',
+        createdAt: twoWeeksAgo,
+        updatedAt: twoWeeksAgo,
+      },
+    ])
+    .onConflictDoNothing();
+  console.log('Quotes seeded');
+
+  // --- Service Health Logs ---
+  const serviceIds = ['quote', 'policy', 'auth', 'payment', 'ocr', 'claude', 'db', 'orient-api'];
+  const healthLogValues: {serviceId: string; latency: number; errorRate: string; requests: number; recordedAt: Date}[] = [];
+
+  for (const sid of serviceIds) {
+    for (let h = 0; h < 24; h++) {
+      const recordedAt = new Date(now.getTime() - h * 60 * 60 * 1000);
+      const base = sid === 'db' ? 4 : sid === 'auth' ? 28 : sid === 'payment' ? 495 : sid === 'claude' ? 2100 : sid === 'ocr' ? 1840 : sid === 'orient-api' ? 1120 : 142;
+      const jitter = Math.floor(Math.random() * base * 0.3);
+      const latency = base + jitter - Math.floor(base * 0.15);
+      const baseError = sid === 'payment' ? 3.98 : sid === 'orient-api' ? 7.99 : sid === 'ocr' ? 2.25 : sid === 'db' ? 0 : 0.5;
+      const errorRate = (baseError + (Math.random() - 0.5) * baseError * 0.4).toFixed(2);
+      const requests = Math.floor(100 + Math.random() * 500);
+      healthLogValues.push({serviceId: sid, latency, errorRate, requests, recordedAt});
+    }
+  }
+
+  await db.insert(serviceHealthLogs).values(healthLogValues).onConflictDoNothing();
+  console.log('Service health logs seeded');
 
   console.log('\nSeed complete!');
   process.exit(0);

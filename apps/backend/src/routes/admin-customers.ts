@@ -12,6 +12,7 @@ import {
 import {eq, desc, count, and, or, ilike, sql} from 'drizzle-orm';
 import {createCustomerSchema, updateCustomerSchema} from '@shory/shared';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
+import {resolvePlaybook} from '../rules/playbooks.js';
 
 export const adminCustomersRouter = new Hono();
 
@@ -167,6 +168,22 @@ adminCustomersRouter.get('/:id/claims', async (c) => {
     .where(eq(claims.customerId, id))
     .orderBy(desc(claims.filedAt));
   return c.json(data);
+});
+
+// GET /customers/:id/playbook — AI playbook recommendation for this customer
+adminCustomersRouter.get('/:id/playbook', async (c) => {
+  const id = c.req.param('id');
+
+  const [customer] = await db
+    .select()
+    .from(customers)
+    .where(eq(customers.id, id));
+
+  if (!customer) {
+    return errorResponse(c, 'CUSTOMER_NOT_FOUND', `Customer ${id} not found`, 404);
+  }
+
+  return c.json(resolvePlaybook(customer));
 });
 
 // GET /customers/:id/platform-context — degraded services affecting this customer's insurer

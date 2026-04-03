@@ -3,6 +3,12 @@ import {adminApi} from '@/lib/api-client';
 import {SignalsTabs} from './signals-tabs';
 import type {ExternalSignal, MidtermTrigger, PeerBenchmark, CommsSequence} from '@shory/db';
 
+function unwrapData<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === 'object' && 'data' in res) return (res as {data: T[]}).data;
+  return [];
+}
+
 export default async function SignalsPage() {
   const session = await auth();
   const token = session?.user?.email ?? '';
@@ -19,10 +25,10 @@ export default async function SignalsPage() {
       adminApi.intelligence.benchmarks(token),
       adminApi.intelligence.scheduledComms(token),
     ]);
-    signals = signalsRes;
-    triggers = triggersRes;
-    benchmarks = benchmarksRes;
-    scheduledComms = commsRes;
+    signals = unwrapData<ExternalSignal>(signalsRes);
+    triggers = unwrapData<MidtermTrigger>(triggersRes);
+    benchmarks = unwrapData<PeerBenchmark>(benchmarksRes);
+    scheduledComms = unwrapData<CommsSequence>(commsRes);
   } catch {
     // API might not be running — show empty state
   }
