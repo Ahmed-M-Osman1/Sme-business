@@ -1,6 +1,6 @@
 import {Hono} from 'hono';
 import {db, customers} from '@shory/db';
-import {eq} from 'drizzle-orm';
+import {eq, sql} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {ZodError} from 'zod';
 import {z} from 'zod';
@@ -41,16 +41,13 @@ userAuthRouter.post('/register', async (c) => {
       .where(eq(customers.email, data.email));
 
     if (existing.length > 0) {
-      // Update password so user can login with what they just typed
+      // Update password via raw SQL to guarantee it writes
       const newHash = await hashPassword(data.password);
-      await db
-        .update(customers)
-        .set({passwordHash: newHash, updatedAt: new Date()} as any)
-        .where(eq(customers.email, data.email));
+      await db.execute(sql`UPDATE customers SET password_hash = ${newHash}, updated_at = NOW() WHERE email = ${data.email}`);
       return c.json({id: existing[0].id, email: existing[0].email, name: existing[0].name}, 200);
     }
 
-    const passwordHash = await hashPassword(data.password);
+    const pwHash = await hashPassword(data.password);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [user] = await db
@@ -58,11 +55,13 @@ userAuthRouter.post('/register', async (c) => {
       .values({
         email: data.email,
         name: data.name,
-        passwordHash,
         phone: data.phone,
         company: data.company ?? '',
       } as any)
       .returning();
+
+    // Set password via raw SQL to guarantee the column is written
+    await db.execute(sql`UPDATE customers SET password_hash = ${pwHash} WHERE id = ${user.id}::uuid`);
 
     return c.json(
       {
