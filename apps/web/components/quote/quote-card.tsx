@@ -21,6 +21,8 @@ interface QuoteCardProps {
   coverageType: string;
   benefits: {name: string; included: boolean}[];
   isBestPrice: boolean;
+  isRecommended?: boolean;
+  businessCategory?: string;
   isSelected?: boolean;
   onSelect: () => void;
   onProceed?: () => void;
@@ -31,6 +33,8 @@ export function QuoteCard({
   coverageType,
   benefits,
   isBestPrice,
+  isRecommended = false,
+  businessCategory,
   isSelected = false,
   onSelect,
 }: QuoteCardProps) {
@@ -74,9 +78,20 @@ export function QuoteCard({
       }`}
     >
       {/* Badges row */}
-      {(isBestPrice || insurer.shariahCompliant) && (
-        <div className="flex items-center gap-2 px-5 pt-4">
-          {isBestPrice && (
+      {(isBestPrice || isRecommended || insurer.shariahCompliant) && (
+        <div className="flex items-center gap-2 px-5 pt-4 flex-wrap">
+          {isRecommended && businessCategory && (
+            <Badge className="bg-primary text-white text-xs font-semibold gap-1 shadow-sm">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path
+                  d="M6 1L7.545 4.15L11 4.66L8.5 7.1L9.09 10.54L6 8.92L2.91 10.54L3.5 7.1L1 4.66L4.455 4.15L6 1Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Best for {businessCategory}
+            </Badge>
+          )}
+          {isBestPrice && !isRecommended && (
             <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-medium gap-1">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path

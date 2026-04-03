@@ -424,12 +424,14 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
                       AED
                     </span>
                     <input
-                      type="number"
-                      value={assetValues[asset.id] ?? ''}
+                      type="text"
+                      inputMode="numeric"
+                      value={assetValues[asset.id] ? Number(assetValues[asset.id]).toLocaleString('en-AE') : ''}
                       onChange={(e) => {
-                        const val = e.target.value;
-                        setAssetValues((prev) => ({...prev, [asset.id]: val}));
-                        if (val.trim() && !selectedAssets.has(asset.id)) {
+                        const raw = e.target.value.replace(/,/g, '');
+                        if (raw !== '' && !/^\d+$/.test(raw)) return;
+                        setAssetValues((prev) => ({...prev, [asset.id]: raw}));
+                        if (raw.trim() && !selectedAssets.has(asset.id)) {
                           setSelectedAssets((prev) => new Set(prev).add(asset.id));
                         }
                         setAssetErrors((prev) => {

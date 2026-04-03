@@ -573,6 +573,23 @@ export function Confirmation() {
               </div>
             </div>
 
+            {/* Value delivered */}
+            <div className="rounded-xl border border-primary/15 bg-primary/5 p-4">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-widest text-center mb-3">
+                {locale === 'ar' ? 'القيمة المقدمة' : 'Value delivered'}
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <p className="text-2xl font-black text-primary">14</p>
+                  <p className="text-xs text-gray-500">{locale === 'ar' ? 'أيام وفرتها' : 'Days saved vs brokers'}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-black text-primary">8-12</p>
+                  <p className="text-xs text-gray-500">{locale === 'ar' ? 'مكالمات تم تجنبها' : 'Calls avoided'}</p>
+                </div>
+              </div>
+            </div>
+
             {/* Policy holder */}
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
