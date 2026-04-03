@@ -248,37 +248,49 @@ export function QuoteCard({
             )}
 
             {/* Payment note */}
-            <p className="text-[11px] text-gray-500 mb-4">
+            <p className="text-[11px] text-gray-500">
               {t.results.finwallPrefix}{' '}
               <span className="font-semibold">{t.results.finwallBrand}</span>
             </p>
 
-            {/* Action buttons */}
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => { e.stopPropagation(); onSelect(); }}
-                className={`rounded-xl text-sm px-5 ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary border-2 border-primary'
-                    : 'border-gray-200 text-gray-700 hover:border-primary/40'
-                }`}
-              >
-                {isSelected ? t.results.selected : t.common.select}
-              </Button>
-              {onBuy && (
-                <Button
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); onBuy(); }}
-                  className="rounded-xl text-sm px-5 bg-primary text-white hover:bg-primary/90"
-                >
-                  {locale === 'ar' ? 'اختر واشتري' : 'Select & Buy'}
-                </Button>
-              )}
-            </div>
+            {/* Monthly price shown below annual in expanded view */}
+            {!monthly && (
+              <p className="text-xs text-gray-500 mt-2">
+                {locale === 'ar' ? 'أو' : 'or'}{' '}
+                <span className="font-semibold text-gray-700">
+                  {formatPriceWithCurrency(Math.round(insurer.total * 1.08 / 12), t.common.currency, locale)}
+                </span>
+                {t.common.perMonth}
+                <span className="text-[10px] text-gray-400 ms-1">({locale === 'ar' ? 'رسوم أقساط 8%' : '8% instalment fee'})</span>
+              </p>
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Action buttons — always visible outside expandable section */}
+      <div className="flex items-center justify-end gap-2 px-5 pb-4">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onSelect}
+          className={`rounded-xl text-sm px-5 ${
+            isSelected
+              ? 'bg-primary/10 text-primary border-2 border-primary'
+              : 'border-gray-200 text-gray-700 hover:border-primary/40'
+          }`}
+        >
+          {isSelected ? t.results.selected : t.common.select}
+        </Button>
+        {onBuy && (
+          <Button
+            size="sm"
+            onClick={onBuy}
+            className="rounded-xl text-sm px-5 bg-primary text-white hover:bg-primary/90"
+          >
+            {locale === 'ar' ? 'اختر واشتري' : 'Select & Buy'}
+          </Button>
+        )}
       </div>
     </div>
   );
