@@ -9,9 +9,14 @@ const allowedOrigins = [
   'https://sme-business-backend.vercel.app',
 ];
 
+function isAllowedOrigin(origin: string): boolean {
+  if (allowedOrigins.includes(origin)) return true;
+  // Allow Vercel preview deployments for this project
+  return /^https:\/\/sme-business-[a-z0-9]+-akiid777s-projects\.vercel\.app$/.test(origin);
+}
+
 export const corsMiddleware = cors({
-  origin: (origin) =>
-    allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+  origin: (origin) => (isAllowedOrigin(origin) ? origin : allowedOrigins[0]),
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'PUT'],
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   exposeHeaders: ['Content-Length'],
