@@ -47,25 +47,25 @@ export function SignalsTabs({signals, triggers, benchmarks, scheduledComms}: Sig
         <KpiCard
           label={t.signals.activeSignals}
           value={activeSignalCount}
-          icon="\uD83D\uDCE1"
+          icon="📡"
           color="text-teal-600"
         />
         <KpiCard
           label={t.signals.pendingTriggers}
           value={pendingTriggerCount}
-          icon="\uD83D\uDD14"
+          icon="🔔"
           color="text-amber-600"
         />
         <KpiCard
           label={t.signals.revenuePipeline}
           value={`${t.common.aed} ${revenuePipeline.toLocaleString()}`}
-          icon="\uD83D\uDCB0"
+          icon="💰"
           color="text-violet-600"
         />
         <KpiCard
           label={t.signals.commsAwaitingApproval}
           value={commsAwaitingCount}
-          icon="\uD83D\uDCE8"
+          icon="📨"
           color="text-indigo-600"
         />
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {useI18n} from '@/lib/i18n';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {Tag} from '@/components/shared/tag';
@@ -28,6 +29,7 @@ const SEVERITY_VARIANT: Record<SignalSeverity, 'success' | 'warning' | 'danger'>
 
 export function ExternalSignals({signals}: ExternalSignalsProps) {
   const {t} = useI18n();
+  const router = useRouter();
   const [sentSignals, setSentSignals] = useState<Set<string>>(new Set());
   const [approvedSignals, setApprovedSignals] = useState<Set<string>>(new Set());
 
@@ -148,9 +150,10 @@ export function ExternalSignals({signals}: ExternalSignalsProps) {
                     <button
                       key={customerId}
                       type="button"
+                      onClick={() => router.push(`/customers?id=${customerId}`)}
                       className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:border-slate-300"
                     >
-                      {customerId}
+                      {customerId.slice(0, 8)}...
                     </button>
                   ))}
                 </div>

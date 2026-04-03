@@ -1,5 +1,6 @@
 'use client';
 
+import {useRouter} from 'next/navigation';
 import type {ApiService, BehaviourMetric, Incident, PlatformCorrelation} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {KpiCard} from '@/components/shared/kpi-card';
@@ -21,6 +22,7 @@ function severityVariant(severity: string): 'danger' | 'warning' | 'info' | 'suc
 
 export function PlatformOverview({services, incidents, correlations, behaviour}: PlatformOverviewProps) {
   const {t} = useI18n();
+  const router = useRouter();
 
   const activeIncidents = incidents.filter((i) => i.status === 'active');
   const degradedApis = services.filter((s) => s.status === 'degraded' || s.status === 'down');
@@ -116,6 +118,7 @@ export function PlatformOverview({services, incidents, correlations, behaviour}:
                 </div>
                 <button
                   type="button"
+                  onClick={() => router.push('/platform')}
                   className="mt-3 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
                 >
                   {correlation.actionLabel || t.platform.correlationAction}

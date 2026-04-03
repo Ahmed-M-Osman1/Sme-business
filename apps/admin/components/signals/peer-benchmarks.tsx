@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {useI18n} from '@/lib/i18n';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {Tag} from '@/components/shared/tag';
@@ -12,6 +13,7 @@ interface PeerBenchmarksProps {
 
 export function PeerBenchmarks({benchmarks}: PeerBenchmarksProps) {
   const {t} = useI18n();
+  const router = useRouter();
   const [sentBenchmarks, setSentBenchmarks] = useState<Set<string>>(new Set());
 
   function handleSendInsight(benchmarkId: string) {
@@ -117,9 +119,10 @@ export function PeerBenchmarks({benchmarks}: PeerBenchmarksProps) {
                     <button
                       key={customerId}
                       type="button"
+                      onClick={() => router.push(`/customers?id=${customerId}`)}
                       className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:border-slate-300"
                     >
-                      {customerId}
+                      {customerId.slice(0, 8)}...
                     </button>
                   ))}
                 </div>

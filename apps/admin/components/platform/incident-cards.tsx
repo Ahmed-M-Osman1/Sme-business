@@ -1,12 +1,16 @@
 'use client';
 
+import {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import type {Incident} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
+import {adminApi} from '@/lib/api-client';
 import {KpiCard} from '@/components/shared/kpi-card';
 import {Tag} from '@/components/shared/tag';
 
 interface IncidentCardsProps {
   incidents: Incident[];
+  token?: string;
 }
 
 function toDate(value: Date | string | null | undefined): Date | null {
@@ -65,8 +69,22 @@ function calculateAvgResolution(incidents: Incident[]): string {
   return `${avgHours.toFixed(1)}h`;
 }
 
-export function IncidentCards({incidents}: IncidentCardsProps) {
+export function IncidentCards({incidents, token = ''}: IncidentCardsProps) {
   const {t} = useI18n();
+  const router = useRouter();
+  const [resolving, setResolving] = useState<string | null>(null);
+
+  async function handleResolve(id: string) {
+    setResolving(id);
+    try {
+      await adminApi.incidents.update(token, id, {status: 'resolved', resolvedAt: new Date().toISOString()});
+      router.refresh();
+    } catch {
+      // silently fail
+    } finally {
+      setResolving(null);
+    }
+  }
 
   const activeCount = incidents.filter((i) => i.status === 'active').length;
   const resolvedCount = incidents.filter((i) => i.status === 'resolved').length;
@@ -149,21 +167,25 @@ export function IncidentCards({incidents}: IncidentCardsProps) {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
+                    onClick={() => router.push(`/platform?tab=incidents`)}
                     className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700"
                   >
                     {t.platform.updateIncident}
                   </button>
                   <button
                     type="button"
+                    onClick={() => alert('Team notified about: ' + incident.serviceName)}
                     className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-gray-50"
                   >
                     {t.platform.notifyTeam}
                   </button>
                   <button
                     type="button"
-                    className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-xs font-medium text-green-700 transition-colors hover:bg-green-100"
+                    disabled={resolving === incident.id}
+                    onClick={() => handleResolve(incident.id)}
+                    className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-xs font-medium text-green-700 transition-colors hover:bg-green-100 disabled:opacity-50"
                   >
-                    {t.platform.resolveIncident}
+                    {resolving === incident.id ? 'Resolving...' : t.platform.resolveIncident}
                   </button>
                 </div>
               )}

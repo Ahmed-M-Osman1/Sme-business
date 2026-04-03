@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import {db, webUsers} from '@shory/db';
+import {db, customers} from '@shory/db';
 import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {ZodError} from 'zod';
@@ -37,8 +37,8 @@ userAuthRouter.post('/register', async (c) => {
     // Check if email already exists
     const existing = await db
       .select()
-      .from(webUsers)
-      .where(eq(webUsers.email, data.email));
+      .from(customers)
+      .where(eq(customers.email, data.email));
 
     if (existing.length > 0) {
       return errorResponse(c, 'EMAIL_EXISTS', 'Email already registered', 409);
@@ -48,13 +48,13 @@ userAuthRouter.post('/register', async (c) => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [user] = await db
-      .insert(webUsers)
+      .insert(customers)
       .values({
         email: data.email,
         name: data.name,
         passwordHash,
         phone: data.phone,
-        company: data.company,
+        company: data.company ?? '',
       } as any)
       .returning();
 
@@ -80,10 +80,10 @@ userAuthRouter.post('/login', async (c) => {
 
     const [user] = await db
       .select()
-      .from(webUsers)
-      .where(eq(webUsers.email, data.email));
+      .from(customers)
+      .where(eq(customers.email, data.email));
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       return errorResponse(c, 'INVALID_CREDENTIALS', 'Invalid email or password', 401);
     }
 

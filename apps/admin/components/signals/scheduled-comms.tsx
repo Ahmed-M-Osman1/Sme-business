@@ -9,8 +9,8 @@ interface ScheduledCommsProps {
 }
 
 const CHANNEL_ICON: Record<string, string> = {
-  email: '\u2709\uFE0F',
-  whatsapp: '\uD83D\uDCAC',
+  email: '✉️',
+  whatsapp: '💬',
 };
 
 export function ScheduledComms({comms}: ScheduledCommsProps) {
@@ -49,7 +49,7 @@ export function ScheduledComms({comms}: ScheduledCommsProps) {
           const isLast = idx === comms.length - 1;
           const statusLabel = comm.isSent ? t.signals.commsSent : t.common.pending;
           const statusVariant = comm.isSent ? 'success' : 'warning';
-          const icon = CHANNEL_ICON[comm.channel] ?? '\uD83D\uDCE8';
+          const icon = CHANNEL_ICON[comm.channel] ?? '📨';
 
           return (
             <div

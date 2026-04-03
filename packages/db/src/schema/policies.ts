@@ -1,7 +1,7 @@
 import {pgTable, text, uuid, timestamp, date, pgEnum, jsonb} from 'drizzle-orm/pg-core';
 import {quotes} from './quotes';
 import {quoteResults} from './quote-results';
-import {webUsers} from './web-users';
+import {customers} from './customers';
 
 export const policyStatusEnum = pgEnum('policy_status', ['active', 'cancelled', 'expired']);
 
@@ -13,7 +13,7 @@ export const policies = pgTable('policies', {
   resultId: uuid('result_id')
     .notNull()
     .references(() => quoteResults.id),
-  userId: uuid('user_id').references(() => webUsers.id),
+  userId: uuid('user_id').references(() => customers.id),
   policyNumber: text('policy_number').notNull().unique(),
   status: policyStatusEnum('status').default('active').notNull(),
   startDate: date('start_date').notNull(),

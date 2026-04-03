@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {useI18n} from '@/lib/i18n';
 import {AiBadge} from '@/components/shared/ai-badge';
 import {Tag} from '@/components/shared/tag';
@@ -28,6 +29,7 @@ const STATUS_LABEL_KEY: Record<TriggerStatus, string> = {
 
 export function MidtermTriggers({triggers}: MidtermTriggersProps) {
   const {t} = useI18n();
+  const router = useRouter();
   const [sentTriggers, setSentTriggers] = useState<Set<string>>(new Set());
 
   function handleSendAdvisory(triggerId: string) {
@@ -89,9 +91,10 @@ export function MidtermTriggers({triggers}: MidtermTriggersProps) {
               <div className="mb-4">
                 <button
                   type="button"
+                  onClick={() => router.push(`/customers?id=${trigger.customerId}`)}
                   className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:border-slate-300"
                 >
-                  {trigger.customerId}
+                  {trigger.customerId.slice(0, 8)}...
                 </button>
               </div>
 

@@ -1,8 +1,5 @@
 export {db} from './client';
 
-export {webUsers} from './schema/web-users';
-export type {WebUser, NewWebUser} from './schema/web-users';
-
 export {quoteStatusEnum, quotes} from './schema/quotes';
 export type {Quote, NewQuote} from './schema/quotes';
 

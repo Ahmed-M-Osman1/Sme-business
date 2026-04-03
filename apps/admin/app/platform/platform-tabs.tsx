@@ -16,6 +16,7 @@ interface PlatformTabsProps {
   behaviour: DBBehaviourMetric[];
   correlations: PlatformCorrelation[];
   incidents: DBIncident[];
+  token?: string;
 }
 
 type TabKey = 'overview' | 'apiHealth' | 'userBehaviour' | 'aiCorrelations' | 'incidents';
@@ -28,6 +29,7 @@ export function PlatformTabs({
   behaviour,
   correlations,
   incidents,
+  token = '',
 }: PlatformTabsProps) {
   const {t} = useI18n();
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -92,7 +94,7 @@ export function PlatformTabs({
         <CorrelationCards correlations={correlations} />
       )}
       {activeTab === 'incidents' && (
-        <IncidentCards incidents={incidents} />
+        <IncidentCards incidents={incidents} token={token} />
       )}
     </div>
   );

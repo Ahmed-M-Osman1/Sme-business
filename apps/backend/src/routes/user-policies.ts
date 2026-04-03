@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import {db, quotes, quoteResults, policies, webUsers, type WebUser} from '@shory/db';
+import {db, quotes, quoteResults, policies, customers, type Customer} from '@shory/db';
 import {eq, and, count, sum} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {webUserAuth} from '../middleware/auth.js';
@@ -23,7 +23,7 @@ const createPolicySchema = z.object({
 });
 
 type Variables = {
-  webUser: WebUser;
+  webUser: Customer;
 };
 
 export const userPoliciesRouter = new Hono<{Variables: Variables}>();
@@ -36,7 +36,7 @@ userPoliciesRouter.post('/policies', async (c) => {
   try {
     const body = await c.req.json();
     const data = createPolicySchema.parse(body);
-    const webUser = c.get('webUser') as WebUser;
+    const webUser = c.get('webUser') as Customer;
 
     // Verify the userId in the payload matches the authenticated user
     if (data.userId !== webUser.id) {
@@ -107,7 +107,7 @@ userPoliciesRouter.post('/policies', async (c) => {
 
 // GET /user/policies — list user's policies
 userPoliciesRouter.get('/policies', async (c) => {
-  const webUser = c.get('webUser') as WebUser;
+  const webUser = c.get('webUser') as Customer;
 
   const userPolicies = await db
     .select({
@@ -133,7 +133,7 @@ userPoliciesRouter.get('/policies', async (c) => {
 
 // GET /user/policies/:id — single policy detail
 userPoliciesRouter.get('/policies/:id', async (c) => {
-  const webUser = c.get('webUser') as WebUser;
+  const webUser = c.get('webUser') as Customer;
   const policyId = c.req.param('id');
 
   const [userPolicy] = await db
@@ -163,14 +163,14 @@ userPoliciesRouter.get('/policies/:id', async (c) => {
 
 // GET /user/profile
 userPoliciesRouter.get('/profile', async (c) => {
-  const webUser = c.get('webUser') as WebUser;
+  const webUser = c.get('webUser') as Customer;
   return c.json({id: webUser.id, name: webUser.name, email: webUser.email, phone: webUser.phone ?? null});
 });
 
 // PATCH /user/profile
 userPoliciesRouter.patch('/profile', async (c) => {
   try {
-    const webUser = c.get('webUser') as WebUser;
+    const webUser = c.get('webUser') as Customer;
     const body = await c.req.json();
     const schema = z.object({
       name: z.string().min(2).optional(),
@@ -179,9 +179,9 @@ userPoliciesRouter.patch('/profile', async (c) => {
     const data = schema.parse(body);
 
     const [updated] = await db
-      .update(webUsers)
+      .update(customers)
       .set({...data, updatedAt: new Date()} as any)
-      .where(eq(webUsers.id, webUser.id))
+      .where(eq(customers.id, webUser.id))
       .returning();
 
     return c.json({id: updated.id, name: updated.name, email: updated.email, phone: updated.phone ?? null});
@@ -193,7 +193,7 @@ userPoliciesRouter.patch('/profile', async (c) => {
 
 // GET /user/stats — dashboard stats
 userPoliciesRouter.get('/stats', async (c) => {
-  const webUser = c.get('webUser') as WebUser;
+  const webUser = c.get('webUser') as Customer;
 
   const activePoliciesResult = await db
     .select({count: count()})

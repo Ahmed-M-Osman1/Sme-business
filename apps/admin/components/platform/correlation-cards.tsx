@@ -1,5 +1,6 @@
 'use client';
 
+import {useRouter} from 'next/navigation';
 import type {PlatformCorrelation} from '@shory/db';
 import {useI18n} from '@/lib/i18n';
 import {AiBadge} from '@/components/shared/ai-badge';
@@ -17,6 +18,7 @@ function severityVariant(severity: string): 'danger' | 'warning' | 'info' {
 
 export function CorrelationCards({correlations}: CorrelationCardsProps) {
   const {t} = useI18n();
+  const router = useRouter();
 
   const active = correlations.filter((c) => c.isActive);
 
@@ -106,12 +108,14 @@ export function CorrelationCards({correlations}: CorrelationCardsProps) {
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
+              onClick={() => router.push('/platform')}
               className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700"
             >
               {correlation.actionLabel || t.platform.correlationAction}
             </button>
             <button
               type="button"
+              onClick={() => router.push('/platform')}
               className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-gray-50"
             >
               {t.platform.viewHistory}

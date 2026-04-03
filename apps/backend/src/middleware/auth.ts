@@ -1,5 +1,5 @@
 import type {Context, Next} from 'hono';
-import {db, adminUsers, webUsers} from '@shory/db';
+import {db, adminUsers, customers} from '@shory/db';
 import {eq} from 'drizzle-orm';
 import {errorResponse} from './error-handler.js';
 
@@ -30,8 +30,8 @@ export async function webUserAuth(c: Context, next: Next) {
 
   const token = authHeader.slice(7);
 
-  // MVP: token is the web user's email. Production: validate Auth.js session token.
-  const [user] = await db.select().from(webUsers).where(eq(webUsers.email, token));
+  // MVP: token is the customer's email. Production: validate Auth.js session token.
+  const [user] = await db.select().from(customers).where(eq(customers.email, token));
 
   if (!user) {
     return errorResponse(c, 'UNAUTHORIZED', 'Invalid credentials', 401);

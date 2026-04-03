@@ -46,6 +46,7 @@ export default async function PlatformPage() {
         behaviour={behaviour}
         correlations={correlations}
         incidents={incidents}
+        token={token}
       />
     </div>
   );
