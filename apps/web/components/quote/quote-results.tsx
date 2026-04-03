@@ -727,23 +727,6 @@ export function QuoteResults() {
                 </div>
               </div>
 
-              {/* Popular adds nudge */}
-              {(() => {
-                const peer = PEER_DATA[typeId] ?? null;
-                const topMissing = peer?.extras.find((e) => !activeProducts.has(e.name.toLowerCase().replace(/\s+/g, '-')));
-                if (!topMissing) return null;
-                return (
-                  <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5">
-                    <span className="text-base shrink-0">💡</span>
-                    <p className="text-xs text-amber-800">
-                      <span className="font-bold">{topMissing.pct}%</span>{' '}
-                      {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses also add'}{' '}
-                      <span className="font-semibold">{topMissing.name}</span>
-                    </p>
-                  </div>
-                );
-              })()}
-
               {/* Coverage gap warning */}
               {!activeProducts.has('workers-comp') && employeeBand !== '1' && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
