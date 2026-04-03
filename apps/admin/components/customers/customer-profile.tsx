@@ -259,6 +259,7 @@ function SnapshotRow({label, value}: {label: string; value: string}) {
 
 function PoliciesTab({customer}: {customer: Customer}) {
   const {t} = useI18n();
+  const [viewingProduct, setViewingProduct] = useState<string | null>(null);
 
   if (customer.products.length === 0) {
     return (
@@ -280,10 +281,61 @@ function PoliciesTab({customer}: {customer: Customer}) {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">{t.customers.viewPolicy}</Button>
-              <Button variant="outline" size="sm">{t.customers.endorsePolicy}</Button>
+              <Button variant="outline" size="sm" onClick={() => setViewingProduct(viewingProduct === product ? null : product)}>
+                {viewingProduct === product ? 'Hide' : t.customers.viewPolicy}
+              </Button>
             </div>
           </CardContent>
+
+          {/* Policy detail — inline expandable */}
+          {viewingProduct === product && (
+            <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-3 animate-in slide-in-from-top-1 duration-200">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Policy Number</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{customer.policyRef ?? '-'}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Insurer</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{customer.insurerId ?? '-'}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Coverage</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{product}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Annual Premium</p>
+                  <p className="text-gray-900 font-medium mt-0.5">AED {Number(customer.premium).toLocaleString()}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Status</p>
+                  <p className="text-emerald-600 font-semibold mt-0.5">{customer.stage === 'active' ? 'Active' : customer.stage === 'lapsed' ? 'Lapsed' : 'Renewal'}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Renewal</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{customer.renewalDays > 0 ? `${customer.renewalDays} days` : customer.renewalDays === 0 ? 'Today' : `${Math.abs(customer.renewalDays)} days overdue`}</p>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-2.5">
+                <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold mb-1">All Products</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {customer.products.map((p) => (
+                    <span key={p} className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[10px] font-medium">{p}</span>
+                  ))}
+                </div>
+              </div>
+              {customer.missingProducts.length > 0 && (
+                <div className="bg-amber-50 rounded-lg p-2.5 border border-amber-100">
+                  <p className="text-amber-700 uppercase tracking-wider text-[10px] font-semibold mb-1">Coverage Gaps</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {customer.missingProducts.map((p) => (
+                      <span key={p} className="rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-[10px] font-medium">{p}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       ))}
     </div>
