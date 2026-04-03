@@ -1,4 +1,5 @@
 import {Hono} from 'hono';
+import {apiRouter} from './api-router';
 
 const app = new Hono();
 
@@ -34,14 +35,7 @@ app.get('/api/readyz', (c) => {
   );
 });
 
-app.all('/api', async (c) => {
-  const {apiRouter} = await import('./api-router');
-  return apiRouter.fetch(c.req.raw);
-});
-
-app.all('/api/*', async (c) => {
-  const {apiRouter} = await import('./api-router');
-  return apiRouter.fetch(c.req.raw);
-});
+app.all('/api', (c) => apiRouter.fetch(c.req.raw));
+app.all('/api/*', (c) => apiRouter.fetch(c.req.raw));
 
 export default app;
