@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import {db, quotes, aiRecommendations} from '@shory/db';
+import {db, quotes, aiRecommendations, aiFallbackLog} from '@shory/db';
 import {aiRecommendRequestSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
@@ -24,7 +24,16 @@ aiRouter.post('/recommend', async (c) => {
       coverageType: quote.coverageType,
     };
 
-    const {recommendations, modelUsed} = await getRecommendations(inputContext);
+    const {recommendations, modelUsed, confidence} = await getRecommendations(inputContext);
+
+    // Log low-confidence responses (PDF §4.2 fallback trigger threshold)
+    if (confidence === 'low') {
+      await db.insert(aiFallbackLog).values({
+        query: JSON.stringify(inputContext),
+        fallbackReason: 'low_confidence',
+        sessionId: c.req.header('x-session-id') ?? null,
+      });
+    }
 
     const [record] = await db
       .insert(aiRecommendations)
@@ -36,10 +45,18 @@ aiRouter.post('/recommend', async (c) => {
       })
       .returning();
 
-    return c.json({id: record.id, recommendations});
+    return c.json({id: record.id, recommendations, confidence});
   } catch (e) {
     if (e instanceof ZodError) return handleZodError(c, e);
     if (e instanceof Error && (e.message.includes('anthropic') || e.message.includes('Anthropic'))) {
+      // Log AI unavailability (PDF §4.3)
+      const body = await c.req.raw.clone().json().catch(() => ({}));
+      await db.insert(aiFallbackLog).values({
+        query: JSON.stringify(body),
+        fallbackReason: 'ai_unavailable',
+        sessionId: c.req.header('x-session-id') ?? null,
+      }).catch(() => {});
+
       return errorResponse(c, 'AI_UNAVAILABLE', 'AI service temporarily unavailable', 503);
     }
     throw e;
