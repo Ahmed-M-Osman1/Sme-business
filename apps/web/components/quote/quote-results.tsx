@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import bundleDeals from '@/config/bundle-deals.json';
@@ -135,6 +135,20 @@ export function QuoteResults() {
   >(null);
   const [monthly, setMonthly] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
+  const [detailExpanded, setDetailExpanded] = useState(true);
+  const detailContentRef = useRef<HTMLDivElement>(null);
+  const [detailHeight, setDetailHeight] = useState(0);
+
+  useEffect(() => {
+    if (detailContentRef.current) {
+      setDetailHeight(detailContentRef.current.scrollHeight);
+    }
+  }, [detailExpanded, activeProducts]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDetailExpanded(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -510,29 +524,13 @@ export function QuoteResults() {
               </svg>
               {t.common.back}
             </button>
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                  {t.results.title}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
-                </p>
-              </div>
-              <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 shrink-0">
-                <button
-                  onClick={() => setMonthly(false)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${!monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
-                >
-                  {locale === 'ar' ? 'سنوي' : 'Annual'}
-                </button>
-                <button
-                  onClick={() => setMonthly(true)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
-                >
-                  {locale === 'ar' ? 'شهري' : 'Monthly'}
-                </button>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                {t.results.title}
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
+              </p>
             </div>
           </div>
         </div>
@@ -565,43 +563,63 @@ export function QuoteResults() {
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)]">
             <div className="flex flex-col gap-4">
-              <Card className="rounded-[24px] border border-gray-200 bg-white">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900">
+              <div className="rounded-3xl border border-gray-200 bg-white overflow-hidden">
+                {/* Collapsed summary — always visible */}
+                <button
+                  type="button"
+                  onClick={() => setDetailExpanded((p) => !p)}
+                  className="w-full flex items-center justify-between gap-3 px-5 py-4 text-start"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-2xl shrink-0">{businessType?.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-gray-900 truncate">
                         {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title}
-                      </h2>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {(t.businessTypeDescriptions as Record<string, string>)[businessType?.id ?? ''] || businessType?.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(t.options.employeeBands as Record<string, string>)[employeeBand] || employeeBand} {t.results.employees} &middot; {(t.options.emirates as Record<string, string>)[emirate] || emirate}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
-                      {(t.options.employeeBands as Record<string, string>)[employeeBand] || employeeBand} {t.results.employees}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-sm font-bold text-primary">{displayPrice(resultsHeadingPrice)}</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`text-gray-400 transition-transform duration-300 ${detailExpanded ? 'rotate-180' : ''}`}>
+                      <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Expandable detail */}
+                <div
+                  className="overflow-hidden transition-all duration-300 ease-in-out"
+                  style={{maxHeight: detailExpanded ? `${detailHeight + 20}px` : '0px', opacity: detailExpanded ? 1 : 0}}
+                >
+                  <div ref={detailContentRef} className="border-t border-gray-100 px-5 pb-5 pt-4">
+                    <p className="text-sm text-gray-500 mb-4">
+                      {(t.businessTypeDescriptions as Record<string, string>)[businessType?.id ?? ''] || businessType?.description}
+                    </p>
+                    <div className="space-y-3 text-sm text-gray-600">
+                      <SummaryRow
+                        label={t.results.industry}
+                        value={((t.businessType as Record<string, string>)[businessType?.id ?? '']) || (businessType?.title ?? '-')}
+                      />
+                      <SummaryRow
+                        label={t.results.emirate}
+                        value={(t.options.emirates as Record<string, string>)[emirate] || emirate}
+                      />
+                      <SummaryRow
+                        label={t.results.coverage}
+                        value={coverageType || '-'}
+                      />
+                      <SummaryRow
+                        label={t.results.summaryFrom}
+                        value={displayPrice(resultsHeadingPrice)}
+                        valueClassName="text-primary"
+                      />
                     </div>
                   </div>
-
-                  <div className="mt-5 space-y-3 text-sm text-gray-600">
-                    <SummaryRow
-                      label={t.results.industry}
-                      value={((t.businessType as Record<string, string>)[businessType?.id ?? '']) || (businessType?.title ?? '-')}
-                    />
-                    <SummaryRow
-                      label={t.results.emirate}
-                      value={(t.options.emirates as Record<string, string>)[emirate] || emirate}
-                    />
-                    <SummaryRow
-                      label={t.results.coverage}
-                      value={coverageType || '-'}
-                    />
-                    <SummaryRow
-                      label={t.results.summaryFrom}
-                      value={displayPrice(resultsHeadingPrice)}
-                      valueClassName="text-primary"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
@@ -716,65 +734,6 @@ export function QuoteResults() {
                 })}
               </div>
 
-              {/* AI Insights panel */}
-              {(() => {
-                const category = businessType?.title ?? '';
-                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
-                const peer = peerKey ? PEER_DATA[peerKey] : null;
-                const teaserExtra = peer?.extras[0];
-
-                if (!peer) return null;
-
-                return (
-                  <div className="rounded-2xl border border-gray-200 overflow-hidden">
-                    <button
-                      onClick={() => setShowInsights((p) => !p)}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-start transition-colors ${showInsights ? 'bg-gradient-to-r from-primary/10 to-primary/5' : 'bg-white hover:bg-gray-50'}`}
-                    >
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-primary">{locale === 'ar' ? 'رؤى شوري الذكية' : 'Shory AI Insights'}</p>
-                        {!showInsights && teaserExtra && (
-                          <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                            {teaserExtra.pct}% {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses add'} {teaserExtra.name}
-                          </p>
-                        )}
-                      </div>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`shrink-0 text-gray-400 transition-transform ${showInsights ? 'rotate-180' : ''}`}>
-                        <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-
-                    {showInsights && (
-                      <div className="border-t border-gray-100 px-4 py-4 space-y-4 animate-in slide-in-from-top-1 duration-200">
-                        <div className="rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 p-3">
-                          <p className="text-sm font-medium text-gray-900 italic">{peer.insight}</p>
-                          <p className="text-[11px] text-primary mt-1">{peer.riskStat}</p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                            {locale === 'ar' ? 'ما تضيفه الشركات المشابهة' : 'What similar businesses add'}
-                          </p>
-                          <div className="space-y-2.5">
-                            {peer.extras.map((extra) => (
-                              <div key={extra.name} className={`rounded-xl border p-3 ${extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
-                                <div className="flex items-center justify-between mb-1.5">
-                                  <span className="text-xs font-semibold text-gray-900">{extra.name}</span>
-                                  <span className="text-[10px] font-bold text-primary">{extra.pct}%</span>
-                                </div>
-                                <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
-                                  <div className="h-full rounded-full bg-primary transition-all" style={{width: `${extra.pct}%`}} />
-                                </div>
-                                <p className="text-[11px] text-gray-500">{extra.reason}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
             </div>
 
             <div className="flex flex-col gap-4">
@@ -832,11 +791,27 @@ export function QuoteResults() {
                   )}
                 </div>
 
-                <p className="text-sm font-medium text-gray-500">
-                  {activeTab === 'individual'
-                    ? `${insurerQuotes.length} ${t.common.of} ${eligibleQuotes.length} ${t.results.quotes}`
-                    : `${bundles.length} ${t.results.bundleCount}`}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium text-gray-500 hidden sm:block">
+                    {activeTab === 'individual'
+                      ? `${insurerQuotes.length} ${t.common.of} ${eligibleQuotes.length} ${t.results.quotes}`
+                      : `${bundles.length} ${t.results.bundleCount}`}
+                  </p>
+                  <div className="flex items-center gap-0.5 rounded-lg bg-gray-100 p-0.5 shrink-0">
+                    <button
+                      onClick={() => setMonthly(false)}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${!monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+                    >
+                      {locale === 'ar' ? 'سنوي' : 'Annual'}
+                    </button>
+                    <button
+                      onClick={() => setMonthly(true)}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${monthly ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+                    >
+                      {locale === 'ar' ? 'شهري' : 'Monthly'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {activeTab === 'individual' && showFilters && (
@@ -918,6 +893,69 @@ export function QuoteResults() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* AI Insights panel */}
+              {(() => {
+                const category = businessType?.title ?? '';
+                const peerKey = Object.keys(PEER_DATA).find((k) => category.toLowerCase().includes(k.toLowerCase().split(' ')[0]));
+                const peer = peerKey ? PEER_DATA[peerKey] : null;
+                const teaserExtra = peer?.extras[0];
+
+                if (!peer) return null;
+
+                return (
+                  <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setShowInsights((p) => !p)}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-start transition-colors ${showInsights ? 'bg-linear-to-r from-primary/10 to-primary/5' : 'bg-white hover:bg-gray-50'}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-primary">{locale === 'ar' ? 'رؤى شوري الذكية' : 'Shory AI Insights'}</p>
+                        {!showInsights && teaserExtra && (
+                          <p className="text-[11px] text-gray-500 mt-0.5 truncate">
+                            {teaserExtra.pct}% {locale === 'ar' ? 'من الشركات المشابهة تضيف' : 'of similar businesses add'} {teaserExtra.name}
+                          </p>
+                        )}
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={`shrink-0 text-gray-400 transition-transform duration-300 ${showInsights ? 'rotate-180' : ''}`}>
+                        <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+
+                    <div
+                      className="overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{maxHeight: showInsights ? '600px' : '0px', opacity: showInsights ? 1 : 0}}
+                    >
+                      <div className="border-t border-gray-100 px-4 py-4 space-y-4">
+                        <div className="rounded-xl bg-linear-to-r from-primary/10 to-primary/5 p-3">
+                          <p className="text-sm font-medium text-gray-900 italic">{peer.insight}</p>
+                          <p className="text-[11px] text-primary mt-1">{peer.riskStat}</p>
+                        </div>
+
+                        <div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            {locale === 'ar' ? 'ما تضيفه الشركات المشابهة' : 'What similar businesses add'}
+                          </p>
+                          <div className="space-y-2.5">
+                            {peer.extras.map((extra) => (
+                              <div key={extra.name} className={`rounded-xl border p-3 ${extra.pct >= 70 ? 'border-amber-200 bg-amber-50/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-xs font-semibold text-gray-900">{extra.name}</span>
+                                  <span className="text-[10px] font-bold text-primary">{extra.pct}%</span>
+                                </div>
+                                <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden mb-1.5">
+                                  <div className="h-full rounded-full bg-primary transition-all" style={{width: `${extra.pct}%`}} />
+                                </div>
+                                <p className="text-[11px] text-gray-500">{extra.reason}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {activeTab === 'individual' || selectedBundle ? (
                 <div className="flex flex-col gap-4">
