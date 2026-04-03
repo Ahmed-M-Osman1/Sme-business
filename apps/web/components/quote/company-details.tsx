@@ -57,7 +57,7 @@ function clearDraft() {
 }
 
 export function CompanyDetails() {
-  const {t} = useI18n();
+  const {t, locale} = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -117,7 +117,7 @@ export function CompanyDetails() {
     ? editedFields.expiryDate ?? activeResult.fields.expiryDate.value
     : '';
   const requiresExpiryAcknowledgement = isExpiredDate(activeExpiryDate);
-  const canProceed = !!activeResult && !hasInvalidActiveFields && (!requiresExpiryAcknowledgement || expiredAcknowledged);
+  const canProceed = !!activeResult && !hasInvalidActiveFields && !requiresExpiryAcknowledgement;
 
   useEffect(() => {
     if (hasTradeLicense) {
@@ -271,12 +271,9 @@ export function CompanyDetails() {
               </Card>
             </button>
 
-            <button
-              onClick={proceed}
-              className="w-full py-3 rounded-xl text-sm font-medium text-text-muted border-2 border-dashed border-border hover:border-primary/40 transition-colors"
-            >
-              {t.companyDetails.skipForNow}
-            </button>
+            <p className="text-center text-xs text-text-muted">
+              {locale === 'ar' ? 'الرخصة التجارية مطلوبة للمتابعة' : 'Trade license verification is required to proceed'}
+            </p>
           </>
         )}
 

@@ -8,9 +8,12 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {AuthModal} from '@/components/auth/auth-modal';
 import {
   calculateMonthlyPrice,
+  calculateTotalPremium,
   formatPrice,
   formatPriceWithCurrency,
+  getSizeFactor,
 } from '@/lib/pricing';
+import type {ProductInfo} from '@/lib/pricing';
 import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
@@ -36,7 +39,7 @@ export function Checkout() {
 
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
-  const total = Number(searchParams.get('total') ?? '0');
+  const urlTotal = Number(searchParams.get('total') ?? '0');
   const productIds = (searchParams.get('products') ?? '').split(
     ',',
   ) as ProductId[];
@@ -48,11 +51,28 @@ export function Checkout() {
   const companyVerified =
     searchParams.get('companyVerified') === 'true';
   const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const employeeBand = searchParams.get('employees') ?? '2-5';
 
   const businessType =
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer =
     insurers.find((i) => i.id === insurerId) ?? insurers[0];
+
+  // Server-side price verification: recalculate from actual pricing engine
+  // instead of trusting URL params (BUG-001 fix)
+  const productsMap: Record<string, ProductInfo> = {};
+  Object.values(productsConfig).forEach((p) => { productsMap[p.id] = p; });
+  const verifiedTotal = calculateTotalPremium(
+    {
+      productIds,
+      riskFactor: businessType.riskFactor,
+      sizeFactor: getSizeFactor(employeeBand),
+      coverageLimits: limits,
+      insurerMultiplier: insurer.priceMultiplier,
+    },
+    productsMap,
+  );
+  const total = verifiedTotal;
 
   const eidName = searchParams.get('eidName') ?? '';
   const [form, setForm] = useState<ContactForm>({
