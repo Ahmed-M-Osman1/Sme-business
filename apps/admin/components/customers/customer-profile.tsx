@@ -1,6 +1,7 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import {adminApi} from '@/lib/api-client';
 import type {Customer, CommsSequence, Claim, CustomerInteraction} from '@shory/db';
 import {Card, CardContent, CardHeader, CardTitle, Badge, Button} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
@@ -14,6 +15,7 @@ interface CustomerProfileProps {
   comms: CommsSequence[];
   claims: Claim[];
   interactions: CustomerInteraction[];
+  token?: string;
 }
 
 const STAGE_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -43,7 +45,7 @@ function formatDate(date: Date | string | null): string {
   return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
 }
 
-export function CustomerProfile({customer, comms, claims, interactions}: CustomerProfileProps) {
+export function CustomerProfile({customer, comms, claims, interactions, token = ''}: CustomerProfileProps) {
   const {t} = useI18n();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
 
@@ -114,7 +116,7 @@ export function CustomerProfile({customer, comms, claims, interactions}: Custome
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto p-6">
         {activeTab === 'overview' && <OverviewTab customer={customer} />}
-        {activeTab === 'policies' && <PoliciesTab customer={customer} />}
+        {activeTab === 'policies' && <PoliciesTab customer={customer} token={token} />}
         {activeTab === 'comms' && <CommsTab comms={comms} />}
         {activeTab === 'claims' && <ClaimsTab customer={customer} claims={claims} />}
         {activeTab === 'history' && <HistoryTab interactions={interactions} />}
@@ -257,11 +259,24 @@ function SnapshotRow({label, value}: {label: string; value: string}) {
 
 /* ─── Policies Tab ──────────────────────────────────────────────────── */
 
-function PoliciesTab({customer}: {customer: Customer}) {
+function PoliciesTab({customer, token}: {customer: Customer; token: string}) {
   const {t} = useI18n();
-  const [viewingProduct, setViewingProduct] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [realPolicies, setRealPolicies] = useState<Array<{id: string; policyNumber: string; status: string; startDate: string; endDate: string; products: string[]; businessName: string; providerName: string; annualPremium: string}>>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  if (customer.products.length === 0) {
+  useEffect(() => {
+    adminApi.customers.getPolicies(token, customer.id)
+      .then((data) => setRealPolicies(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, [token, customer.id]);
+
+  if (!loaded) {
+    return <div className="py-8 text-center"><div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+  }
+
+  if (realPolicies.length === 0 && customer.products.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-gray-500">
         <p>{t.customers.noPolicies}</p>
@@ -271,73 +286,69 @@ function PoliciesTab({customer}: {customer: Customer}) {
 
   return (
     <div className="space-y-3">
-      {customer.products.map((product) => (
-        <Card key={product} className="rounded-xl shadow-sm">
+      {realPolicies.map((policy) => (
+        <Card key={policy.id} className="rounded-xl shadow-sm">
           <CardContent className="flex items-center justify-between p-4">
             <div>
-              <p className="text-sm font-medium text-gray-900">{product}</p>
+              <p className="text-sm font-medium text-gray-900">{policy.businessName}</p>
               <p className="text-xs text-gray-500">
-                {t.customers.policyRef}: {customer.policyRef ?? '-'} &middot; {t.customers.insurer}: {customer.insurerId ?? '-'}
+                {policy.policyNumber} &middot; {policy.providerName} &middot; AED {Number(policy.annualPremium).toLocaleString()}/yr
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setViewingProduct(viewingProduct === product ? null : product)}>
-                {viewingProduct === product ? 'Hide' : t.customers.viewPolicy}
+            <div className="flex items-center gap-2">
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${policy.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                {policy.status}
+              </span>
+              <Button variant="outline" size="sm" onClick={() => setViewingId(viewingId === policy.id ? null : policy.id)}>
+                {viewingId === policy.id ? 'Hide' : t.customers.viewPolicy}
               </Button>
             </div>
           </CardContent>
 
-          {/* Policy detail — inline expandable */}
-          {viewingProduct === product && (
+          {viewingId === policy.id && (
             <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-3 animate-in slide-in-from-top-1 duration-200">
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Policy Number</p>
-                  <p className="text-gray-900 font-medium mt-0.5">{customer.policyRef ?? '-'}</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{policy.policyNumber}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Insurer</p>
-                  <p className="text-gray-900 font-medium mt-0.5">{customer.insurerId ?? '-'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2.5">
-                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Coverage</p>
-                  <p className="text-gray-900 font-medium mt-0.5">{product}</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{policy.providerName}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Annual Premium</p>
-                  <p className="text-gray-900 font-medium mt-0.5">AED {Number(customer.premium).toLocaleString()}</p>
+                  <p className="text-gray-900 font-medium mt-0.5">AED {Number(policy.annualPremium).toLocaleString()}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
-                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Status</p>
-                  <p className="text-emerald-600 font-semibold mt-0.5">{customer.stage === 'active' ? 'Active' : customer.stage === 'lapsed' ? 'Lapsed' : 'Renewal'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2.5">
-                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Renewal</p>
-                  <p className="text-gray-900 font-medium mt-0.5">{customer.renewalDays > 0 ? `${customer.renewalDays} days` : customer.renewalDays === 0 ? 'Today' : `${Math.abs(customer.renewalDays)} days overdue`}</p>
+                  <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Period</p>
+                  <p className="text-gray-900 font-medium mt-0.5">{policy.startDate} — {policy.endDate}</p>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2.5">
-                <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold mb-1">All Products</p>
+                <p className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold mb-1">Products</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {customer.products.map((p) => (
+                  {policy.products.map((p) => (
                     <span key={p} className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[10px] font-medium">{p}</span>
                   ))}
                 </div>
               </div>
-              {customer.missingProducts.length > 0 && (
-                <div className="bg-amber-50 rounded-lg p-2.5 border border-amber-100">
-                  <p className="text-amber-700 uppercase tracking-wider text-[10px] font-semibold mb-1">Coverage Gaps</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {customer.missingProducts.map((p) => (
-                      <span key={p} className="rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-[10px] font-medium">{p}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </Card>
       ))}
+
+      {/* Show CRM products if no real policies but customer has product data */}
+      {realPolicies.length === 0 && customer.products.length > 0 && (
+        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-xs text-gray-500">
+          <p className="font-medium mb-1">CRM Products (no linked policies)</p>
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {customer.products.map((p) => (
+              <span key={p} className="rounded-full bg-gray-100 text-gray-600 px-2.5 py-0.5 text-[10px] font-medium">{p}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

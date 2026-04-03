@@ -144,6 +144,7 @@ export function CustomersView({customers, initialSelectedId, token}: CustomersVi
             comms={selectedData.comms}
             claims={selectedData.claims}
             interactions={selectedData.interactions}
+            token={token}
           />
           <AiPanel
             customer={selectedData.customer}

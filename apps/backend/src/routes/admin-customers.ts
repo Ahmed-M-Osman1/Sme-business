@@ -8,6 +8,9 @@ import {
   externalSignals,
   midtermTriggers,
   apiServices,
+  policies,
+  quotes,
+  quoteResults,
 } from '@shory/db';
 import {eq, desc, count, and, or, ilike, sql} from 'drizzle-orm';
 import {createCustomerSchema, updateCustomerSchema} from '@shory/shared';
@@ -218,4 +221,29 @@ adminCustomersRouter.get('/:id/platform-context', async (c) => {
     detail: hasIssue ? `${degradedServices.length} service(s) degraded — may affect customer experience` : null,
     severity: hasIssue ? (degradedServices.some((s) => s.status === 'down') ? 'high' : 'medium') : null,
   });
+});
+
+// GET /customers/:id/policies — actual policies from policies table
+adminCustomersRouter.get('/:id/policies', async (c) => {
+  const id = c.req.param('id');
+
+  const data = await db
+    .select({
+      id: policies.id,
+      policyNumber: policies.policyNumber,
+      status: policies.status,
+      startDate: policies.startDate,
+      endDate: policies.endDate,
+      products: policies.products,
+      businessName: quotes.businessName,
+      providerName: quoteResults.providerName,
+      annualPremium: quoteResults.annualPremium,
+    })
+    .from(policies)
+    .innerJoin(quotes, eq(policies.quoteId, quotes.id))
+    .innerJoin(quoteResults, eq(policies.resultId, quoteResults.id))
+    .where(eq(policies.userId, id))
+    .orderBy(desc(policies.createdAt));
+
+  return c.json(data);
 });

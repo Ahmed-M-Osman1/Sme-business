@@ -114,6 +114,9 @@ export const adminApi = {
     getInteractions: (token: string, id: string) =>
       fetchAdmin<CustomerInteraction[]>(`/admin/customers/${id}/interactions`, token),
 
+    getPolicies: (token: string, id: string) =>
+      fetchAdmin<Array<{id: string; policyNumber: string; status: string; startDate: string; endDate: string; products: string[]; businessName: string; providerName: string; annualPremium: string}>>(`/admin/customers/${id}/policies`, token),
+
     getClaims: (token: string, id: string) =>
       fetchAdmin<Claim[]>(`/admin/customers/${id}/claims`, token),
   },
