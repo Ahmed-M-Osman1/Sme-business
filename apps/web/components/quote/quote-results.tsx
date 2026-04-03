@@ -751,7 +751,7 @@ export function QuoteResults() {
                     <button
                       onClick={handleBackToBundles}
                       className="flex items-center gap-1 text-sm font-medium text-primary hover:underline self-start">
-                      ← {t.results.backToBundles}
+                      {t.results.backToBundles}
                     </button>
                   )}
 

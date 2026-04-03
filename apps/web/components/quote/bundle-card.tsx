@@ -85,9 +85,6 @@ export function BundleCard({
         }`}
       >
         {ctaLabel}
-        <span className="ms-1.5" aria-hidden="true">
-          {locale === 'ar' ? '←' : '→'}
-        </span>
       </Button>
     </div>
   );

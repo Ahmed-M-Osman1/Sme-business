@@ -82,13 +82,13 @@ const scenarios: Scenario[] = [
   {
     name: 'blurry',
     fields: {
-      companyName: { value: 'Al ??? General Tr...', confidence: 'low' },
-      licenseNumber: { value: '98???41', confidence: 'low' },
+      companyName: { value: '', confidence: 'low' },
+      licenseNumber: { value: '', confidence: 'low' },
       activity: { value: 'General Trading', confidence: 'medium' },
       emirate: { value: 'Dubai', confidence: 'high' },
-      expiryDate: { value: 'Unclear', confidence: 'low' },
+      expiryDate: { value: '', confidence: 'low' },
     },
-    warnings: ['Some fields could not be read clearly. Please review.'],
+    warnings: [],
   },
   {
     name: 'unsupported',
@@ -96,9 +96,9 @@ const scenarios: Scenario[] = [
     fields: {
       companyName: { value: '', confidence: 'low' },
       licenseNumber: { value: '', confidence: 'low' },
-      activity: { value: 'Unclear', confidence: 'low' },
+      activity: { value: '', confidence: 'low' },
       emirate: { value: '', confidence: 'low' },
-      expiryDate: { value: 'Unclear', confidence: 'low' },
+      expiryDate: { value: '', confidence: 'low' },
     },
     warnings: [
       'We could not confirm this document is a valid UAE trade licence.',

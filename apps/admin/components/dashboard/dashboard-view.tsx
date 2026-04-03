@@ -12,6 +12,7 @@ interface DashboardStats {
   quotesThisWeek: number;
   acceptedQuotes: number;
   pendingQuotes: number;
+  totalCustomers?: number;
 }
 
 interface DashboardViewProps {
@@ -76,7 +77,7 @@ export function DashboardView({stats, alerts, attentionCustomers, incidents, ser
         <KpiCard label={t.dashboard.thisWeek} value={stats.quotesThisWeek} icon="📅" />
         <KpiCard label={t.dashboard.accepted} value={stats.acceptedQuotes} color="text-emerald-600" icon="✅" />
         <KpiCard label={t.dashboard.pendingReview} value={stats.pendingQuotes} color="text-amber-600" icon="⏳" />
-        <KpiCard label={t.dashboard.totalCustomers} value={attentionCustomers.length > 0 ? attentionCustomers.length : '-'} icon="👥" />
+        <KpiCard label={t.dashboard.totalCustomers} value={stats.totalCustomers ?? attentionCustomers.length} icon="👥" />
         <KpiCard
           label={t.dashboard.activeIncidents}
           value={activeIncidents.length}

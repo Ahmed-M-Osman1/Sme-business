@@ -1,10 +1,9 @@
 import {auth} from '@/lib/auth';
-import {getAdminApiBaseUrl} from '@/lib/api-base-url';
+import {adminApi} from '@/lib/api-client';
 import {Card, CardContent, CardHeader, CardTitle} from '@shory/ui';
 import {StatusBadge} from '@/components/quotes/status-badge';
 import {StatusActions} from '@/components/quotes/status-actions';
-
-const API_URL = getAdminApiBaseUrl();
+import type {Quote} from '@shory/db';
 
 interface QuoteDetailPageProps {
   params: Promise<{id: string}>;
@@ -15,10 +14,22 @@ export default async function QuoteDetailPage({params}: QuoteDetailPageProps) {
   const session = await auth();
   const token = session?.user?.email ?? '';
 
-  const res = await fetch(`${API_URL}/api/quotes/${id}`, {
-    headers: {'Content-Type': 'application/json'},
-  });
-  const quote = await res.json();
+  let quote: Quote | null = null;
+
+  try {
+    const result = await adminApi.quotes.list(token, {pageSize: 100});
+    quote = result.data.find((q) => q.id === id) ?? null;
+  } catch {
+    // API error
+  }
+
+  if (!quote) {
+    return (
+      <div className="flex items-center justify-center py-16 text-sm text-slate-400">
+        Quote not found or could not be loaded.
+      </div>
+    );
+  }
 
   const fields = [
     {label: 'Business Name', value: quote.businessName},

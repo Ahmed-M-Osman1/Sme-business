@@ -169,7 +169,7 @@
   },
   "ai": {
     "title": "AI Advisor",
-    "openingMessage": "Hi! I'm your Shory insurance advisor. Tell me about your business and I'll help find the right coverage for you. You can describe your business activity, number of employees, and location.",
+    "openingMessage": "Hi there! Share a few details about your business and I'll match you with the right coverage — or tap your business type below to begin instantly.",
     "unavailable": "AI advisor is temporarily unavailable. You can still get your quote using one of these options:",
     "backToStart": "Back",
     "quickSelect": "Quick Select",

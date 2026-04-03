@@ -209,9 +209,13 @@ adminCustomersRouter.get('/:id/platform-context', async (c) => {
       ),
     );
 
+  const hasIssue = degradedServices.length > 0;
+  const topIssue = degradedServices[0];
+
   return c.json({
-    customerId: id,
-    insurerId: customer.insurerId,
-    degradedServices,
+    flag: hasIssue,
+    issue: hasIssue ? `${topIssue.name} is ${topIssue.status}` : null,
+    detail: hasIssue ? `${degradedServices.length} service(s) degraded — may affect customer experience` : null,
+    severity: hasIssue ? (degradedServices.some((s) => s.status === 'down') ? 'high' : 'medium') : null,
   });
 });

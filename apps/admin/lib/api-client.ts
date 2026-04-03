@@ -64,6 +64,15 @@ export const adminApi = {
 
   stats: (token: string) => fetchAdmin<AdminStatsResponse>('/admin/stats', token),
 
+  claims: {
+    list: (token: string, params?: {status?: string}) => {
+      const searchParams = new URLSearchParams();
+      if (params?.status) searchParams.set('status', params.status);
+      const qs = searchParams.toString();
+      return fetchAdmin<{data: Array<Claim & {customerName: string; customerCompany: string; customerChurnScore: number; customerRenewalDays: number}>}>(`/admin/claims${qs ? `?${qs}` : ''}`, token);
+    },
+  },
+
   customers: {
     list: (token: string, params?: {page?: number; pageSize?: number; stage?: string; search?: string}) => {
       const searchParams = new URLSearchParams();

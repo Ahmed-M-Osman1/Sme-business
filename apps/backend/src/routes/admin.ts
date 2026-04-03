@@ -70,6 +70,39 @@ adminRouter.patch('/quotes/:id', async (c) => {
   return c.json(quote);
 });
 
+// GET /admin/claims — list all claims with customer info
+adminRouter.get('/claims', async (c) => {
+  const status = c.req.query('status');
+  const conditions = status
+    ? eq(claims.status, status as 'open')
+    : undefined;
+
+  const data = await db
+    .select({
+      id: claims.id,
+      claimRef: claims.claimRef,
+      customerId: claims.customerId,
+      type: claims.type,
+      status: claims.status,
+      reserve: claims.reserve,
+      description: claims.description,
+      handlerName: claims.handlerName,
+      filedAt: claims.filedAt,
+      resolvedAt: claims.resolvedAt,
+      createdAt: claims.createdAt,
+      customerName: customers.name,
+      customerCompany: customers.company,
+      customerChurnScore: customers.churnScore,
+      customerRenewalDays: customers.renewalDays,
+    })
+    .from(claims)
+    .innerJoin(customers, eq(claims.customerId, customers.id))
+    .where(conditions)
+    .orderBy(desc(claims.filedAt));
+
+  return c.json({data});
+});
+
 // GET /admin/stats
 adminRouter.get('/stats', async (c) => {
   const oneWeekAgo = new Date();
