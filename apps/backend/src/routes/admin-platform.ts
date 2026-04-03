@@ -9,7 +9,7 @@ import {
 } from '@shory/db';
 import {eq, desc} from 'drizzle-orm';
 import {updateServiceSchema} from '@shory/shared';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 
 export const adminPlatformRouter = new Hono();
 

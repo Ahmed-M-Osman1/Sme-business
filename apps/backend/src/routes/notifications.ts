@@ -1,7 +1,7 @@
 import {Hono} from 'hono';
 import {db, notifications} from '@shory/db';
 import {eq, desc} from 'drizzle-orm';
-import {errorResponse} from '../middleware/error-handler';
+import {errorResponse} from '../middleware/error-handler.js';
 
 export const notificationsRouter = new Hono();
 

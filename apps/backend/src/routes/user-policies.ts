@@ -1,8 +1,8 @@
 import {Hono} from 'hono';
 import {db, quotes, quoteResults, policies, webUsers, type WebUser} from '@shory/db';
 import {eq, and, count, sum} from 'drizzle-orm';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
-import {webUserAuth} from '../middleware/auth';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
+import {webUserAuth} from '../middleware/auth.js';
 import {ZodError} from 'zod';
 import {z} from 'zod';
 

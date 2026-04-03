@@ -1,7 +1,7 @@
 import {Hono} from 'hono';
 import {db, webUsers} from '@shory/db';
 import {eq} from 'drizzle-orm';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {ZodError} from 'zod';
 import {z} from 'zod';
 

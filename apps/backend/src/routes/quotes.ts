@@ -2,9 +2,9 @@ import {Hono} from 'hono';
 import {db, quotes, quoteResults, policies} from '@shory/db';
 import {createQuoteSchema, updateQuoteSchema, acceptQuoteSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {ZodError} from 'zod';
-import {calculateQuotes} from '../pricing/engine';
+import {calculateQuotes} from '../pricing/engine.js';
 
 export const quotesRouter = new Hono();
 

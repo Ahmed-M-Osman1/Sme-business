@@ -1,14 +1,14 @@
 import {Hono} from 'hono';
-import {corsMiddleware} from './middleware/cors';
-import {quotesRouter} from './routes/quotes';
-import {uploadsRouter} from './routes/uploads';
-import {aiRouter} from './routes/ai';
-import {adminRouter} from './routes/admin';
-import {adminAuthRouter} from './routes/admin-auth';
-import {catalogRouter} from './routes/catalog';
-import {notificationsRouter} from './routes/notifications';
-import {userAuthRouter} from './routes/user-auth';
-import {userPoliciesRouter} from './routes/user-policies';
+import {corsMiddleware} from './middleware/cors.js';
+import {quotesRouter} from './routes/quotes.js';
+import {uploadsRouter} from './routes/uploads.js';
+import {aiRouter} from './routes/ai.js';
+import {adminRouter} from './routes/admin.js';
+import {adminAuthRouter} from './routes/admin-auth.js';
+import {catalogRouter} from './routes/catalog.js';
+import {notificationsRouter} from './routes/notifications.js';
+import {userAuthRouter} from './routes/user-auth.js';
+import {userPoliciesRouter} from './routes/user-policies.js';
 
 export const apiRouter = new Hono().basePath('/api');
 

@@ -2,7 +2,7 @@ import {Hono} from 'hono';
 import {db, adminUsers} from '@shory/db';
 import {eq} from 'drizzle-orm';
 import {z, ZodError} from 'zod';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 
 const loginSchema = z.object({
   email: z.string().email(),

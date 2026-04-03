@@ -1,14 +1,14 @@
 import {Hono} from 'hono';
 import {db, quotes, customers, claims, incidents, apiServices, portfolioAlerts} from '@shory/db';
 import {eq, desc, count, gte, or} from 'drizzle-orm';
-import {adminAuth} from '../middleware/auth';
-import {errorResponse} from '../middleware/error-handler';
-import {adminCustomersRouter} from './admin-customers';
-import {adminIncidentsRouter} from './admin-incidents';
-import {adminAlertsRouter} from './admin-alerts';
-import {adminActionsRouter} from './admin-actions';
-import {adminPlatformRouter} from './admin-platform';
-import {adminIntelligenceRouter} from './admin-intelligence';
+import {adminAuth} from '../middleware/auth.js';
+import {errorResponse} from '../middleware/error-handler.js';
+import {adminCustomersRouter} from './admin-customers.js';
+import {adminIncidentsRouter} from './admin-incidents.js';
+import {adminAlertsRouter} from './admin-alerts.js';
+import {adminActionsRouter} from './admin-actions.js';
+import {adminPlatformRouter} from './admin-platform.js';
+import {adminIntelligenceRouter} from './admin-intelligence.js';
 
 export const adminRouter = new Hono();
 

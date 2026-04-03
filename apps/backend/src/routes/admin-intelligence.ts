@@ -8,7 +8,7 @@ import {
 } from '@shory/db';
 import {eq, desc} from 'drizzle-orm';
 import {createSignalSchema, updateSignalSchema, updateTriggerSchema} from '@shory/shared';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 
 export const adminIntelligenceRouter = new Hono();
 // Force rebuild

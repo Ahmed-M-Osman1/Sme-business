@@ -1,11 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "dist/index.js": {
+    "index.ts": {
       "maxDuration": 30
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/dist" }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }

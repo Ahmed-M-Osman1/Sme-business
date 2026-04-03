@@ -2,7 +2,7 @@ import {Hono} from 'hono';
 import {db, actions, notifications} from '@shory/db';
 import {desc, count} from 'drizzle-orm';
 import {dispatchActionSchema} from '@shory/shared';
-import {handleZodError} from '../middleware/error-handler';
+import {handleZodError} from '../middleware/error-handler.js';
 
 const ACTION_NOTIFICATION_MAP: Record<string, {title: string; body: string}> = {
   send_email: {title: 'New message from Shory', body: 'You have a new email regarding your policy.'},

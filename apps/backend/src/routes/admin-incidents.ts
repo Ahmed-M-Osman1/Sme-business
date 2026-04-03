@@ -2,7 +2,7 @@ import {Hono} from 'hono';
 import {db, incidents} from '@shory/db';
 import {eq, desc, count, and} from 'drizzle-orm';
 import {createIncidentSchema, updateIncidentSchema} from '@shory/shared';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 
 export const adminIncidentsRouter = new Hono();
 

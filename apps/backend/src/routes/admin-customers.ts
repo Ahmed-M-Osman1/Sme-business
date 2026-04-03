@@ -11,7 +11,7 @@ import {
 } from '@shory/db';
 import {eq, desc, count, and, or, ilike, sql} from 'drizzle-orm';
 import {createCustomerSchema, updateCustomerSchema} from '@shory/shared';
-import {errorResponse, handleZodError} from '../middleware/error-handler';
+import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 
 export const adminCustomersRouter = new Hono();
 

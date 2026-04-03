@@ -1,7 +1,7 @@
 import {Hono} from 'hono';
 import {db, portfolioAlerts} from '@shory/db';
 import {eq, desc, count} from 'drizzle-orm';
-import {errorResponse} from '../middleware/error-handler';
+import {errorResponse} from '../middleware/error-handler.js';
 
 export const adminAlertsRouter = new Hono();
 
