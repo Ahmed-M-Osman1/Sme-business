@@ -13,6 +13,8 @@ class CheckoutPage extends BasePage {
     // Order summary
     this.orderSummary = page.getByText(/Order summary/i).first();
     this.totalPremium = page.getByText(/Total premium/i).first();
+    this.annualPrice = page.getByText(/\/yr/).first();
+    this.monthlyPrice = page.getByText(/instalment fee/i).first();
 
     // Contact form fields
     this.fullNameInput = page.getByPlaceholder(/your full name|name/i).first();
@@ -24,9 +26,33 @@ class CheckoutPage extends BasePage {
     this.emailError = page.getByText(/valid email address/i);
     this.phoneError = page.getByText(/valid UAE mobile number/i);
 
+    // Declaration checkbox
+    this.declarationCheckbox = page.locator('input[type="checkbox"]').first();
+
+    // Payment methods
+    this.applePayMethod = page.getByRole('button', { name: /Apple Pay/i });
+    this.finwallMethod = page.getByRole('button', { name: /Monthly Instalments/i });
+    this.cardMethod = page.getByRole('button', { name: /Card Payment/i });
+    this.bankMethod = page.getByRole('button', { name: /Bank Transfer/i });
+
+    // Card form fields (visible when card selected)
+    this.cardNumberInput = page.getByPlaceholder(/Card number/i);
+    this.cardExpiryInput = page.getByPlaceholder(/MM\/YY/i);
+    this.cardCvvInput = page.getByPlaceholder(/CVV/i);
+
+    // Card validation errors
+    this.cardNumError = page.getByText(/Invalid card number/i);
+    this.cardExpError = page.getByText(/Expiry date required/i);
+    this.cardCvvError = page.getByText(/CVV required/i);
+
+    // Finwall T&Cs
+    this.finwallCheckbox = page.locator('input[type="checkbox"]').last();
+
+    // Security badges
+    this.securityBadges = page.getByText(/PCI DSS/i);
+
     // Pay button
-    this.payButton = page.getByRole('button', { name: /Pay/i });
-    this.declarationCheckbox = page.locator('input[type="checkbox"]').last();
+    this.payButton = page.getByRole('button', { name: /Pay|Confirm/i }).last();
 
     // Processing state
     this.processingIndicator = page.getByText(/processing/i);
@@ -52,6 +78,26 @@ class CheckoutPage extends BasePage {
     await this.fillFullName(details.fullName);
     await this.fillEmail(details.email);
     await this.fillPhone(details.phone);
+  }
+
+  async selectPaymentMethod(method) {
+    const methodMap = {
+      apple_pay: this.applePayMethod,
+      finwall: this.finwallMethod,
+      card: this.cardMethod,
+      bank_transfer: this.bankMethod,
+    };
+    await methodMap[method].click();
+  }
+
+  async fillCardDetails(card) {
+    await this.cardNumberInput.pressSequentially(card.number);
+    await this.cardExpiryInput.pressSequentially(card.expiry);
+    await this.cardCvvInput.pressSequentially(card.cvv);
+  }
+
+  async checkDeclaration() {
+    await this.declarationCheckbox.check();
   }
 
   async clickPay() {

@@ -27,6 +27,10 @@ test.describe('Scenario 8: Company Details', () => {
     await expect(companyDetailsPage.uploadZone).toBeVisible();
   });
 
+  test('8.3a - should show mandatory verification notice (no skip)', async () => {
+    await expect(companyDetailsPage.mandatoryNotice).toBeVisible();
+  });
+
   test('8.4 - should display step indicator', async () => {
     await expect(companyDetailsPage.stepIndicator).toBeVisible();
   });

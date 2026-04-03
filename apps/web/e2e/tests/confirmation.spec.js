@@ -4,7 +4,7 @@ const ConfirmationPage = require('../pages/ConfirmationPage');
 test.describe('Scenario 10: Confirmation', () => {
   let confirmationPage;
 
-  const confirmUrl = '/quote/confirmation?type=it-technology&insurer=oman-insurance&emirate=Dubai&email=test@example.com&name=Ahmed&phone=501234567&products=property,liability';
+  const confirmUrl = '/quote/confirmation?type=it-technology&insurer=salama&emirate=Dubai&email=test@example.com&name=Ahmed&phone=501234567&products=workers-comp,public-liability&total=1800&limits=%7B%7D&payMethod=card';
 
   test.beforeEach(async ({ page }) => {
     confirmationPage = new ConfirmationPage(page);
@@ -23,31 +23,59 @@ test.describe('Scenario 10: Confirmation', () => {
     await expect(confirmationPage.activeBadge).toBeVisible();
   });
 
-  test('10.4 - should display policy details section', async ({ page }) => {
-    // Verify the POLICY section with number, dates, risk level
-    await expect(page.getByText(/POLICY NUMBER/i)).toBeVisible();
-    await expect(page.getByText(/EFFECTIVE DATE/i)).toBeVisible();
+  test('10.4 - should display payment method confirmation', async ({ page }) => {
+    await expect(page.getByText(/authorised|activated/i).first()).toBeVisible();
   });
 
-  test('10.5 - should display start new quote link', async ({ page }) => {
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(confirmationPage.startNewQuoteLink).toBeVisible({ timeout: 5000 });
+  test('10.5 - should display policy details section', async ({ page }) => {
+    await expect(page.getByText(/Policy number/i).first()).toBeVisible();
+    await expect(page.getByText(/Effective date/i).first()).toBeVisible();
   });
 
-  test('10.6 - should navigate to quote start via Start new quote', async ({ page }) => {
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await confirmationPage.startNewQuoteLink.waitFor({ state: 'visible', timeout: 5000 });
-    await expect(confirmationPage.startNewQuoteLink).toHaveAttribute('href', /\/quote\/start/);
+  test('10.6 - should display coverage and premium summary', async () => {
+    await expect(confirmationPage.coverageSection).toBeVisible();
+    await expect(confirmationPage.page.getByText(/Total Annual Premium/i).first()).toBeVisible();
   });
 
-  test('10.7 - should display download actions and support content', async () => {
+  test('10.7 - should display value delivered metrics', async () => {
+    await expect(confirmationPage.valueDelivered).toBeVisible();
+    await expect(confirmationPage.timeSaved).toBeVisible();
+  });
+
+  test('10.8 - should display download actions', async () => {
     await expect(confirmationPage.page.getByRole('button', { name: /Policy Certificate/i })).toBeVisible();
     await expect(confirmationPage.page.getByRole('button', { name: /^Invoice$/i })).toBeVisible();
+  });
+
+  test('10.9 - should display WhatsApp share button', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(confirmationPage.whatsappShareButton).toBeVisible();
+  });
+
+  test('10.10 - should display feedback rating section', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(confirmationPage.feedbackSection).toBeVisible();
+    await expect(confirmationPage.starButtons.first()).toBeVisible();
+  });
+
+  test('10.11 - should allow rating feedback with stars', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await confirmationPage.rateFeedback(4);
+    await expect(confirmationPage.submitFeedback).toBeVisible();
+  });
+
+  test('10.12 - should display referral card', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(confirmationPage.referralCard).toBeVisible();
+    await expect(confirmationPage.copyReferralButton).toBeVisible();
+  });
+
+  test('10.13 - should display support section', async () => {
     await expect(confirmationPage.supportSection).toBeVisible();
   });
 
-  test('10.8 - should display coverage and premium summary', async () => {
-    await expect(confirmationPage.coverageSection).toBeVisible();
-    await expect(confirmationPage.page.getByText(/Total Annual Premium/i).first()).toBeVisible();
+  test('10.14 - should display start new quote link', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(confirmationPage.startNewQuoteLink).toBeVisible({ timeout: 5000 });
   });
 });

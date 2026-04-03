@@ -13,7 +13,7 @@ class CompanyDetailsPage extends BasePage {
     // Choice mode
     this.uploadZone = page.getByText(/drop.*licen[cs]e|drag.*drop/i).first();
     this.manualEntryCard = page.getByRole('button', { name: /Enter details manually/i });
-    this.skipButton = page.getByRole('button', { name: /skip/i });
+    this.mandatoryNotice = page.getByText(/Trade license verification is required/i);
 
     // Manual form fields
     this.companyNameInput = page.locator('input:not([type="hidden"])').first();
@@ -51,10 +51,7 @@ class CompanyDetailsPage extends BasePage {
     await this.verifyButton.waitFor({ state: 'visible', timeout: 10000 });
   }
 
-  async clickSkip() {
-    await this.skipButton.click();
-    await this.page.waitForLoadState('domcontentloaded');
-  }
+
 
   async fillCompanyName(name) {
     const field = this.page

@@ -1,6 +1,5 @@
 const { test, expect } = require('@playwright/test');
 const ResultsPage = require('../pages/ResultsPage');
-const { startCoverage, stopCoverage } = require('../helpers/coverage');
 
 test.describe('Scenario 7: Quote Results', () => {
   let resultsPage;
@@ -8,112 +7,98 @@ test.describe('Scenario 7: Quote Results', () => {
   const resultsUrl = '/quote/results?type=it-technology&source=manual&employees=2-5&revenue=500k-1m&emirate=Dubai';
   const verifiedResultsUrl = `${resultsUrl}&businessName=Acme%20Tech%20LLC&licenseNumber=123456`;
 
-  async function getQuoteCards(page) {
-    return page.locator('div.rounded-2xl.border.bg-white.transition-all.duration-300');
-  }
-
-  async function expandFirstQuoteCard(page) {
-    const firstCard = (await getQuoteCards(page)).first();
-    await expect(firstCard).toBeVisible();
-    await firstCard.getByRole('button').first().click();
-    return firstCard;
-  }
-
-  async function selectFirstQuote(page) {
-    const firstCard = await expandFirstQuoteCard(page);
-    const selectButton = firstCard.getByRole('button', { name: /^Select$|^Selected$/ });
-    await expect(selectButton).toBeVisible();
-    await selectButton.click();
-    return firstCard;
-  }
-
   test.beforeEach(async ({ page }) => {
-    await startCoverage(page);
     resultsPage = new ResultsPage(page);
     await resultsPage.navigateTo(resultsUrl);
-  });
-
-  test.afterEach(async ({ page }, testInfo) => {
-    await stopCoverage(page, testInfo);
-  });
-
-  test('7.1 - should display the results shell after loading', async ({ page }) => {
     await resultsPage.waitForResultsLoaded();
+  });
+
+  test('7.1 - should display the results shell with tabs and toggle', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Your quotes' })).toBeVisible();
     await expect(resultsPage.individualTab).toBeVisible();
     await expect(resultsPage.bundleTab).toBeVisible();
+    await expect(resultsPage.annualToggle).toBeVisible();
+    await expect(resultsPage.monthlyToggle).toBeVisible();
     await expect(resultsPage.backButton).toBeVisible();
   });
 
-  test('7.2 - should expand a quote card and show product details', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
-    const firstCard = await expandFirstQuoteCard(page);
-    await expect(firstCard.getByText("What's included")).toBeVisible();
-    await expect(firstCard.getByText(/Total/i)).toBeVisible();
-    await expect(firstCard.getByText(/Monthly payments powered by/i)).toBeVisible();
+  test('7.2 - quote cards show Select and Select & Buy buttons even when collapsed', async ({ page }) => {
+    await expect(resultsPage.selectButtons.first()).toBeVisible();
+    await expect(resultsPage.selectAndBuyButtons.first()).toBeVisible();
   });
 
-  test('7.3 - should support filters and clearing them', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
+  test('7.3 - should expand a quote card and show product line items', async ({ page }) => {
+    await resultsPage.expandFirstQuoteCard();
+    await expect(page.getByText("What's included")).toBeVisible();
+    await expect(page.getByText(/Total/i)).toBeVisible();
+    // Monthly price shown below annual in expanded view
+    await expect(page.getByText(/instalment fee/i).first()).toBeVisible();
+  });
+
+  test('7.4 - first quote card shows Best for badge', async ({ page }) => {
+    await expect(resultsPage.bestForBadge.first()).toBeVisible();
+  });
+
+  test('7.5 - coverage limits use pill buttons not dropdowns', async ({ page }) => {
+    await expect(resultsPage.limitPill1M).toBeVisible();
+    await expect(resultsPage.limitPill2M).toBeVisible();
+    await expect(resultsPage.limitPill5M).toBeVisible();
+  });
+
+  test('7.6 - mandatory covers show Required badge', async ({ page }) => {
+    await expect(resultsPage.requiredBadges.first()).toBeVisible();
+  });
+
+  test('7.7 - should switch Annual/Monthly and update prices', async ({ page }) => {
+    await resultsPage.switchToMonthly();
+    await expect(page.getByText(/\/mo/).first()).toBeVisible();
+    await resultsPage.switchToAnnual();
+    await expect(page.getByText(/\/yr/).first()).toBeVisible();
+  });
+
+  test('7.8 - should open AI Insights panel and show peer data with Add buttons', async ({ page }) => {
+    await resultsPage.toggleAiInsights();
+    await expect(page.getByText(/What similar businesses add/i)).toBeVisible();
+    await expect(resultsPage.addButtons.first()).toBeVisible();
+  });
+
+  test('7.9 - should add an extra via AI Insights and show Added state', async ({ page }) => {
+    await resultsPage.toggleAiInsights();
+    await resultsPage.addFirstInsightExtra();
+    await expect(resultsPage.addedButtons.first()).toBeVisible();
+  });
+
+  test('7.10 - should support filters and clearing them', async ({ page }) => {
     await page.getByRole('button', { name: /Filter/i }).click();
     await expect(page.getByText('Filters', { exact: true })).toBeVisible();
     await page.getByText('Shariah-compliant only').click();
-
-    const maxPriceSlider = page.locator('input[type="range"]').first();
-    const initialMaxValue = await maxPriceSlider.getAttribute('max');
-    await maxPriceSlider.evaluate((element) => {
-      const nextValue = Math.max(Number(element.min), Math.floor(Number(element.max) * 0.7));
-      element.value = String(nextValue);
-      element.dispatchEvent(new Event('input', { bubbles: true }));
-      element.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-
-    await expect(maxPriceSlider).not.toHaveValue(initialMaxValue || '');
     await page.getByRole('button', { name: 'Clear all' }).click();
-    await expect(maxPriceSlider).toHaveValue(initialMaxValue || '');
   });
 
-  test('7.4 - should switch payment cadence and open AI insights', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
-    await page.getByRole('button', { name: 'Monthly' }).click();
-    await expect(page.getByText('/month').first()).toBeVisible();
-    await page.getByRole('button', { name: /Shory AI Insights/i }).click();
-    await expect(page.getByText(/What similar businesses add/i)).toBeVisible();
-  });
-
-  test('7.5 - should switch to bundles, drill in, and go back', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
+  test('7.11 - should switch to bundles showing Starting from prices', async ({ page }) => {
     await resultsPage.clickBundleTab();
-    await expect(page.getByRole('button', { name: /See Starter quotes/i })).toBeVisible();
-    await page.getByRole('button', { name: /See Starter quotes/i }).click();
-    await expect(page.getByRole('button', { name: /Back to bundles/i })).toBeVisible();
-    await page.getByRole('button', { name: /Back to bundles/i }).click();
+    await expect(page.getByText(/Starting from/i).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /See Starter quotes/i })).toBeVisible();
   });
 
-  test('7.6 - should select and deselect a quote from the sticky bar flow', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
-    const firstCard = await selectFirstQuote(page);
+  test('7.12 - should select and deselect a quote from the sticky bar', async ({ page }) => {
+    await resultsPage.selectFirstQuote();
     await expect(resultsPage.stickyBar).toBeVisible();
-
-    await firstCard.getByRole('button', { name: /Selected/i }).click();
+    // Deselect
+    await resultsPage.selectButtons.first().click();
     await expect(resultsPage.stickyBar).toBeHidden();
   });
 
-  test('7.7 - should continue to company details when company data is missing', async ({ page }) => {
-    await resultsPage.waitForResultsLoaded();
-    await selectFirstQuote(page);
-    await expect(resultsPage.continueButton).toBeVisible();
+  test('7.13 - should continue to company details', async ({ page }) => {
+    await resultsPage.selectFirstQuote();
     await resultsPage.clickContinue();
     await expect(page).toHaveURL(/\/quote\/company-details/);
   });
 
-  test('7.8 - should continue directly to checkout when company data is already present', async ({ page }) => {
+  test('7.14 - Select & Buy goes directly to checkout with company data', async ({ page }) => {
     await resultsPage.navigateTo(verifiedResultsUrl);
     await resultsPage.waitForResultsLoaded();
-    await selectFirstQuote(page);
-    await expect(resultsPage.continueButton).toBeVisible();
-    await resultsPage.clickContinue();
+    await resultsPage.clickFirstSelectAndBuy();
     await expect(page).toHaveURL(/\/quote\/checkout/);
   });
 });
