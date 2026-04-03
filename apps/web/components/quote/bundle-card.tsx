@@ -54,13 +54,13 @@ export function BundleCard({
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-            {t.common.currency}
+          <p className="text-xs font-medium text-gray-400">
+            {locale === 'ar' ? 'يبدأ من' : 'Starting from'}
           </p>
           <p className={`text-3xl font-bold ${featured ? 'text-primary' : 'text-gray-900'}`}>
-            {formatPrice(annualPrice)}
-            {t.common.perYear}
+            {formatPriceWithCurrency(annualPrice, t.common.currency, locale)}
           </p>
+          <p className="text-[11px] text-gray-400">{t.common.perYear}</p>
         </div>
       </div>
 

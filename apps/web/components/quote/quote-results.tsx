@@ -249,7 +249,7 @@ export function QuoteResults() {
       return {
         ...insurer,
         calculatedTotal,
-        total: selectedBundle?.annualPrice ?? calculatedTotal,
+        total: calculatedTotal,
       };
     });
   }, [
@@ -1028,15 +1028,26 @@ export function QuoteResults() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  {bundles.map((bundle) => (
+                  {bundles.map((bundle) => {
+                    const eligibleInsurers = insurers.filter((ins) => bundle.eligibleInsurerIds.includes(ins.id));
+                    const bundlePrices = eligibleInsurers.map((ins) =>
+                      calculateTotalPremium(
+                        {productIds: bundle.productIds, riskFactor: businessType?.riskFactor ?? 1, sizeFactor, coverageLimits, insurerMultiplier: ins.priceMultiplier},
+                        productsMap,
+                      ),
+                    );
+                    const lowestBundlePrice = bundlePrices.length > 0 ? Math.min(...bundlePrices) : bundle.annualPrice;
+                    const discountRate = bundle.benchmarkAnnualPrice > 0 ? 1 - (bundle.annualPrice / bundle.benchmarkAnnualPrice) : 0.1;
+                    const discountedPrice = Math.round(lowestBundlePrice * (1 - discountRate));
+                    return (
                     <BundleCard
                       key={bundle.id}
                       title={bundleCopy[bundle.copyKey].title}
                       description={
                         bundleCopy[bundle.copyKey].description
                       }
-                      annualPrice={bundle.annualPrice}
-                      savings={bundle.savings}
+                      annualPrice={discountedPrice}
+                      savings={lowestBundlePrice - discountedPrice}
                       chips={bundle.productIds.map((productId) => ({
                         id: productId,
                         shortName:
@@ -1049,7 +1060,8 @@ export function QuoteResults() {
                       featured={bundle.featured}
                       onSelect={() => handleBundleSelect(bundle)}
                     />
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
