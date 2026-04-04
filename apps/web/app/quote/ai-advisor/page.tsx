@@ -628,13 +628,10 @@ function analyzeInput(text: string, needMoreText: string): {response: string; bu
 
   const match = mappings.find((m) => m.keywords.some((kw) => lower.includes(kw) || text.includes(kw)));
 
-  if (!match && text.trim().split(/\s+/).length < 3) {
-    return {response: needMoreText, businessType: '', label: '', needsMore: true};
-  }
-
   if (match) {
     return {businessType: match.type, label: match.label, response: ''};
   }
 
-  return {businessType: 'general-trading', label: 'General Trading', response: '', lowConfidence: true};
+  // No keyword match — return needsMore so Gemini gets a chance
+  return {response: needMoreText, businessType: '', label: '', needsMore: true};
 }
