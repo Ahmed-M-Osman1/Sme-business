@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeTags} from '@/components/quote/business-type-tags';
 import {useI18n} from '@/lib/i18n';
 import {findScriptedResponse} from '@/lib/ai-demo-responses';
+import {api} from '@/lib/api-client';
 import quoteOptions from '@/config/quote-options.json';
 import type {ChatMessage, ConvoState, ChipOption} from '@/types/quote';
 
@@ -232,34 +233,27 @@ export default function AiAdvisorPage() {
 
       setIsProcessing(true);
 
-      setTimeout(() => {
-        const analysis = analyzeInput(userChatMessage, t.ai.needMore);
-
-        if (analysis.needsMore) {
-          // Try scripted fallback for short input
-          const scripted = findScriptedResponse(userChatMessage);
-          if (scripted) {
-            const translatedLabel = (t.businessType as Record<string, string>)[scripted.businessType] ?? scripted.label;
-            setSelectedTagId(scripted.businessType);
-            addChatMessages({role: 'ai', content: scripted.response});
-            setIsProcessing(false);
-            advanceConvo({
-              ...convo,
-              businessType: scripted.businessType,
-              businessLabel: translatedLabel,
-              step: 'employees',
-            });
-            return;
+      // Call Gemini API for business classification
+      api.ai.classify(userChatMessage).then((result) => {
+        // Handle fallback categories
+        if (result.fallback) {
+          if (result.fallback === 'harmful') {
+            addChatMessages({role: 'ai', content: t.ai.harmful});
+          } else if (result.fallback === 'out_of_scope') {
+            addChatMessages({role: 'ai', content: `${t.ai.outOfScope}\n\n${t.ai.fallbackSuggestion}`});
+          } else {
+            // unknown_topic — ask for more details
+            addChatMessages({role: 'ai', content: `${result.message ?? t.ai.needMore}\n\n${t.ai.fallbackSuggestion}`});
           }
-          addChatMessages({role: 'ai', content: `${analysis.response}\n\n${t.ai.fallbackSuggestion}`});
           setIsProcessing(false);
           inputRef.current?.focus();
           return;
         }
 
-        setSelectedTagId(analysis.businessType);
-        const translatedLabel = (t.businessType as Record<string, string>)[analysis.businessType] ?? analysis.label;
-        const confidenceNote = analysis.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
+        // Successful classification
+        setSelectedTagId(result.businessType);
+        const translatedLabel = (t.businessType as Record<string, string>)[result.businessType] ?? result.label;
+        const confidenceNote = result.confidence === 'low' ? `\n\n${t.ai.lowConfidence}` : '';
         addChatMessages({
           role: 'ai',
           content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}${confidenceNote}`,
@@ -268,11 +262,35 @@ export default function AiAdvisorPage() {
         setIsProcessing(false);
         advanceConvo({
           ...convo,
-          businessType: analysis.businessType,
+          businessType: result.businessType,
           businessLabel: translatedLabel,
           step: 'employees',
         });
-      }, CLASSIFICATION_MS);
+      }).catch(() => {
+        // API failed — fall back to client-side classification
+        const analysis = analyzeInput(userChatMessage, t.ai.needMore);
+        if (analysis.needsMore) {
+          const scripted = findScriptedResponse(userChatMessage);
+          if (scripted) {
+            const translatedLabel = (t.businessType as Record<string, string>)[scripted.businessType] ?? scripted.label;
+            setSelectedTagId(scripted.businessType);
+            addChatMessages({role: 'ai', content: scripted.response});
+            setIsProcessing(false);
+            advanceConvo({...convo, businessType: scripted.businessType, businessLabel: translatedLabel, step: 'employees'});
+            return;
+          }
+          addChatMessages({role: 'ai', content: `${analysis.response}\n\n${t.ai.fallbackSuggestion}`});
+          setIsProcessing(false);
+          inputRef.current?.focus();
+          return;
+        }
+        setSelectedTagId(analysis.businessType);
+        const translatedLabel = (t.businessType as Record<string, string>)[analysis.businessType] ?? analysis.label;
+        const confidenceNote = analysis.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
+        addChatMessages({role: 'ai', content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}${confidenceNote}`});
+        setIsProcessing(false);
+        advanceConvo({...convo, businessType: analysis.businessType, businessLabel: translatedLabel, step: 'employees'});
+      });
     } else {
       addChatMessages({role: 'user', content: userChatMessage});
       if (convo.step === 'employees') {

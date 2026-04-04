@@ -61,6 +61,18 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+
+    classify: (text: string) =>
+      fetchApi<{
+        businessType: string;
+        label: string;
+        confidence: 'high' | 'medium' | 'low';
+        fallback?: 'out_of_scope' | 'harmful' | 'unknown_topic';
+        message?: string;
+      }>('/ai/classify', {
+        method: 'POST',
+        body: JSON.stringify({text}),
+      }),
   },
 
   uploads: {

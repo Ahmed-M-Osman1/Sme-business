@@ -3,10 +3,48 @@ import {db, quotes, aiRecommendations, aiFallbackLog} from '@shory/db';
 import {aiRecommendRequestSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
-import {getRecommendations} from '../ai/advisor.js';
+import {getRecommendations, classifyBusiness} from '../ai/advisor.js';
 import {ZodError} from 'zod';
+import {z} from 'zod';
 
 export const aiRouter = new Hono();
+
+const classifySchema = z.object({
+  text: z.string().min(1, 'Text is required'),
+});
+
+aiRouter.post('/classify', async (c) => {
+  try {
+    const body = await c.req.json();
+    const {text} = classifySchema.parse(body);
+
+    const result = await classifyBusiness(text);
+
+    // Log fallbacks to ai_fallback_log
+    if (result.fallback) {
+      await db.insert(aiFallbackLog).values({
+        query: text,
+        fallbackReason: result.fallback === 'harmful' ? 'harmful'
+          : result.fallback === 'out_of_scope' ? 'out_of_scope'
+          : 'unknown_topic',
+        sessionId: c.req.header('x-session-id') ?? null,
+      }).catch(() => {});
+    }
+
+    return c.json(result);
+  } catch (e) {
+    if (e instanceof ZodError) return handleZodError(c, e);
+    if (e instanceof Error && (e.message.includes('gemini') || e.message.includes('GoogleGenAI') || e.message.includes('google'))) {
+      await db.insert(aiFallbackLog).values({
+        query: 'classify',
+        fallbackReason: 'ai_unavailable',
+        sessionId: c.req.header('x-session-id') ?? null,
+      }).catch(() => {});
+      return errorResponse(c, 'AI_UNAVAILABLE', 'AI service temporarily unavailable', 503);
+    }
+    throw e;
+  }
+});
 
 aiRouter.post('/recommend', async (c) => {
   try {
@@ -48,7 +86,10 @@ aiRouter.post('/recommend', async (c) => {
     return c.json({id: record.id, recommendations, confidence});
   } catch (e) {
     if (e instanceof ZodError) return handleZodError(c, e);
-    if (e instanceof Error && (e.message.includes('anthropic') || e.message.includes('Anthropic'))) {
+    if (
+      e instanceof Error &&
+      (e.message.includes('gemini') || e.message.includes('GoogleGenAI') || e.message.includes('google'))
+    ) {
       // Log AI unavailability (PDF §4.3)
       const body = await c.req.raw.clone().json().catch(() => ({}));
       await db.insert(aiFallbackLog).values({
