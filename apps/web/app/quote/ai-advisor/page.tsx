@@ -233,26 +233,27 @@ export default function AiAdvisorPage() {
 
       setIsProcessing(true);
 
-      // Call Gemini API for business classification
+      // 1. Try local keyword matching first (instant)
+      const local = analyzeInput(userChatMessage, t.ai.needMore);
+      if (!local.needsMore && local.businessType) {
+        setSelectedTagId(local.businessType);
+        const translatedLabel = (t.businessType as Record<string, string>)[local.businessType] ?? local.label;
+        const confidenceNote = local.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
+        addChatMessages({role: 'ai', content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}${confidenceNote}`});
+        setIsProcessing(false);
+        advanceConvo({...convo, businessType: local.businessType, businessLabel: translatedLabel, step: 'employees'});
+        return;
+      }
+
+      // 2. No local match — call Gemini API
       api.ai.classify(userChatMessage).then((result) => {
-        // Handle fallback categories
         if (result.fallback) {
           if (result.fallback === 'harmful') {
             addChatMessages({role: 'ai', content: t.ai.harmful});
           } else if (result.fallback === 'out_of_scope') {
             addChatMessages({role: 'ai', content: `${t.ai.outOfScope}\n\n${t.ai.fallbackSuggestion}`});
           } else {
-            // unknown_topic — try local keyword match before giving up
-            const local = analyzeInput(userChatMessage, t.ai.needMore);
-            if (!local.needsMore && local.businessType) {
-              setSelectedTagId(local.businessType);
-              const label = (t.businessType as Record<string, string>)[local.businessType] ?? local.label;
-              const note = local.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
-              addChatMessages({role: 'ai', content: `${t.ai.classifiedAs} **${label}**. ${t.ai.quickQuestions}${note}`});
-              setIsProcessing(false);
-              advanceConvo({...convo, businessType: local.businessType, businessLabel: label, step: 'employees'});
-              return;
-            }
+            // unknown_topic — return to user
             addChatMessages({role: 'ai', content: `${result.message ?? t.ai.needMore}\n\n${t.ai.fallbackSuggestion}`});
           }
           setIsProcessing(false);
@@ -260,7 +261,7 @@ export default function AiAdvisorPage() {
           return;
         }
 
-        // Successful classification
+        // Successful Gemini classification
         setSelectedTagId(result.businessType);
         const translatedLabel = (t.businessType as Record<string, string>)[result.businessType] ?? result.label;
         const confidenceNote = result.confidence === 'low' ? `\n\n${t.ai.lowConfidence}` : '';
@@ -277,29 +278,10 @@ export default function AiAdvisorPage() {
           step: 'employees',
         });
       }).catch(() => {
-        // API failed — fall back to client-side classification
-        const analysis = analyzeInput(userChatMessage, t.ai.needMore);
-        if (analysis.needsMore) {
-          const scripted = findScriptedResponse(userChatMessage);
-          if (scripted) {
-            const translatedLabel = (t.businessType as Record<string, string>)[scripted.businessType] ?? scripted.label;
-            setSelectedTagId(scripted.businessType);
-            addChatMessages({role: 'ai', content: scripted.response});
-            setIsProcessing(false);
-            advanceConvo({...convo, businessType: scripted.businessType, businessLabel: translatedLabel, step: 'employees'});
-            return;
-          }
-          addChatMessages({role: 'ai', content: `${analysis.response}\n\n${t.ai.fallbackSuggestion}`});
-          setIsProcessing(false);
-          inputRef.current?.focus();
-          return;
-        }
-        setSelectedTagId(analysis.businessType);
-        const translatedLabel = (t.businessType as Record<string, string>)[analysis.businessType] ?? analysis.label;
-        const confidenceNote = analysis.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
-        addChatMessages({role: 'ai', content: `${t.ai.classifiedAs} **${translatedLabel}**. ${t.ai.quickQuestions}${confidenceNote}`});
+        // API failed — show fallback suggestion
+        addChatMessages({role: 'ai', content: `${t.ai.needMore}\n\n${t.ai.fallbackSuggestion}`});
         setIsProcessing(false);
-        advanceConvo({...convo, businessType: analysis.businessType, businessLabel: translatedLabel, step: 'employees'});
+        inputRef.current?.focus();
       });
     } else {
       addChatMessages({role: 'user', content: userChatMessage});
