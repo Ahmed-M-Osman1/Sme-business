@@ -153,7 +153,8 @@
     "consulting": "Consulting / Advisory",
     "general-trading": "General Trading",
     "logistics": "Logistics / Transport",
-    "real-estate": "Real Estate"
+    "real-estate": "Real Estate",
+    "travel-tourism": "Travel / Tourism"
   },
   "businessTypeDescriptions": {
     "cafe-restaurant": "Cafés, restaurants, food delivery services",
@@ -165,7 +166,8 @@
     "consulting": "Business consulting, management advisory, training",
     "general-trading": "Import/export, general merchandise, distributors",
     "logistics": "Transportation, warehousing, supply chain management",
-    "real-estate": "Property brokerage, development, property management"
+    "real-estate": "Property brokerage, development, property management",
+    "travel-tourism": "Travel agencies, tour operators, destination management"
   },
   "ai": {
     "title": "AI Advisor",

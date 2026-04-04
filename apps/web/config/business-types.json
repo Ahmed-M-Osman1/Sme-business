@@ -88,5 +88,14 @@
     "riskLevel": "medium",
     "riskFactor": 1.4,
     "products": ["workers-comp", "public-liability", "professional-indemnity"]
+  },
+  {
+    "id": "travel-tourism",
+    "title": "Travel / Tourism",
+    "description": "Travel agencies, tour operators, destination management",
+    "icon": "✈️",
+    "riskLevel": "medium",
+    "riskFactor": 1.4,
+    "products": ["workers-comp", "public-liability", "professional-indemnity"]
   }
 ]

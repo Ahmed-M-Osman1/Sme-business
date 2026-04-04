@@ -631,6 +631,7 @@ function analyzeInput(text: string, needMoreText: string): {response: string; bu
     {keywords: ['import', 'export', 'general trading', 'merchandise', 'wholesale', 'تجارة عامة'], type: 'general-trading', label: 'General Trading'},
     {keywords: ['logistics', 'transport', 'delivery', 'freight', 'warehouse', 'courier', 'نقل', 'لوجستيات'], type: 'logistics', label: 'Logistics / Transport'},
     {keywords: ['real estate', 'property management', 'brokerage', 'عقارات', 'عقار'], type: 'real-estate', label: 'Real Estate'},
+    {keywords: ['travel', 'tourism', 'tour', 'airline', 'hotel', 'booking', 'destination', 'سفر', 'سياحة', 'رحلات'], type: 'travel-tourism', label: 'Travel / Tourism'},
   ];
 
   const match = mappings.find((m) => m.keywords.some((kw) => lower.includes(kw) || text.includes(kw)));

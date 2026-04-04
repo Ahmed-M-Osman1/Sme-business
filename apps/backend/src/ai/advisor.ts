@@ -84,6 +84,7 @@ Given a user's free-text description, classify their business into ONE of these 
 - general-trading (General Trading)
 - logistics (Logistics / Transport)
 - real-estate (Real Estate)
+- travel-tourism (Travel / Tourism)
 
 ## Rules
 - If the input is about a real business, classify it and return the result.
