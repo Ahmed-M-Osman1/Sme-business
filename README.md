@@ -32,7 +32,7 @@ Full-stack SME insurance platform with a customer-facing quote journey, internal
 | 🗄️ Database | **PostgreSQL** (Neon) · **Drizzle ORM** |
 | ✅ Validation | **Zod** (shared frontend + backend) |
 | 🔐 Auth | **Auth.js** (NextAuth v5) |
-| 🤖 AI | **Claude API** (Anthropic) |
+| 🤖 AI | **OpenAI API** (ChatGPT) |
 | 📄 PDF | **jsPDF** + **html2canvas** |
 | 📦 Storage | **Vercel Blob** |
 | 🧪 Testing | **Playwright** (65 E2E tests) |
@@ -83,7 +83,7 @@ cp .env.example .env
 | `AUTH_SECRET` | ✅ | Auth.js secret (`npx auth secret`) |
 | `AUTH_URL` | ✅ | Admin app URL (`http://localhost:3001`) |
 | `NEXT_PUBLIC_API_URL` | ✅ | Backend URL (`http://localhost:3002`) |
-| `ANTHROPIC_API_KEY` | ➖ | Claude API key (AI advisor) |
+| `OPENAI_API_KEY` | ➖ | OpenAI API key (AI advisor) |
 | `BLOB_READ_WRITE_TOKEN` | ➖ | Vercel Blob token (file uploads) |
 
 ### 3️⃣ Database

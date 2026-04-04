@@ -7,7 +7,7 @@ Base URL: `http://localhost:3002/api` (dev) | `https://sme-business-backend.verc
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/health` | None | Returns `{status: "ok"}` |
-| GET | `/readyz` | None | Checks DATABASE_URL, ANTHROPIC_API_KEY, BLOB_READ_WRITE_TOKEN |
+| GET | `/readyz` | None | Checks DATABASE_URL, OPENAI_API_KEY, BLOB_READ_WRITE_TOKEN |
 
 ## Catalog (Public)
 

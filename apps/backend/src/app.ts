@@ -27,7 +27,7 @@ app.get('/api/readyz', (c) => {
       missing,
       services: {
         databaseConfigured: Boolean(process.env.DATABASE_URL),
-        aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+        aiConfigured: Boolean(process.env.GEMINI_API_KEY),
         blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       },
     },

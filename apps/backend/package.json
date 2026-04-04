@@ -9,12 +9,12 @@
   "scripts": {
     "dev": "node --env-file=../../.env --import tsx --watch src/index.ts",
     "prebuild": "pnpm --filter @shory/db build && pnpm --filter @shory/shared build",
-    "build": "pnpm exec tsup index.ts --format esm --external @anthropic-ai/sdk --external @shory/db --external @shory/shared --external @vercel/blob --external drizzle-orm --external hono --external zod --outDir dist",
+    "build": "pnpm exec tsup index.ts --format esm --external @google/genai --external @shory/db --external @shory/shared --external @vercel/blob --external drizzle-orm --external hono --external zod --outDir dist",
     "start": "node dist/index.js",
     "lint": "eslint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39",
+    "@google/genai": "^1.14.0",
     "@hono/node-server": "^1.19.12",
     "@shory/db": "workspace:*",
     "@shory/shared": "workspace:*",
