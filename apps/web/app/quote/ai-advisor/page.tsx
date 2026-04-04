@@ -242,7 +242,17 @@ export default function AiAdvisorPage() {
           } else if (result.fallback === 'out_of_scope') {
             addChatMessages({role: 'ai', content: `${t.ai.outOfScope}\n\n${t.ai.fallbackSuggestion}`});
           } else {
-            // unknown_topic — ask for more details
+            // unknown_topic — try local keyword match before giving up
+            const local = analyzeInput(userChatMessage, t.ai.needMore);
+            if (!local.needsMore && local.businessType) {
+              setSelectedTagId(local.businessType);
+              const label = (t.businessType as Record<string, string>)[local.businessType] ?? local.label;
+              const note = local.lowConfidence ? `\n\n${t.ai.lowConfidence}` : '';
+              addChatMessages({role: 'ai', content: `${t.ai.classifiedAs} **${label}**. ${t.ai.quickQuestions}${note}`});
+              setIsProcessing(false);
+              advanceConvo({...convo, businessType: local.businessType, businessLabel: label, step: 'employees'});
+              return;
+            }
             addChatMessages({role: 'ai', content: `${result.message ?? t.ai.needMore}\n\n${t.ai.fallbackSuggestion}`});
           }
           setIsProcessing(false);
