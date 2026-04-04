@@ -27,7 +27,7 @@ aiRouter.post('/classify', async (c) => {
         fallbackReason: result.fallback === 'harmful' ? 'harmful'
           : result.fallback === 'out_of_scope' ? 'out_of_scope'
           : 'unknown_topic',
-        sessionId: c.req.header('x-session-id') ?? null,
+
       }).catch(() => {});
     }
 
@@ -38,7 +38,7 @@ aiRouter.post('/classify', async (c) => {
       await db.insert(aiFallbackLog).values({
         query: 'classify',
         fallbackReason: 'ai_unavailable',
-        sessionId: c.req.header('x-session-id') ?? null,
+
       }).catch(() => {});
       return errorResponse(c, 'AI_UNAVAILABLE', 'AI service temporarily unavailable', 503);
     }
@@ -69,7 +69,7 @@ aiRouter.post('/recommend', async (c) => {
       await db.insert(aiFallbackLog).values({
         query: JSON.stringify(inputContext),
         fallbackReason: 'low_confidence',
-        sessionId: c.req.header('x-session-id') ?? null,
+
       });
     }
 
@@ -95,7 +95,7 @@ aiRouter.post('/recommend', async (c) => {
       await db.insert(aiFallbackLog).values({
         query: JSON.stringify(body),
         fallbackReason: 'ai_unavailable',
-        sessionId: c.req.header('x-session-id') ?? null,
+
       }).catch(() => {});
 
       return errorResponse(c, 'AI_UNAVAILABLE', 'AI service temporarily unavailable', 503);
