@@ -8,62 +8,68 @@ import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
 import {useBrand} from '@/lib/brand';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
-const FEATURED = {
-  id: 'ai-advisor',
-  icon: '🤖',
-  title: 'AI Advisor',
-  description:
-    'Describe your business in plain English — AI handles the rest',
-  badge: {
-    label: 'Recommended',
-    className: 'bg-blue-100 text-blue-700',
-  },
-  href: '/quote/ai-advisor',
-} as const;
-
-const OTHER_METHODS = [
-  {
-    id: 'pre-configured',
-    icon: '⚡',
-    title: 'Select a pre-configured business',
+function getFeatured(basePath: string) {
+  return {
+    id: 'ai-advisor',
+    icon: '🤖',
+    title: 'AI Advisor',
     description:
-      'Choose from 8 UAE business types — instant quote, no forms',
+      'Describe your business in plain English — AI handles the rest',
     badge: {
-      label: 'Fastest',
-      className: 'bg-primary/10 text-primary',
+      label: 'Recommended',
+      className: 'bg-blue-100 text-blue-700',
     },
-    href: '/quote/business-type',
-  },
-  {
-    id: 'upload',
-    icon: '📄',
-    title: 'Upload trade licence',
-    description:
-      'Claude Vision reads your document and pre-fills everything',
-    badge: null,
-    href: '/quote/upload',
-  },
-  {
-    id: 'manual',
-    icon: '✏️',
-    title: 'Fill in manually',
-    description: 'Step-by-step form with smart auto-fill',
-    badge: null,
-    href: '/quote/manual',
-  },
-] as const;
+    href: `${basePath}/quote/ai-advisor`,
+  } as const;
+}
+
+function getOtherMethods(basePath: string) {
+  return [
+    {
+      id: 'pre-configured',
+      icon: '⚡',
+      title: 'Select a pre-configured business',
+      description:
+        'Choose from 8 UAE business types — instant quote, no forms',
+      badge: {
+        label: 'Fastest',
+        className: 'bg-primary/10 text-primary',
+      },
+      href: `${basePath}/quote/business-type`,
+    },
+    {
+      id: 'upload',
+      icon: '📄',
+      title: 'Upload trade licence',
+      description:
+        'Claude Vision reads your document and pre-fills everything',
+      badge: null,
+      href: `${basePath}/quote/upload`,
+    },
+    {
+      id: 'manual',
+      icon: '✏️',
+      title: 'Fill in manually',
+      description: 'Step-by-step form with smart auto-fill',
+      badge: null,
+      href: `${basePath}/quote/manual`,
+    },
+  ] as const;
+}
 
 export default function QuoteStartPage() {
   const {t, locale} = useI18n();
   const brand = useBrand();
   const router = useRouter();
+  const FEATURED = getFeatured(brand.basePath);
+  const OTHER_METHODS = getOtherMethods(brand.basePath);
 
   function handleUaePassLogin() {
     const d = brand.uaePassMockData;
     if (!d) return;
     sessionStorage.setItem('uaepass-data', JSON.stringify(d));
     router.push(
-      `/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
+      `${brand.basePath}/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
     );
   }
 

@@ -968,7 +968,7 @@ export function Confirmation() {
 
         {/* Start over */}
         <Link
-          href="/quote/start"
+          href={`${brand.basePath}/quote/start`}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
           {t.confirmation.startNewQuote}
           <svg

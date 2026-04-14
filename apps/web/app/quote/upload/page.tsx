@@ -168,7 +168,7 @@ export default function UploadPage() {
       businessName: companyName,
       licenseNumber,
     });
-    router.push(`/quote/results?${params.toString()}`);
+    router.push(`${brand.basePath}/quote/results?${params.toString()}`);
   }
 
   const stageIcon =
@@ -343,7 +343,7 @@ export default function UploadPage() {
             {/* Alt paths */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
-                onClick={() => router.push('/quote/ai-advisor')}
+                onClick={() => router.push(`${brand.basePath}/quote/ai-advisor`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 <LottieAnimation
                   path="/lottie/aiChat.lottie"
@@ -352,7 +352,7 @@ export default function UploadPage() {
                 {t.upload.tryAi}
               </button>
               <button
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 ✏️ {t.upload.enterManually}
               </button>
@@ -525,7 +525,7 @@ export default function UploadPage() {
                 {t.upload.reUpload}
               </button>
               <button
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 <svg
                   width="16"

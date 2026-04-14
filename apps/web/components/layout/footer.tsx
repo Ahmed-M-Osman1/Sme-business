@@ -18,7 +18,7 @@ export function Footer() {
   ];
 
   const corporateLinks = [
-    {label: t.footer.smeInsurance, href: '/quote/start'},
+    {label: t.footer.smeInsurance, href: `${brand.basePath}/quote/start`},
     {label: t.footer.travelInsurance, href: '#'},
   ];
 

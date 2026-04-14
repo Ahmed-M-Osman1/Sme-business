@@ -140,7 +140,7 @@ export default function AiAdvisorPage() {
       emirate: state.emirate,
     });
     if (state.revenue) params.set('revenue', state.revenue);
-    return `/quote/results?${params.toString()}`;
+    return `${brand.basePath}/quote/results?${params.toString()}`;
   }
 
   async function advanceConvo(nextState: ConvoState) {
@@ -384,14 +384,14 @@ export default function AiAdvisorPage() {
           {apiFailed && (
             <div className="px-4 pt-3 pb-1 flex flex-col sm:flex-row gap-2">
               <Button
-                onClick={() => router.push('/quote/business-type')}
+                onClick={() => router.push(`${brand.basePath}/quote/business-type`)}
                 className="flex-1 rounded-xl bg-primary text-white py-3 font-semibold hover:bg-primary/90 transition-colors"
               >
                 {t.ai.quickSelect}
               </Button>
               <Button
                 variant="outline"
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 rounded-xl border-2 border-primary text-primary py-3 font-semibold hover:bg-primary/5 transition-colors"
               >
                 {t.ai.manualEntry}

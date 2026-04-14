@@ -15,7 +15,7 @@ export function Navbar() {
   const brand = useBrand();
   const isDark = brand.navStyle === 'dark';
 
-  const NAV_LINKS = [{label: t.nav.business, href: '/quote/start'}];
+  const NAV_LINKS = [{label: t.nav.business, href: `${brand.basePath}/quote/start`}];
 
   return (
     <nav

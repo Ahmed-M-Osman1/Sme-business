@@ -186,7 +186,7 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
     }
 
     window.scrollTo({top: 0, behavior: 'smooth'});
-    router.push(`/quote/results?${params.toString()}`);
+    router.push(`${brand.basePath}/quote/results?${params.toString()}`);
   }
 
   if (loading) {

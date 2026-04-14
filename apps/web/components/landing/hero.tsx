@@ -94,7 +94,7 @@ export function Hero() {
     {
       title: t.landing.heroCards.smeBusinessInsurance,
       image: 'sme-icon',
-      href: '/quote/start',
+      href: `${brand.basePath}/quote/start`,
       active: true,
     },
     {

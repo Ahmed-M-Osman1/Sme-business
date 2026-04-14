@@ -37,7 +37,7 @@ const SERVICES = [
     title: 'Business Insurance',
     entity: 'Shory Insurance Broker',
     icon: '/images/tamm-logo.svg',
-    href: '/quote/start',
+    href: '/tamm/quote/start',
     highlighted: true,
   },
   {
@@ -149,7 +149,7 @@ export default function TammEntryPage() {
     if (!d) return;
     sessionStorage.setItem('uaepass-data', JSON.stringify(d));
     router.push(
-      `/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
+      `${brand.basePath}/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
     );
   }
 
@@ -265,7 +265,7 @@ export default function TammEntryPage() {
               Get comprehensive SME insurance coverage in minutes. Workers Compensation, Liability, Property and more — all from top UAE insurers at competitive prices.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Link href="/quote/start">
+              <Link href={`${brand.basePath}/quote/start`}>
                 <Button className="rounded-full px-6 py-2.5 bg-white text-[#005C9E] font-semibold text-sm hover:bg-white/90">
                   Start your Journey
                 </Button>

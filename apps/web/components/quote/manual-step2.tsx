@@ -115,7 +115,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
     }
 
     window.scrollTo({top: 0, behavior: 'smooth'});
-    router.push(`/quote/results?${params.toString()}`);
+    router.push(`${brand.basePath}/quote/results?${params.toString()}`);
   }
 
   const canSubmit = !!emirate;

@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import {Button} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 
 export function CtaSection() {
   const {t} = useI18n();
+  const brand = useBrand();
   return (
     <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 sm:px-6 lg:flex-row lg:px-8">
@@ -40,7 +42,7 @@ export function CtaSection() {
             size="lg"
             className="mt-6 rounded-full bg-primary px-8 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-hover"
           >
-            <Link href="/quote/start">{t.landing.ctaButton}</Link>
+            <Link href={`${brand.basePath}/quote/start`}>{t.landing.ctaButton}</Link>
           </Button>
         </div>
       </div>

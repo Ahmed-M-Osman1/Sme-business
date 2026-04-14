@@ -259,7 +259,7 @@ export function CompanyDetails() {
     }
     clearDraft();
     window.scrollTo({top: 0, behavior: 'smooth'});
-    router.push(`/quote/checkout?${existing.toString()}`);
+    router.push(`${brand.basePath}/quote/checkout?${existing.toString()}`);
   };
 
   const stageIcon = progress.pct < 30 ? '\u{1F4E4}' : progress.pct < 60 ? '\u{1F50D}' : '\u2728';

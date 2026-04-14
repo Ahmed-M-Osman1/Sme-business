@@ -691,9 +691,9 @@ export function QuoteResults() {
         ? (() => {
             params.set('companyVerified', 'true');
             params.set('companySource', 'ocr');
-            return `/quote/checkout?${params.toString()}`;
+            return `${brand.basePath}/quote/checkout?${params.toString()}`;
           })()
-        : `/quote/company-details?${params.toString()}`;
+        : `${brand.basePath}/quote/company-details?${params.toString()}`;
 
     setTimeout(() => {
       router.push(destination);

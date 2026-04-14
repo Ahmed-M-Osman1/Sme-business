@@ -173,7 +173,7 @@ export function Checkout() {
       if (payMethod === 'finwall') params.set('payRef', `FW-${Math.random().toString(36).slice(2, 10).toUpperCase()}`);
       if (payMethod === 'bank_transfer') params.set('payRef', `SHRY-${Date.now().toString(36).toUpperCase()}`);
       window.scrollTo({top: 0, behavior: 'smooth'});
-      router.push(`/quote/confirmation?${params.toString()}`);
+      router.push(`${brand.basePath}/quote/confirmation?${params.toString()}`);
     }, PAYMENT_PROCESSING_MS);
   }
 
