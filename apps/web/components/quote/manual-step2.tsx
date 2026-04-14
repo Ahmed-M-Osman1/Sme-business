@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import quoteOptions from '@/config/quote-options.json';
+import {getBrand} from '@/lib/brand';
 import {useI18n} from '@/lib/i18n';
 
 interface Step1Data {
@@ -36,6 +37,8 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
   const {t, locale} = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const brand = getBrand();
+  const brandEmirateValues = brand.locations.map((loc) => loc.value);
   const [emirate, setEmirate] = useState('');
   const [coverageArea, setCoverageArea] = useState('');
   const [selectedAssets, setSelectedAssets] = useState<AssetSelection[]>([]);
@@ -44,13 +47,13 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
   // Auto-populate Emirate from URL params or sessionStorage
   useEffect(() => {
     const paramEmirate = searchParams.get('emirate');
-    if (paramEmirate && quoteOptions.emirates.includes(paramEmirate)) {
+    if (paramEmirate && brandEmirateValues.includes(paramEmirate)) {
       setEmirate(paramEmirate);
       return;
     }
     try {
       const stored = sessionStorage.getItem('shory-emirate');
-      if (stored && quoteOptions.emirates.includes(stored)) {
+      if (stored && brandEmirateValues.includes(stored)) {
         setEmirate(stored);
       }
     } catch {
@@ -128,7 +131,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-text mb-1.5">
-                {t.manual.emirate} <span className="text-red-500">*</span>
+                {brand.locationLabel} <span className="text-red-500">*</span>
               </label>
               <select
                 value={emirate}
@@ -136,9 +139,9 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
                 className="w-full rounded-xl border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
               >
                 <option value="">{t.manual.selectEmirate}</option>
-                {quoteOptions.emirates.map((em) => (
-                  <option key={em} value={em}>
-                    {emirateLabels[em] ?? em}
+                {brand.locations.map((loc) => (
+                  <option key={loc.value} value={loc.value}>
+                    {emirateLabels[loc.value] ?? loc.label}
                   </option>
                 ))}
               </select>
