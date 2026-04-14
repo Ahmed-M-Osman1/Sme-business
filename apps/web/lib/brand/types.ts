@@ -55,6 +55,8 @@ export interface BrandConfig {
   // Legal
   legalReferences: LegalReferences;
   compliancePanel: ComplianceItem[];
+  /** Locations where employee health insurance is legally mandatory. Use ['*'] for all locations. */
+  healthInsuranceMandatoryLocations: string[];
 
   // Trust & branding
   trustBadges: TrustBadge[];

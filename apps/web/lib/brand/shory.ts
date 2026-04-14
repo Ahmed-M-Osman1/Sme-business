@@ -37,6 +37,7 @@ export const shoryBrand: BrandConfig = {
     freeZoneRequirement: 'Professional Indemnity — Required by DFSA for regulated activities',
     motorLaw: 'UAE Traffic Law',
   },
+  healthInsuranceMandatoryLocations: ['Dubai', 'Abu Dhabi'],
   compliancePanel: [
     {
       category: 'Legally required — UAE',

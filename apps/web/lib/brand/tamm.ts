@@ -35,6 +35,7 @@ export const tammBrand: BrandConfig = {
     freeZoneRequirement: 'Professional Indemnity — Required by FSRA for regulated activities',
     motorLaw: 'UAE Traffic Law',
   },
+  healthInsuranceMandatoryLocations: ['*'],
   compliancePanel: [
     {
       category: 'Legally required — Abu Dhabi',

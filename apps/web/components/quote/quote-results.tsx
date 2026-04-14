@@ -55,8 +55,7 @@ const PEER_DATA: Record<
       {
         name: 'Food Contamination',
         pct: 67,
-        reason:
-          'Required by DHA/food safety regulators in most emirates',
+        reason: `Required by ${getBrand().legalReferences.healthAuthority}/food safety regulators`,
       },
       {
         name: 'Cyber Liability',
@@ -612,13 +611,14 @@ export function QuoteResults() {
   const mandatoryProducts = useMemo(() => {
     const mandatory = new Set<string>();
     if (employeeBand !== '1') mandatory.add('workers-comp');
-    if (emirate === 'Dubai' || emirate === 'Abu Dhabi') {
-      // Health insurance mandatory in DXB/AUH if product exists
-      if (availableProductIds.includes('health'))
-        mandatory.add('health');
+    const healthLocs = brand.healthInsuranceMandatoryLocations;
+    const healthMandatory =
+      healthLocs.includes('*') || healthLocs.includes(emirate);
+    if (healthMandatory && availableProductIds.includes('health')) {
+      mandatory.add('health');
     }
     return mandatory;
-  }, [employeeBand, emirate, availableProductIds]);
+  }, [employeeBand, emirate, availableProductIds, brand]);
 
   function toggleProduct(productId: string) {
     if (mandatoryProducts.has(productId)) return;
@@ -899,7 +899,7 @@ export function QuoteResults() {
                         }
                       />
                       <SummaryRow
-                        label={t.results.emirate}
+                        label={brand.locationLabel}
                         value={
                           (
                             t.options.emirates as Record<
