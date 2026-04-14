@@ -180,11 +180,13 @@ export default function UploadPage() {
   if (step === 'processing') {
     return (
       <div className="flex flex-col gap-8">
-        <ProgressIndicator
-          currentStep={2}
-          totalSteps={6}
-          label={t.upload.uploadDocument}
-        />
+        {brand.id !== 'tamm' && (
+          <ProgressIndicator
+            currentStep={2}
+            totalSteps={6}
+            label={t.upload.uploadDocument}
+          />
+        )}
         <div className="flex-1 flex flex-col items-center justify-center gap-5 py-20">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl">
             {stageIcon}
@@ -206,11 +208,13 @@ export default function UploadPage() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator
-        currentStep={2}
-        totalSteps={6}
-        label={t.upload.uploadDocument}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={2}
+          totalSteps={6}
+          label={t.upload.uploadDocument}
+        />
+      )}
 
       {/* Header */}
       <div className="max-w-3xl mx-auto px-4 w-full">

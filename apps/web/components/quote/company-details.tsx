@@ -284,7 +284,7 @@ export function CompanyDetails() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={5} totalSteps={6} label={t.progress.company} />
+      {brand.id !== 'tamm' && <ProgressIndicator currentStep={5} totalSteps={6} label={t.progress.company} />}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">{t.companyDetails.title}</h1>

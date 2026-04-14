@@ -362,7 +362,7 @@ export default function AiAdvisorPage() {
               {t.ai.backToStart}
             </button>
           </div>
-          <ProgressIndicator currentStep={2} totalSteps={6} label={t.ai.title} />
+          {brand.id !== 'tamm' && <ProgressIndicator currentStep={2} totalSteps={6} label={t.ai.title} />}
         </div>
       </div>
 

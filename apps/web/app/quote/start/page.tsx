@@ -75,11 +75,13 @@ export default function QuoteStartPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <ProgressIndicator
-        currentStep={1}
-        totalSteps={6}
-        label={t.progress.chooseMethod}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={1}
+          totalSteps={6}
+          label={t.progress.chooseMethod}
+        />
+      )}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">

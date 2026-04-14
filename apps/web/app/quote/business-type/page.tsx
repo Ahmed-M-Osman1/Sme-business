@@ -122,11 +122,13 @@ export default function BusinessTypePage() {
   return (
     <div className="flex flex-col gap-6">
       <div ref={topRef} />
-      <ProgressIndicator
-        currentStep={2}
-        totalSteps={6}
-        label={t.businessType.title}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={2}
+          totalSteps={6}
+          label={t.businessType.title}
+        />
+      )}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
