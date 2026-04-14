@@ -10,12 +10,14 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 import {
   calculateMonthlyPrice,
   calculateProductPrice,
   calculateQuarterlyPrice,
   calculateTotalPremium,
   formatPriceWithCurrency,
+  getLocationMultiplier,
   getSizeFactor,
 } from '@/lib/pricing';
 import {evaluateRecommendations} from '@/lib/recommendation-engine';
@@ -299,7 +301,9 @@ export function QuoteResults() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const source = searchParams.get('source') ?? 'pre-configured';
   const employeeBand = searchParams.get('employees') ?? '2-5';
-  const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const brand = getBrand();
+  const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
+  const locationMultiplier = getLocationMultiplier(emirate, brand.locationMultipliers);
   const revenue = searchParams.get('revenue') ?? '';
   const coverageArea = searchParams.get('coverageArea') ?? '';
 
@@ -445,7 +449,7 @@ export function QuoteResults() {
     if (!businessType) return [];
 
     return insurers.map((insurer) => {
-      const calculatedTotal = calculateTotalPremium(
+      const basePremium = calculateTotalPremium(
         {
           productIds: Array.from(activeProducts),
           riskFactor: businessType.riskFactor,
@@ -455,6 +459,7 @@ export function QuoteResults() {
         },
         productsMap,
       );
+      const calculatedTotal = Math.round(basePremium * locationMultiplier);
 
       return {
         ...insurer,
@@ -467,6 +472,7 @@ export function QuoteResults() {
     businessType,
     coverageLimits,
     insurers,
+    locationMultiplier,
     productsMap,
     selectedBundle,
     sizeFactor,
@@ -1432,15 +1438,17 @@ export function QuoteResults() {
                       bundle.eligibleInsurerIds.includes(ins.id),
                     );
                     const bundlePrices = eligibleInsurers.map((ins) =>
-                      calculateTotalPremium(
-                        {
-                          productIds: bundle.productIds,
-                          riskFactor: businessType?.riskFactor ?? 1,
-                          sizeFactor,
-                          coverageLimits,
-                          insurerMultiplier: ins.priceMultiplier,
-                        },
-                        productsMap,
+                      Math.round(
+                        calculateTotalPremium(
+                          {
+                            productIds: bundle.productIds,
+                            riskFactor: businessType?.riskFactor ?? 1,
+                            sizeFactor,
+                            coverageLimits,
+                            insurerMultiplier: ins.priceMultiplier,
+                          },
+                          productsMap,
+                        ) * locationMultiplier,
                       ),
                     );
                     const lowestBundlePrice =

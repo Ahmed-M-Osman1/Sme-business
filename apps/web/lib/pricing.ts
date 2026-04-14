@@ -64,6 +64,10 @@ export function getSizeFactor(employeeBand: string): number {
   return SIZE_FACTORS[employeeBand] ?? 1.0;
 }
 
+export function getLocationMultiplier(location: string, multipliers: Record<string, number>): number {
+  return multipliers[location] ?? 1.0;
+}
+
 export function calculateQuarterlyPrice(annualPrice: number): number {
   return Math.round(annualPrice / 4);
 }
