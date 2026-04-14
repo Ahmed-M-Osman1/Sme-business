@@ -159,7 +159,7 @@ export default function TammEntryPage() {
       <header className="bg-[#12121B] text-white">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
           <div className="flex items-center gap-8">
-            <Link href="/tamm-entry" className="font-bold text-lg tracking-tight">
+            <Link href="/tamm" className="font-bold text-lg tracking-tight">
               TAMM
             </Link>
             <div className="hidden md:flex items-center gap-6">
