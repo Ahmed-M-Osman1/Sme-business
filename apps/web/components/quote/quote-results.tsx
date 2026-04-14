@@ -8,6 +8,8 @@ import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {BundleCard} from '@/components/quote/bundle-card';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
+import {TammQuoteCard} from '@/components/quote/tamm-quote-card';
+import {TammFilterBar} from '@/components/quote/tamm-filter-bar';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
 import {useBrand, type BrandConfig} from '@/lib/brand';
@@ -301,6 +303,7 @@ export function QuoteResults() {
   const source = searchParams.get('source') ?? 'pre-configured';
   const employeeBand = searchParams.get('employees') ?? '2-5';
   const brand = useBrand();
+  const isTamm = brand.id === 'tamm';
   const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
   const locationMultiplier = getLocationMultiplier(emirate, brand.locationMultipliers);
   const revenue = searchParams.get('revenue') ?? '';
@@ -323,6 +326,7 @@ export function QuoteResults() {
   >({});
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'rating'>('price');
+  const [sortOrder, setSortOrder] = useState<'low-high' | 'high-low'>('low-high');
   const [shariahOnly, setShariahOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -501,11 +505,12 @@ export function QuoteResults() {
         return right.rating - left.rating;
       }
 
-      return left.total - right.total;
+      const direction = isTamm && sortOrder === 'high-low' ? -1 : 1;
+      return (left.total - right.total) * direction;
     });
 
     return filtered;
-  }, [eligibleQuotes, maxPrice, shariahOnly, sortBy]);
+  }, [eligibleQuotes, isTamm, maxPrice, shariahOnly, sortBy, sortOrder]);
 
   useEffect(() => {
     if (
@@ -731,11 +736,11 @@ export function QuoteResults() {
   return (
     <div className="pb-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4">
-        <ProgressIndicator
+        {!isTamm && <ProgressIndicator
           currentStep={4}
           totalSteps={6}
           label={t.progress.quotes}
-        />
+        />}
 
         {searchParams.get('uaepass') === 'true' && (
           <div className="rounded-xl border border-green-200/20 bg-green-50 px-4 py-3 flex items-center gap-2">
@@ -1338,6 +1343,13 @@ export function QuoteResults() {
                     </button>
                   )}
 
+                  {isTamm && (
+                    <TammFilterBar
+                      sortOrder={sortOrder}
+                      onSortChange={setSortOrder}
+                    />
+                  )}
+
                   {insurerQuotes.length === 0 ? (
                     <Card className="rounded-[24px] border border-gray-200 bg-white">
                       <CardContent className="p-8 text-center">
@@ -1413,7 +1425,28 @@ export function QuoteResults() {
                       );
                       const allLines = [...lines, ...extraLines];
                       const cardTotal = insurer.total + extrasTotal;
-                      return (
+                      return isTamm ? (
+                        <TammQuoteCard
+                          key={insurer.id}
+                          insurer={{
+                            id: insurer.id,
+                            name: insurer.name,
+                            logo: insurer.logo,
+                            rating: insurer.rating,
+                            shariahCompliant: insurer.shariahCompliant,
+                            total: cardTotal,
+                          }}
+                          coverageType={coverageType}
+                          benefits={benefits}
+                          productLines={allLines}
+                          isBestPrice={isBest}
+                          isRecommended={idx === 0}
+                          monthly={monthly}
+                          onSelect={() =>
+                            handleNavigate(insurer.id, cardTotal)
+                          }
+                        />
+                      ) : (
                         <QuoteCard
                           key={insurer.id}
                           insurer={{...insurer, total: cardTotal}}
