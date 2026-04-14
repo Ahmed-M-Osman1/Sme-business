@@ -8,10 +8,9 @@ import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
 import {DragDropZone, EditableField, formatDateInput, ACTIVITIES, isUnreadableValue, isValidDate} from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
-
-const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
 const STORAGE_KEY = 'shory-company-details-draft';
 
 /** Simulated government API verification delay. */
@@ -61,6 +60,13 @@ export function CompanyDetails() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
+  const brand = getBrand();
+  const LOCATIONS = [
+    ...brand.locations.map((loc) => loc.value),
+    ...brand.issuingAuthorities.filter(
+      (ia) => !brand.locations.some((loc) => loc.value === ia),
+    ),
+  ];
 
   const hasLicenseNumber = !!searchParams.get('licenseNumber');
   const prefilled = searchParams.get('prefilled') === 'true';
@@ -78,7 +84,7 @@ export function CompanyDetails() {
     companyName: draft?.form.companyName ?? (searchParams.get('businessName') || ''),
     licenseNumber: draft?.form.licenseNumber ?? (searchParams.get('licenseNumber') || ''),
     activity: draft?.form.activity ?? (searchParams.get('activity') || ''),
-    emirate: draft?.form.emirate ?? (searchParams.get('emirate') || 'Dubai'),
+    emirate: draft?.form.emirate ?? (searchParams.get('emirate') || brand.defaultLocation),
     expiryDate: draft?.form.expiryDate ?? '',
   });
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -86,7 +92,7 @@ export function CompanyDetails() {
     {key: 'companyName', label: t.companyDetails.companyName},
     {key: 'licenseNumber', label: t.companyDetails.licenseNumber},
     {key: 'activity', label: t.companyDetails.businessActivity},
-    {key: 'emirate', label: t.confirmation.emirate},
+    {key: 'emirate', label: brand.locationLabel},
     {key: 'expiryDate', label: t.companyDetails.expiryDate},
   ];
 
@@ -459,13 +465,13 @@ export function CompanyDetails() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">{t.confirmation.emirate}</label>
+                <label className="block text-sm font-medium text-text mb-1.5">{brand.locationLabel}</label>
                 <select
                   value={form.emirate}
                   onChange={(e) => setF('emirate', e.target.value)}
                   className="w-full rounded-lg border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none transition-all duration-200"
                 >
-                  {EMIRATES.map((e) => (
+                  {LOCATIONS.map((e) => (
                     <option key={e} value={e}>
                       {(t.options.emirates as Record<string, string>)[e] ?? e}
                     </option>
