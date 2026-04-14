@@ -3,8 +3,18 @@
 import {useState, useCallback, useRef, useEffect} from 'react';
 import type {OcrField} from '@/lib/mock-ocr';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 
-const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
+function getLocations(): string[] {
+  const brand = getBrand();
+  const locations = brand.locations.map((l) => l.value);
+  for (const ia of brand.issuingAuthorities) {
+    if (!locations.includes(ia)) locations.push(ia);
+  }
+  return locations;
+}
+
+const EMIRATES = getLocations();
 
 export const ACTIVITIES = [
   'Technology',

@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge, Button} from '@shory/ui';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 
 interface ProductInfo {
   id: string;
@@ -78,7 +79,8 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
 
   const [employees, setEmployees] = useState(getInitialEmployees());
   const [revenue, setRevenue] = useState(getInitialRevenue());
-  const [emirate, setEmirate] = useState('Dubai');
+  const brand = getBrand();
+  const [emirate, setEmirate] = useState(brand.defaultLocation);
   const [coverageArea, setCoverageArea] = useState('UAE only');
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
   const [assetValues, setAssetValues] = useState<Record<string, string>>({});
@@ -458,7 +460,7 @@ export function BusinessTypeDetail({businessType, onCollapse, helpData}: Props) 
         </div>
 
         {/* CTA */}
-        {emirate === 'DIFC' || emirate === 'ADGM' ? (
+        {emirate === brand.legalReferences.freeZone ? (
           <>
             <Button
               onClick={() => setShowSpecialistModal(true)}

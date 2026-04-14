@@ -1,3 +1,5 @@
+import {getBrand} from '@/lib/brand';
+
 export interface OcrField {
   value: string;
   confidence: 'high' | 'medium' | 'low';
@@ -23,14 +25,16 @@ interface Scenario {
   warnings: string[];
 }
 
-const scenarios: Scenario[] = [
+function buildScenarios(): Scenario[] {
+  const defaultLocation = getBrand().defaultLocation;
+  return [
   {
     name: 'restaurant',
     fields: {
       companyName: { value: 'Al Noor Restaurant LLC', confidence: 'high' },
       licenseNumber: { value: '1518968', confidence: 'high' },
       activity: { value: 'Food & Beverage', confidence: 'high' },
-      emirate: { value: 'Dubai', confidence: 'high' },
+      emirate: { value: defaultLocation, confidence: 'high' },
       expiryDate: { value: '17/06/2026', confidence: 'high' },
     },
     warnings: [],
@@ -52,7 +56,7 @@ const scenarios: Scenario[] = [
       companyName: { value: 'ByteShift Technologies DMCC', confidence: 'high' },
       licenseNumber: { value: '7391024', confidence: 'high' },
       activity: { value: 'IT Consulting', confidence: 'high' },
-      emirate: { value: 'Dubai', confidence: 'high' },
+      emirate: { value: defaultLocation, confidence: 'high' },
       expiryDate: { value: '22/09/2026', confidence: 'high' },
     },
     warnings: [],
@@ -85,7 +89,7 @@ const scenarios: Scenario[] = [
       companyName: { value: '', confidence: 'low' },
       licenseNumber: { value: '', confidence: 'low' },
       activity: { value: 'General Trading', confidence: 'medium' },
-      emirate: { value: 'Dubai', confidence: 'high' },
+      emirate: { value: defaultLocation, confidence: 'high' },
       expiryDate: { value: '', confidence: 'low' },
     },
     warnings: [],
@@ -106,8 +110,10 @@ const scenarios: Scenario[] = [
     ],
   },
 ];
+}
 
 function pickScenario(fileName: string): Scenario {
+  const scenarios = buildScenarios();
   const lower = fileName.toLowerCase();
 
   if (lower.includes('restaurant') || lower.includes('cafe')) {

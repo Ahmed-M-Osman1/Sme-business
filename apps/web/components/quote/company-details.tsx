@@ -104,7 +104,7 @@ export function CompanyDetails() {
           companyName: {value: searchParams.get('businessName') || searchParams.get('activity') || '', confidence: 'high' as const},
           licenseNumber: {value: searchParams.get('licenseNumber') || '', confidence: 'high' as const},
           activity: {value: searchParams.get('activity') || '', confidence: 'high' as const},
-          emirate: {value: searchParams.get('emirate') || 'Dubai', confidence: 'high' as const},
+          emirate: {value: searchParams.get('emirate') || brand.defaultLocation, confidence: 'high' as const},
           expiryDate: {value: searchParams.get('expiry') || '', confidence: 'high' as const},
         },
         warnings: [],

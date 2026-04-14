@@ -45,7 +45,7 @@ export function Confirmation() {
   const phone = searchParams.get('phone') ?? '';
   const businessName = searchParams.get('businessName') ?? '';
   const licenseNumber = searchParams.get('licenseNumber') ?? '';
-  const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const emirate = searchParams.get('emirate') ?? getBrand().defaultLocation;
   const employees = searchParams.get('employees') ?? '';
   const extras = (searchParams.get('extras') ?? '').split(',').filter(Boolean);
   const payMethod = searchParams.get('payMethod') ?? 'card';

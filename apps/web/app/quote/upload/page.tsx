@@ -13,6 +13,7 @@ import {
   isValidDate,
 } from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 import quoteOptions from '@/config/quote-options.json';
 import businessTypes from '@/config/business-types.json';
 
@@ -150,7 +151,7 @@ export default function UploadPage() {
     const emirate =
       editedFields.emirate ||
       ocrResult.fields.emirate.value ||
-      'Dubai';
+      getBrand().defaultLocation;
     const companyName =
       editedFields.companyName ?? ocrResult.fields.companyName.value;
     const licenseNumber =
