@@ -1,34 +1,84 @@
 'use client';
 
-import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
+
+function BadgeIcon({icon}: {icon: string}) {
+  if (icon === 'central-bank') {
+    return (
+      <svg
+        className="h-5 w-5 text-gray-600"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 21h18" />
+        <path d="M5 21V7l7-4 7 4v14" />
+        <path d="M9 21v-4h6v4" />
+        <path d="M3 7h18" />
+      </svg>
+    );
+  }
+  if (icon === 'added') {
+    return (
+      <svg
+        className="h-5 w-5 text-gray-600"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M2 20h20" />
+        <path d="M4 20V8l8-5 8 5v12" />
+        <path d="M10 20v-6h4v6" />
+        <path d="M8 12h8" />
+        <path d="M8 15h8" />
+      </svg>
+    );
+  }
+  if (icon === 'uae-ia') {
+    return (
+      <svg
+        className="h-5 w-5 text-gray-600"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    );
+  }
+  return null;
+}
 
 export function TrustBadges() {
-  const {t} = useI18n();
+  const brand = getBrand();
   return (
     <section className="py-6">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-4 sm:flex-row sm:gap-16 sm:px-6 lg:px-8">
-        {/* Central Bank Badge */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-            <svg
-              className="h-5 w-5 text-gray-600"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 21h18" />
-              <path d="M5 21V7l7-4 7 4v14" />
-              <path d="M9 21v-4h6v4" />
-              <path d="M3 7h18" />
-            </svg>
+        {/* Brand Trust Badges */}
+        {brand.trustBadges.map((badge, index) => (
+          <div key={badge.label} className="contents">
+            {index > 0 && (
+              <div className="hidden h-8 w-px bg-gray-200 sm:block" />
+            )}
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                <BadgeIcon icon={badge.icon} />
+              </div>
+              <p className="text-xs leading-tight text-gray-500">
+                {badge.label}
+              </p>
+            </div>
           </div>
-          <p className="text-xs leading-tight text-gray-500">
-            {t.footer.licensedBy}
-          </p>
-        </div>
+        ))}
 
         {/* Divider */}
         <div className="hidden h-8 w-px bg-gray-200 sm:block" />
