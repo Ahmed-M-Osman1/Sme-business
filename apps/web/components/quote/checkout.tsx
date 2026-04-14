@@ -18,7 +18,7 @@ import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 import type {ContactForm} from '@/types/quote';
 
 type ProductId = keyof typeof productsConfig;
@@ -37,6 +37,7 @@ export function Checkout() {
   const {data: session} = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const brand = useBrand();
 
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
@@ -51,7 +52,7 @@ export function Checkout() {
   const businessName = searchParams.get('businessName') ?? '';
   const companyVerified =
     searchParams.get('companyVerified') === 'true';
-  const emirate = searchParams.get('emirate') ?? getBrand().defaultLocation;
+  const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
   const employeeBand = searchParams.get('employees') ?? '2-5';
 
   const businessType =

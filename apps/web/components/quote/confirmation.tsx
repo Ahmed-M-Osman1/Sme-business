@@ -15,7 +15,7 @@ import {
 import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
 import {api} from '@/lib/api-client';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
@@ -30,6 +30,7 @@ export function Confirmation() {
   const {data: session} = useSession();
   const searchParams = useSearchParams();
   const hasSaved = useRef(false);
+  const brand = useBrand();
 
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
@@ -45,7 +46,7 @@ export function Confirmation() {
   const phone = searchParams.get('phone') ?? '';
   const businessName = searchParams.get('businessName') ?? '';
   const licenseNumber = searchParams.get('licenseNumber') ?? '';
-  const emirate = searchParams.get('emirate') ?? getBrand().defaultLocation;
+  const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
   const employees = searchParams.get('employees') ?? '';
   const extras = (searchParams.get('extras') ?? '').split(',').filter(Boolean);
   const payMethod = searchParams.get('payMethod') ?? 'card';
@@ -55,7 +56,6 @@ export function Confirmation() {
     businessTypes.find((bt) => bt.id === typeId) ?? businessTypes[0];
   const insurer =
     insurers.find((i) => i.id === insurerId) ?? insurers[0];
-  const brand = getBrand();
   const [policyNumber] = useState(
     () => {
       const policyPrefix = brand.id === 'tamm' ? 'TAMM-' : 'SHR-';

@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import {Badge} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 export function Footer() {
   const {t} = useI18n();
-  const brand = getBrand();
+  const brand = useBrand();
 
   const personalLinks = [
     t.footer.carInsurance,

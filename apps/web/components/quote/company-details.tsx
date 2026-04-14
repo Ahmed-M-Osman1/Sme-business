@@ -8,7 +8,7 @@ import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
 import {DragDropZone, EditableField, formatDateInput, ACTIVITIES, isUnreadableValue, isValidDate} from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
 const STORAGE_KEY = 'shory-company-details-draft';
@@ -60,7 +60,7 @@ export function CompanyDetails() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const brand = getBrand();
+  const brand = useBrand();
   const LOCATIONS = [
     ...brand.locations.map((loc) => loc.value),
     ...brand.issuingAuthorities.filter(

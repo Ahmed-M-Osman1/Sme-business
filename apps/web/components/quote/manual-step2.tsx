@@ -4,7 +4,7 @@ import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button, Card, CardContent} from '@shory/ui';
 import quoteOptions from '@/config/quote-options.json';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 import {useI18n} from '@/lib/i18n';
 
 interface Step1Data {
@@ -37,7 +37,7 @@ export function ManualStep2({step1Data, onBack}: ManualStep2Props) {
   const {t, locale} = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const brand = getBrand();
+  const brand = useBrand();
   const brandEmirateValues = brand.locations.map((loc) => loc.value);
   const [emirate, setEmirate] = useState('');
   const [coverageArea, setCoverageArea] = useState('');

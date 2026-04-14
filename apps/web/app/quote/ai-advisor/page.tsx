@@ -8,7 +8,7 @@ import {BusinessTypeTags} from '@/components/quote/business-type-tags';
 import {useI18n} from '@/lib/i18n';
 import {findScriptedResponse} from '@/lib/ai-demo-responses';
 import {api} from '@/lib/api-client';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 import quoteOptions from '@/config/quote-options.json';
 import type {ChatMessage, ConvoState, ChipOption} from '@/types/quote';
 
@@ -65,7 +65,7 @@ export default function AiAdvisorPage() {
     label: (t.options.revenueBands as Record<string, string>)[band.value] ?? band.label,
     value: band.value,
   }));
-  const brand = getBrand();
+  const brand = useBrand();
   const locationChips = brand.locations.map((loc) => ({
     label: (t.options.emirates as Record<string, string>)[loc.value] ?? loc.label,
     value: loc.value,

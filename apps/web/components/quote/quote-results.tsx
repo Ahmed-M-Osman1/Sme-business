@@ -10,7 +10,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand, type BrandConfig} from '@/lib/brand';
 import {
   calculateMonthlyPrice,
   calculateProductPrice,
@@ -32,14 +32,14 @@ import type {
 const NAVIGATION_DELAY_MS = 800;
 
 /** Peer data keyed by business type ID for guaranteed matching. */
-const PEER_DATA: Record<
+function getPeerData(brand: BrandConfig): Record<
   string,
   {
     insight: string;
     riskStat: string;
     extras: {name: string; pct: number; reason: string}[];
   }
-> = {
+> { return {
   'cafe-restaurant': {
     insight:
       'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
@@ -55,7 +55,7 @@ const PEER_DATA: Record<
       {
         name: 'Food Contamination',
         pct: 67,
-        reason: `Required by ${getBrand().legalReferences.healthAuthority}/food safety regulators`,
+        reason: `Required by ${brand.legalReferences.healthAuthority}/food safety regulators`,
       },
       {
         name: 'Cyber Liability',
@@ -272,7 +272,7 @@ const PEER_DATA: Record<
       },
     ],
   },
-};
+}; }
 
 /** Fixed annual price per add-on extra (AED). */
 const EXTRA_PRICES: Record<string, number> = {
@@ -300,7 +300,7 @@ export function QuoteResults() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const source = searchParams.get('source') ?? 'pre-configured';
   const employeeBand = searchParams.get('employees') ?? '2-5';
-  const brand = getBrand();
+  const brand = useBrand();
   const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
   const locationMultiplier = getLocationMultiplier(emirate, brand.locationMultipliers);
   const revenue = searchParams.get('revenue') ?? '';
@@ -1202,7 +1202,7 @@ export function QuoteResults() {
 
               {/* AI Insights panel */}
               {(() => {
-                const peer = PEER_DATA[typeId] ?? null;
+                const peer = getPeerData(brand)[typeId] ?? null;
                 const teaserExtra = peer?.extras[0];
 
                 if (!peer) return null;

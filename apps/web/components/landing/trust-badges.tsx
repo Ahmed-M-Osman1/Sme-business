@@ -1,6 +1,6 @@
 'use client';
 
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 function BadgeIcon({icon}: {icon: string}) {
   if (icon === 'central-bank') {
@@ -59,7 +59,7 @@ function BadgeIcon({icon}: {icon: string}) {
 }
 
 export function TrustBadges() {
-  const brand = getBrand();
+  const brand = useBrand();
   return (
     <section className="py-6">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-4 sm:flex-row sm:gap-16 sm:px-6 lg:px-8">

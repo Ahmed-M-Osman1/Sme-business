@@ -6,7 +6,7 @@ import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 const FEATURED = {
   id: 'ai-advisor',
@@ -55,7 +55,7 @@ const OTHER_METHODS = [
 
 export default function QuoteStartPage() {
   const {t, locale} = useI18n();
-  const brand = getBrand();
+  const brand = useBrand();
   const router = useRouter();
 
   function handleUaePassLogin() {

@@ -13,7 +13,7 @@ import {
   isValidDate,
 } from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 import quoteOptions from '@/config/quote-options.json';
 import businessTypes from '@/config/business-types.json';
 
@@ -22,6 +22,7 @@ type Step = 'upload' | 'processing' | 'review' | 'details';
 export default function UploadPage() {
   const {t} = useI18n();
   const router = useRouter();
+  const brand = useBrand();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<Step>('upload');
@@ -151,7 +152,7 @@ export default function UploadPage() {
     const emirate =
       editedFields.emirate ||
       ocrResult.fields.emirate.value ||
-      getBrand().defaultLocation;
+      brand.defaultLocation;
     const companyName =
       editedFields.companyName ?? ocrResult.fields.companyName.value;
     const licenseNumber =

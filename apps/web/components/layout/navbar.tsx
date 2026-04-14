@@ -5,14 +5,14 @@ import Image from 'next/image';
 import {Button} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
 import {NotificationBell} from '@/components/notifications/notification-bell';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 const ADMIN_URL =
   process.env.NEXT_PUBLIC_ADMIN_URL ?? 'http://localhost:3001';
 
 export function Navbar() {
   const {t, toggleLocale} = useI18n();
-  const brand = getBrand();
+  const brand = useBrand();
   const isDark = brand.navStyle === 'dark';
 
   const NAV_LINKS = [{label: t.nav.business, href: '/quote/start'}];

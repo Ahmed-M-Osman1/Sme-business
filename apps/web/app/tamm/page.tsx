@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 /* ── Guide cards for the carousel ── */
 const GUIDES = [
@@ -132,7 +132,7 @@ function CalendarIcon({className}: {className?: string}) {
 }
 
 export default function TammEntryPage() {
-  const brand = getBrand();
+  const brand = useBrand();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'guides' | 'resources'>('guides');
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {Button} from '@shory/ui';
 import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
-import {getBrand} from '@/lib/brand';
+import {useBrand} from '@/lib/brand';
 
 type ProductCard = {
   title: string;
@@ -54,7 +54,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
 
 export function Hero() {
   const {t, locale} = useI18n();
-  const brand = getBrand();
+  const brand = useBrand();
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
     'business',
   );
