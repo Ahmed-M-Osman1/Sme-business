@@ -89,4 +89,5 @@ export const tammBrand: BrandConfig = {
 
   navStyle: 'dark',
   issuingAuthorities: ['ADDED', 'ADGM', 'ADAFZA', 'ADAFZ'],
+  basePath: '/tamm',
 };

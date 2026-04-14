@@ -1,31 +1,29 @@
-import type { BrandConfig, BrandId } from './types';
-import { shoryBrand } from './shory';
-import { tammBrand } from './tamm';
+import type {BrandConfig, BrandId} from './types';
+import {shoryBrand} from './shory';
+import {tammBrand} from './tamm';
 
-const BRANDS: Record<BrandId, BrandConfig> = {
+export const BRANDS: Record<BrandId, BrandConfig> = {
   shory: shoryBrand,
   tamm: tammBrand,
 };
 
-function resolveBrandId(): BrandId {
-  const env = process.env.NEXT_PUBLIC_BRAND;
-  if (env === 'tamm') return 'tamm';
-  return 'shory';
+/** Server-side brand resolution — reads from a passed brand ID */
+export function getBrandById(id: BrandId): BrandConfig {
+  return BRANDS[id] ?? shoryBrand;
 }
 
-let cached: BrandConfig | null = null;
-
+/** Legacy: resolves brand from env var. Prefer useBrand() in client components. */
 export function getBrand(): BrandConfig {
-  if (!cached) {
-    cached = BRANDS[resolveBrandId()];
-  }
-  return cached;
+  const env = process.env.NEXT_PUBLIC_BRAND;
+  if (env === 'tamm') return tammBrand;
+  return shoryBrand;
 }
 
 export function isTamm(): boolean {
-  return resolveBrandId() === 'tamm';
+  return process.env.NEXT_PUBLIC_BRAND === 'tamm';
 }
 
+export {BrandProvider, useBrand} from './context';
 export type {
   BrandConfig,
   BrandId,

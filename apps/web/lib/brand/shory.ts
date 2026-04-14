@@ -78,4 +78,5 @@ export const shoryBrand: BrandConfig = {
 
   navStyle: 'light',
   issuingAuthorities: ['DET', 'DHA', 'DIFC', 'ADGM', 'ADDED', 'ADAFZA', 'RAKEZ', 'SAIF Zone', 'JAFZA'],
+  basePath: '',
 };

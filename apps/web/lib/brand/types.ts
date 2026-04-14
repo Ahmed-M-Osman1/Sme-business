@@ -79,4 +79,5 @@ export interface BrandConfig {
   // Styling hints (for things CSS alone can't handle)
   navStyle: 'light' | 'dark';
   issuingAuthorities: string[];
+  basePath: string;
 }
