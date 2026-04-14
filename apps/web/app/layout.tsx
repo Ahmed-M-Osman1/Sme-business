@@ -6,7 +6,8 @@ import {Footer} from '@/components/layout/footer';
 import {ErrorBoundary} from '@/components/error-boundary';
 import {I18nProvider} from '@/lib/i18n';
 import {SessionProviderWrapper} from '@/components/layout/session-provider-wrapper';
-import {getBrand} from '@/lib/brand';
+import {getBrand, BrandProvider} from '@/lib/brand';
+import {shoryBrand} from '@/lib/brand/shory';
 
 import './globals.css';
 import './globals-tamm.css';
@@ -96,11 +97,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ErrorBoundary>
           <SessionProviderWrapper>
-            <I18nProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </I18nProvider>
+            <BrandProvider brand={shoryBrand}>
+              <I18nProvider>
+                <Navbar />
+                {children}
+                <Footer />
+              </I18nProvider>
+            </BrandProvider>
           </SessionProviderWrapper>
         </ErrorBoundary>
       </body>
