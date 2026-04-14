@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {useSession} from 'next-auth/react';
 import {Button, Card, CardContent} from '@shory/ui';
@@ -95,6 +95,23 @@ export function Checkout() {
   const [finwallAgreed, setFinwallAgreed] = useState(false);
   const [cardForm, setCardForm] = useState({num: '', exp: '', cvv: '', name: ''});
   const monthlyAmount = Math.round(total * 1.08 / 12);
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem('uaepass-data');
+    if (raw) {
+      try {
+        const uaePass = JSON.parse(raw) as {
+          ownerName: string;
+          emiratesId: string;
+        };
+        if (uaePass.ownerName) {
+          setForm((prev) => ({...prev, fullName: prev.fullName || uaePass.ownerName}));
+        }
+      } catch {
+        // ignore invalid data
+      }
+    }
+  }, []);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};

@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
+import {getBrand} from '@/lib/brand';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 const FEATURED = {
   id: 'ai-advisor',
@@ -53,6 +55,18 @@ const OTHER_METHODS = [
 
 export default function QuoteStartPage() {
   const {t, locale} = useI18n();
+  const brand = getBrand();
+  const router = useRouter();
+
+  function handleUaePassLogin() {
+    const d = brand.uaePassMockData;
+    if (!d) return;
+    sessionStorage.setItem('uaepass-data', JSON.stringify(d));
+    router.push(
+      `/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <ProgressIndicator
@@ -69,6 +83,47 @@ export default function QuoteStartPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
+        {/* UAE PASS sign-in banner */}
+        {brand.uaePassEnabled && (
+          <button onClick={handleUaePassLogin} className="w-full text-start">
+            <Card className="rounded-2xl border-2 border-green-300/30 bg-linear-to-br from-green-50 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
+              <CardContent className="flex items-center gap-4 p-5 sm:p-6">
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-green-600">
+                    <path d="M3.5 10.5L7.5 14.5L16.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-text text-lg">
+                    {locale === 'ar' ? 'تسجيل الدخول عبر UAE PASS' : 'Sign in with UAE PASS'}
+                  </span>
+                  <p className="text-sm text-text-muted mt-0.5">
+                    {locale === 'ar' ? 'تعبئة بيانات شركتك تلقائياً' : 'Auto-fill your business details instantly'}
+                  </p>
+                </div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="text-green-600 shrink-0">
+                  <path
+                    d={
+                      locale === 'ar'
+                        ? 'M12.5 4.167L6.667 10L12.5 15.833'
+                        : 'M7.5 4.167L13.333 10L7.5 15.833'
+                    }
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </CardContent>
+            </Card>
+          </button>
+        )}
+
         {/* Featured card — full width, prominent */}
         <Link href={FEATURED.href}>
           <Card className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">

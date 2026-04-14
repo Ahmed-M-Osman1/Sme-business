@@ -126,6 +126,45 @@ export function CompanyDetails() {
   const canProceed = !!activeResult && !hasInvalidActiveFields && !requiresExpiryAcknowledgement;
 
   useEffect(() => {
+    const raw = sessionStorage.getItem('uaepass-data');
+    if (raw) {
+      try {
+        const uaePass = JSON.parse(raw) as {
+          businessName: string;
+          licenceNumber: string;
+          activity: string;
+          location: string;
+        };
+        const issuingAuthority = uaePass.location === 'ADGM' ? 'ADGM' : 'ADDED';
+        setOcrResult({
+          success: true,
+          scenario: 'prefilled',
+          fields: {
+            companyName: {value: uaePass.businessName, confidence: 'high'},
+            licenseNumber: {value: uaePass.licenceNumber, confidence: 'high'},
+            activity: {value: uaePass.activity, confidence: 'high'},
+            emirate: {value: uaePass.location, confidence: 'high'},
+            expiryDate: {value: '15/12/2027', confidence: 'high'},
+          },
+          warnings: [],
+        });
+        setEditedFields({});
+        setForm({
+          companyName: uaePass.businessName,
+          licenseNumber: uaePass.licenceNumber,
+          activity: uaePass.activity,
+          emirate: uaePass.location,
+          expiryDate: '15/12/2027',
+        });
+        void issuingAuthority; // available for future use
+        setMode('confirmed');
+      } catch {
+        // ignore invalid data
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (hasTradeLicense) {
       clearDraft();
       return;

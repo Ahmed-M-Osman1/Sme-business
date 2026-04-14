@@ -736,6 +736,17 @@ export function QuoteResults() {
           totalSteps={6}
           label={t.progress.quotes}
         />
+
+        {searchParams.get('uaepass') === 'true' && (
+          <div className="rounded-xl border border-green-200/20 bg-green-50 px-4 py-3 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-green-600 shrink-0">
+              <path d="M3 8.5L6.5 12L13 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-sm font-medium text-green-700">
+              {locale === 'ar' ? 'تم التعبئة من UAE PASS' : 'Pre-filled from UAE PASS'} &#x2713;
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="sticky top-0 z-30 border-y border-gray-200 bg-[#F7F8FC]/95 backdrop-blur">
