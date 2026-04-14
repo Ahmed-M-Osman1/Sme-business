@@ -7,6 +7,7 @@ import type {
 } from '@shory/shared';
 import type { Quote, QuoteResult, Policy, Document as ShoryDocument } from '@shory/db';
 import {getWebApiBaseUrl} from './api-base-url';
+import {getBrand} from '@/lib/brand';
 
 const API_URL = getWebApiBaseUrl();
 
@@ -56,14 +57,17 @@ export const api = {
   },
 
   ai: {
-    recommend: (data: AiRecommendRequest) =>
-      fetchApi<{ id: string; recommendations: Recommendation[] }>('/ai/recommend', {
+    recommend: (data: AiRecommendRequest) => {
+      const brand = getBrand();
+      return fetchApi<{ id: string; recommendations: Recommendation[] }>('/ai/recommend', {
         method: 'POST',
-        body: JSON.stringify(data),
-      }),
+        body: JSON.stringify({...data, brand: brand.id}),
+      });
+    },
 
-    classify: (text: string) =>
-      fetchApi<{
+    classify: (text: string) => {
+      const brand = getBrand();
+      return fetchApi<{
         businessType: string;
         label: string;
         confidence: 'high' | 'medium' | 'low';
@@ -71,8 +75,9 @@ export const api = {
         message?: string;
       }>('/ai/classify', {
         method: 'POST',
-        body: JSON.stringify({text}),
-      }),
+        body: JSON.stringify({text, brand: brand.id}),
+      });
+    },
   },
 
   uploads: {
