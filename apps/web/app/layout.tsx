@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {headers} from 'next/headers';
 import localFont from 'next/font/local';
 import {Source_Sans_3} from 'next/font/google';
 import {Navbar} from '@/components/layout/navbar';
@@ -72,26 +73,29 @@ const pingArLt = localFont({
 });
 
 const brand = getBrand();
-const isTamm = brand.id === 'tamm';
 
 export const metadata: Metadata = {
   title: brand.metadata.title,
   description: brand.metadata.description,
 };
 
-const fontVariables = isTamm
-  ? `${sourceSans.variable} ${pingArLt.variable}`
-  : `${blissPro.variable} ${pingArLt.variable}`;
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{children: React.ReactNode}>) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') ?? '';
+  const isTammRoute = pathname.startsWith('/tamm');
+
+  const fontVariables = isTammRoute
+    ? `${sourceSans.variable} ${pingArLt.variable}`
+    : `${blissPro.variable} ${pingArLt.variable}`;
+
   return (
     <html
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      data-brand={brand.id}
+      data-brand={isTammRoute ? 'tamm' : brand.id}
       className={`h-full antialiased ${fontVariables}`}
     >
       <body className="min-h-full flex flex-col">
@@ -99,9 +103,9 @@ export default function RootLayout({
           <SessionProviderWrapper>
             <BrandProvider brand={shoryBrand}>
               <I18nProvider>
-                <Navbar />
+                {!isTammRoute && <Navbar />}
                 {children}
-                <Footer />
+                {!isTammRoute && <Footer />}
               </I18nProvider>
             </BrandProvider>
           </SessionProviderWrapper>

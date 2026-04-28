@@ -51,3 +51,4 @@ tooling/**/node_modules
 apps/**/.next
 packages/api/api/*.js
 .claude/worktrees/
+.gstack/

@@ -5,76 +5,12 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
 import {useBrand} from '@/lib/brand';
-
-/* ── Guide cards for the carousel ── */
-const GUIDES = [
-  {
-    title: 'Why Abu Dhabi?',
-    description:
-      "Abu Dhabi's diverse economy offers individuals the opportunity to set up and operate businesses across a wide range of growing sectors.",
-  },
-  {
-    title: 'Set Up Easily with Few Steps',
-    description:
-      'Starting a business in Abu Dhabi is easy with our streamlined, step-by-step guidance, minimizing paperwork and ensuring smooth progress.',
-  },
-  {
-    title: 'Prosper Whether in Mainland or Free Zone',
-    description:
-      "Abu Dhabi's mainland and free zones offer a range of incentives making them attractive business and investment options.",
-  },
-];
-
-/* ── Service cards (bottom carousel) ── */
-const SERVICES = [
-  {
-    title: 'Trade Name Check',
-    entity: 'Department of Economic Development',
-    icon: 'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
-    href: '#',
-  },
-  {
-    title: 'Business Insurance',
-    entity: 'Shory Insurance Broker',
-    icon: '/images/tamm-logo.svg',
-    href: '/tamm/quote/start',
-    highlighted: true,
-  },
-  {
-    title: 'Investor Compass',
-    entity: 'Department of Economic Development',
-    icon: 'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/compass-money-coins.png',
-    href: '#',
-  },
-  {
-    title: 'Apply for a Trade Licence',
-    entity: 'Department of Economic Development',
-    icon: 'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
-    href: '#',
-  },
-];
-
-/* ── News items ── */
-const NEWS = [
-  {date: '15 August 2024', title: "ADDED includes 30 new activities to 'Freelancer Licence'"},
-  {date: '30 July 2024', title: 'Tajer Abu Dhabi introduces 12 new activities'},
-  {date: '06 June 2024', title: 'Abu Dhabi launches the unified economic licence'},
-];
-
-/* ── TAMM SVG Icons (extracted from tamm.abudhabi) ── */
+import {useI18n} from '@/lib/i18n';
 
 function ChevronRight({className}: {className?: string}) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" className={className} fill="currentColor">
       <path d="M7.642.151a.5.5 0 0 0 .01.707L14.994 8 7.65 15.142a.5.5 0 0 0 .698.716l7.349-7.146a.992.992 0 0 0 0-1.424L8.348.142a.5.5 0 0 0-.706.01Z" />
-    </svg>
-  );
-}
-
-function ChevronLeft({className}: {className?: string}) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" className={className} fill="currentColor">
-      <path fillRule="evenodd" clipRule="evenodd" d="M5.471 13.752.327 8.732a1.08 1.08 0 0 1 0-1.546l5.144-5.02a.727.727 0 0 1 1.032.015c.28.29.274.753-.015 1.035L1.627 7.959l4.861 4.744a.734.734 0 0 1 .015 1.035.727.727 0 0 1-1.032.014" />
     </svg>
   );
 }
@@ -134,7 +70,16 @@ function CalendarIcon({className}: {className?: string}) {
 export default function TammEntryPage() {
   const brand = useBrand();
   const router = useRouter();
+  const {t, toggleLocale} = useI18n();
   const [activeTab, setActiveTab] = useState<'guides' | 'resources'>('guides');
+
+  const landing = t.tamm.landing;
+  const navLabels = [
+    t.tamm.nav.myTamm,
+    t.tamm.nav.services,
+    t.tamm.nav.governmentEntities,
+    t.tamm.nav.support,
+  ];
 
   useEffect(() => {
     if (brand.id !== 'tamm') {
@@ -153,6 +98,18 @@ export default function TammEntryPage() {
     );
   }
 
+  const guides = landing.guides as {title: string; description: string}[];
+  const newsItems = landing.news.items as {date: string; title: string}[];
+  const serviceItems = landing.services.items as {title: string; entity: string}[];
+  const serviceIcons = [
+    'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
+    '/images/tamm-logo.svg',
+    'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/compass-money-coins.png',
+    'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
+  ];
+  const serviceHrefs = ['#', '/tamm/quote/service', '#', '#'];
+  const serviceHighlighted = [false, true, false, false];
+
   return (
     <div className="min-h-screen" style={{background: 'linear-gradient(0deg, #FFFFFF 45%, #BBC3ED 100%)'}}>
       {/* ── TAMM Header ── */}
@@ -163,7 +120,7 @@ export default function TammEntryPage() {
               TAMM
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              {['My TAMM', 'Services', 'Government Entities', 'Support'].map((label) => (
+              {navLabels.map((label) => (
                 <span key={label} className="text-sm font-semibold text-white/90 hover:text-white cursor-default">
                   {label}
                 </span>
@@ -177,15 +134,17 @@ export default function TammEntryPage() {
             <button className="p-2 text-white/80 hover:text-white" aria-label="Accessibility">
               <AccessibilityIcon className="w-5 h-5" />
             </button>
-            <button className="p-2 text-white/80 hover:text-white flex items-center gap-1.5 text-sm">
+            <button
+              onClick={toggleLocale}
+              className="p-2 text-white/80 hover:text-white flex items-center gap-1.5 text-sm">
               <GlobeIcon className="w-5 h-5" />
-              English
+              {landing.nav.langToggle}
             </button>
             <button className="p-2 text-white/80 hover:text-white" aria-label="Theme">
               <ThemeIcon className="w-5 h-5" />
             </button>
             <Button size="sm" className="rounded-md text-xs px-4 bg-primary text-white ms-1">
-              Sign in
+              {landing.nav.signIn}
             </Button>
           </div>
         </nav>
@@ -194,19 +153,19 @@ export default function TammEntryPage() {
       {/* ── Breadcrumb ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div className="flex items-center gap-2 text-sm text-text-muted">
-          <span className="hover:underline cursor-pointer">Home</span>
+          <span className="hover:underline cursor-pointer">{landing.breadcrumb.home}</span>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-text font-medium">Business</span>
+          <span className="text-text font-medium">{landing.breadcrumb.business}</span>
         </div>
       </div>
 
       {/* ── Hero ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-[#12121B] leading-tight">
-          Embark on a Successful<br />Business Journey
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#12121B] leading-tight whitespace-pre-line">
+          {landing.hero.title}
         </h1>
         <p className="mt-3 text-base text-[#12121B]/70 max-w-xl">
-          A step-by-step guide on how to start a business in Abu Dhabi.
+          {landing.hero.subtitle}
         </p>
       </div>
 
@@ -221,65 +180,56 @@ export default function TammEntryPage() {
                 activeTab === tab
                   ? 'bg-[#12121B] text-white'
                   : 'bg-white border border-[#DEE2E6] text-[#12121B] hover:bg-gray-50'
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              }`}>
+              {tab === 'guides' ? landing.tabs.guides : landing.tabs.resources}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Guide Cards Carousel ── */}
+      {/* ── Guide Cards ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {GUIDES.map((guide) => (
+          {guides.map((guide) => (
             <div
               key={guide.title}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col gap-4 border border-white/60 hover:shadow-md transition-all"
-            >
+              className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col gap-4 border border-white/60 hover:shadow-md transition-all">
               <h3 className="text-lg font-bold text-[#12121B]">{guide.title}</h3>
-              <p className="text-sm text-[#12121B]/60 leading-relaxed flex-1">
-                {guide.description}
-              </p>
+              <p className="text-sm text-[#12121B]/60 leading-relaxed flex-1">{guide.description}</p>
               <button className="self-start px-4 py-2 rounded-full text-sm font-medium bg-white/80 backdrop-blur border border-[#DEE2E6] text-[#12121B] hover:bg-white transition-colors">
-                Learn More
+                {landing.learnMore}
               </button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Exploration Banner (Insurance CTA) ── */}
+      {/* ── Insurance CTA Banner ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
         <div
           className="relative rounded-2xl overflow-hidden p-8 sm:p-10"
-          style={{
-            background: 'linear-gradient(135deg, #005C9E 0%, #003A66 100%)',
-          }}
-        >
+          style={{background: 'linear-gradient(135deg, #005C9E 0%, #003A66 100%)'}}>
           <div className="relative z-10 max-w-lg">
             <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
-              Protect Your Business Today
+              {landing.cta.title}
             </h2>
             <p className="mt-3 text-white/80 text-sm sm:text-base leading-relaxed">
-              Get comprehensive SME insurance coverage in minutes. Workers Compensation, Liability, Property and more — all from top UAE insurers at competitive prices.
+              {landing.cta.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <Link href={`${brand.basePath}/quote/start`}>
                 <Button className="rounded-full px-6 py-2.5 bg-white text-[#005C9E] font-semibold text-sm hover:bg-white/90">
-                  Start your Journey
+                  {landing.cta.startJourney}
                 </Button>
               </Link>
               <Button
                 variant="outline"
                 className="rounded-full px-6 py-2.5 border-white/40 text-white font-semibold text-sm hover:bg-white/10"
-                onClick={handleUaePassQuote}
-              >
-                Quick Quote with UAE PASS ✓
+                onClick={handleUaePassQuote}>
+                {landing.cta.quickQuote}
               </Button>
             </div>
           </div>
-          {/* Decorative pattern */}
           <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
             <svg viewBox="0 0 200 200" className="w-full h-full">
               <circle cx="150" cy="100" r="120" fill="white" />
@@ -289,15 +239,14 @@ export default function TammEntryPage() {
         </div>
       </div>
 
-      {/* ── News Section ── */}
+      {/* ── News ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-        <h2 className="text-xl font-bold text-[#12121B] mb-4">News</h2>
+        <h2 className="text-xl font-bold text-[#12121B] mb-4">{landing.news.title}</h2>
         <div className="bg-white rounded-xl border border-[#DEE2E6] divide-y divide-[#DEE2E6]">
-          {NEWS.map((item, i) => (
+          {newsItems.map((item, i) => (
             <div
               key={i}
-              className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
+              className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-xs text-text-muted">
                   <CalendarIcon className="w-3.5 h-3.5 opacity-50" />
@@ -311,41 +260,36 @@ export default function TammEntryPage() {
         </div>
       </div>
 
-      {/* ── Services Section ── */}
+      {/* ── Services ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-[#12121B]">Services</h2>
+          <h2 className="text-xl font-bold text-[#12121B]">{landing.services.title}</h2>
           <button className="text-sm font-medium text-primary flex items-center gap-1 hover:underline">
-            View All
+            {landing.services.viewAll}
             <ChevronRight className="w-3 h-3" />
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {SERVICES.map((service) => {
+          {serviceItems.map((service, i) => {
             const inner = (
               <div
                 className={`bg-white rounded-xl border p-5 flex flex-col items-center text-center gap-3 h-full transition-all ${
-                  service.highlighted
+                  serviceHighlighted[i]
                     ? 'border-primary/30 ring-1 ring-primary/10 hover:shadow-md'
                     : 'border-[#DEE2E6] hover:shadow-sm'
-                }`}
-              >
+                }`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={service.icon}
-                  alt=""
-                  className="w-16 h-16 rounded-md object-contain"
-                />
+                <img src={serviceIcons[i]} alt="" className="w-16 h-16 rounded-md object-contain" />
                 <h3 className="text-sm font-bold text-[#12121B]">{service.title}</h3>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-text-muted">
                   {service.entity}
                 </span>
               </div>
             );
-            return service.href !== '#' ? (
-              <Link key={service.title} href={service.href}>{inner}</Link>
+            return serviceHrefs[i] !== '#' ? (
+              <Link key={i} href={serviceHrefs[i]}>{inner}</Link>
             ) : (
-              <div key={service.title} className="opacity-60 cursor-not-allowed">{inner}</div>
+              <div key={i} className="opacity-60 cursor-not-allowed">{inner}</div>
             );
           })}
         </div>

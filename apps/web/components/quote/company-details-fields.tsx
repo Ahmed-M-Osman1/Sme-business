@@ -62,7 +62,8 @@ export function isValidDate(value: string): boolean {
   return true;
 }
 
-export function isUnreadableValue(value: string): boolean {
+export function isUnreadableValue(value: string | undefined | null): boolean {
+  if (!value) return true;
   const normalized = value.trim().toLowerCase();
   return (
     normalized.length === 0 ||

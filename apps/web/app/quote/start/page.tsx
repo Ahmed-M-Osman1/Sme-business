@@ -7,6 +7,7 @@ import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
 import {useBrand} from '@/lib/brand';
+import {TammUaePassCard} from '@/components/quote/tamm-uaepass-card';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
 function getFeatured(basePath: string) {
   return {
@@ -91,8 +92,11 @@ export default function QuoteStartPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
+        {/* UAE PASS pre-filled card — TAMM only, shown when authenticated */}
+        {brand.id === 'tamm' && <TammUaePassCard />}
+
         {/* UAE PASS sign-in banner */}
-        {brand.uaePassEnabled && (
+        {brand.uaePassEnabled && brand.id !== 'tamm' && (
           <button onClick={handleUaePassLogin} className="w-full text-start">
             <Card className="rounded-2xl border-2 border-green-300/30 bg-linear-to-br from-green-50 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
               <CardContent className="flex items-center gap-4 p-5 sm:p-6">
@@ -134,7 +138,7 @@ export default function QuoteStartPage() {
 
         {/* Featured card — full width, prominent */}
         <Link href={FEATURED.href}>
-          <Card className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
+          <Card className="rounded-2xl border-2 border-primary bg-linear-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
             <CardContent className="flex items-center gap-4 p-5 sm:p-6">
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                 <LottieAnimation

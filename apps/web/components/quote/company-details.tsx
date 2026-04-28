@@ -115,7 +115,7 @@ export function CompanyDetails() {
   const hasInvalidActiveFields = !!activeResult && Object.entries(activeResult.fields).some(([key, field]) => {
     const value = editedFields[key] ?? field.value;
     if (key === 'expiryDate') {
-      return value.length > 0 && !isValidDate(value);
+      return !!value && value.length > 0 && !isValidDate(value);
     }
     return isUnreadableValue(value);
   });
@@ -126,37 +126,46 @@ export function CompanyDetails() {
   const canProceed = !!activeResult && !hasInvalidActiveFields && !requiresExpiryAcknowledgement;
 
   useEffect(() => {
-    const raw = sessionStorage.getItem('uaepass-data');
+    // Multi-company flow stores selected company in a separate key; single-company uses uaepass-data directly
+    const raw = sessionStorage.getItem('uaepass-selected-company') || sessionStorage.getItem('uaepass-data');
     if (raw) {
       try {
         const uaePass = JSON.parse(raw) as {
-          businessName: string;
-          licenceNumber: string;
-          activity: string;
-          location: string;
+          name?: string;
+          businessName?: string;
+          licenceNumber?: string;
+          activity?: string;
+          location?: string;
+          employees?: string;
+          revenue?: string;
+          companies?: unknown[];
         };
-        const issuingAuthority = uaePass.location === 'ADGM' ? 'ADGM' : 'ADDED';
+        // If this is the top-level multi-company object (no specific company selected yet), skip
+        if (uaePass.companies && uaePass.companies.length > 0 && !sessionStorage.getItem('uaepass-selected-company')) return;
+        const companyName = uaePass.businessName ?? uaePass.name ?? '';
+        const licenseNumber = uaePass.licenceNumber ?? '';
+        const activity = uaePass.activity ?? '';
+        const emirate = uaePass.location ?? brand.defaultLocation;
         setOcrResult({
           success: true,
           scenario: 'prefilled',
           fields: {
-            companyName: {value: uaePass.businessName, confidence: 'high'},
-            licenseNumber: {value: uaePass.licenceNumber, confidence: 'high'},
-            activity: {value: uaePass.activity, confidence: 'high'},
-            emirate: {value: uaePass.location, confidence: 'high'},
+            companyName: {value: companyName, confidence: 'high'},
+            licenseNumber: {value: licenseNumber, confidence: 'high'},
+            activity: {value: activity, confidence: 'high'},
+            emirate: {value: emirate, confidence: 'high'},
             expiryDate: {value: '15/12/2027', confidence: 'high'},
           },
           warnings: [],
         });
         setEditedFields({});
         setForm({
-          companyName: uaePass.businessName,
-          licenseNumber: uaePass.licenceNumber,
-          activity: uaePass.activity,
-          emirate: uaePass.location,
+          companyName,
+          licenseNumber,
+          activity,
+          emirate,
           expiryDate: '15/12/2027',
         });
-        void issuingAuthority; // available for future use
         setMode('confirmed');
       } catch {
         // ignore invalid data

@@ -630,5 +630,204 @@
       "name": "Fleet Insurance",
       "shortName": "Fleet"
     }
+  },
+  "tamm": {
+    "nav": {
+      "myTamm": "My TAMM",
+      "services": "Services",
+      "governmentEntities": "Government Entities",
+      "support": "Support",
+      "langToggle": "العربية"
+    },
+    "breadcrumb": {
+      "home": "Home",
+      "services": "Services",
+      "businessInsurance": "Business Insurance"
+    },
+    "footer": {
+      "back": "Back",
+      "exitService": "Exit Service",
+      "next": "Next",
+      "brandName": "Tamm - Abu Dhabi Government",
+      "appStore": "Get it on the App Store",
+      "privacyPolicy": "Privacy Policy",
+      "termsConditions": "Terms & Conditions",
+      "copyrightLabel": "Copyright",
+      "rightsReserved": "© 2025 Abu Dhabi Government. All rights reserved"
+    },
+    "results": {
+      "title": "Select a Quote",
+      "description": "Please check out the quotes available for your business. You can select different filters and compare quotes to find the best options.",
+      "editDetails": "Edit details",
+      "annual": "Annual",
+      "monthly": "Monthly",
+      "quotesAvailable": "quotes available",
+      "bundleDeals": "bundle deals",
+      "apply": "Apply",
+      "upTo": "Up to",
+      "compliance": "Compliance",
+      "employees": "employees"
+    },
+    "filterBar": {
+      "individualQuotes": "Individual quotes",
+      "bundleDeals": "Bundle deals",
+      "allFilters": "All Filters",
+      "shariahCompliant": "Shariah Compliant",
+      "sortByPrice": "Sort by: Price",
+      "lowHigh": "low → high",
+      "highLow": "high → low",
+      "compareQuotes": "Compare Quotes"
+    },
+    "quoteCard": {
+      "best": "BEST",
+      "recommended": "Recommended",
+      "shariahCompliant": "Shariah Compliant",
+      "required": "Required",
+      "selectQuote": "Select Quote",
+      "viewAllBenefits": "View All Benefits",
+      "hideBenefits": "Hide benefits"
+    },
+    "bundleCard": {
+      "saveVsIndividual": "Save AED {amount} vs individual"
+    },
+    "compare": {
+      "title": "Compare Quotes",
+      "outOf": "of",
+      "max": "4",
+      "selectHint": "Select 2-4 quotes from the list to compare",
+      "compareBtn": "Compare",
+      "clearAll": "Clear all",
+      "rating": "Rating",
+      "shariahCompliant": "Shariah Compliant",
+      "annualEquivalent": "Annual equivalent",
+      "monthlyEquivalent": "Monthly equivalent",
+      "summary": "Summary",
+      "productsCovered": "Products Covered",
+      "backToQuotes": "Back to quotes",
+      "select": "Select",
+      "quotesSelected": "quotes selected",
+      "minTwoRequired": "Select at least 2 quotes to compare"
+    },
+    "stepper": {
+      "steps": [
+        "Request Type",
+        "Request Details",
+        "Select Quote",
+        "Additional Information",
+        "Application Summary",
+        "Application Status"
+      ],
+      "needSupport": "Need support?",
+      "stepOf": "Step {current} of {total}"
+    },
+    "service": {
+      "title": "Business Insurance",
+      "description": "Get comprehensive SME insurance coverage through TAMM. Compare quotes from top UAE insurers for Workers Compensation, Public Liability, Professional Indemnity, and more — all in minutes.",
+      "requiredDocs": "Required documents",
+      "noDocs": "No documents required to get a quote.",
+      "cost": "Cost",
+      "costLabel": "Service fee",
+      "stepsTitle": "Steps",
+      "step1Title": "Sign in and get a quote",
+      "duration": "5 mins",
+      "noAdditionalCost": "No additional cost",
+      "signInToStart": "Sign in to start"
+    },
+    "login": {
+      "title": "Sign in to continue",
+      "subtitle": "To access Business Insurance services on TAMM, please verify your identity using UAE PASS — the UAE's trusted national digital identity.",
+      "invalidId": "Invalid Emirates ID. Please check and try again.",
+      "uaePassTagline": "UAE National Digital Identity",
+      "emiratesIdLabel": "Emirates ID number",
+      "signInBtn": "Sign in with UAE PASS",
+      "singleIdentity": "UAE PASS is the single trusted digital identity for UAE residents and citizens.",
+      "whatIsUaePass": "What is UAE PASS?",
+      "uaePassDesc": "UAE PASS is the UAE's national digital identity app that lets residents and citizens securely access all government services with a single identity — no paperwork, no delays.",
+      "benefits": "Benefits of signing in with UAE PASS",
+      "benefitsList": [
+        "Your business details are auto-filled from official records",
+        "No documents to upload or forms to fill",
+        "Secure, government-verified identity",
+        "One identity for all UAE government services"
+      ]
+    },
+    "landing": {
+      "nav": {
+        "signIn": "Sign in",
+        "langToggle": "العربية"
+      },
+      "breadcrumb": {
+        "home": "Home",
+        "business": "Business"
+      },
+      "hero": {
+        "title": "Embark on a Successful\nBusiness Journey",
+        "subtitle": "A step-by-step guide on how to start a business in Abu Dhabi."
+      },
+      "tabs": {
+        "guides": "Guides",
+        "resources": "Resources"
+      },
+      "guides": [
+        {
+          "title": "Why Abu Dhabi?",
+          "description": "Abu Dhabi's diverse economy offers individuals the opportunity to set up and operate businesses across a wide range of growing sectors."
+        },
+        {
+          "title": "Set Up Easily with Few Steps",
+          "description": "Starting a business in Abu Dhabi is easy with our streamlined, step-by-step guidance, minimizing paperwork and ensuring smooth progress."
+        },
+        {
+          "title": "Prosper Whether in Mainland or Free Zone",
+          "description": "Abu Dhabi's mainland and free zones offer a range of incentives making them attractive business and investment options."
+        }
+      ],
+      "learnMore": "Learn More",
+      "cta": {
+        "title": "Protect Your Business Today",
+        "description": "Get comprehensive SME insurance coverage in minutes. Workers Compensation, Liability, Property and more — all from top UAE insurers at competitive prices.",
+        "startJourney": "Start your Journey",
+        "quickQuote": "Quick Quote with UAE PASS ✓"
+      },
+      "news": {
+        "title": "News",
+        "items": [
+          {
+            "date": "15 August 2024",
+            "title": "ADDED includes 30 new activities to 'Freelancer Licence'"
+          },
+          {
+            "date": "30 July 2024",
+            "title": "Tajer Abu Dhabi introduces 12 new activities"
+          },
+          {
+            "date": "06 June 2024",
+            "title": "Abu Dhabi launches the unified economic licence"
+          }
+        ]
+      },
+      "services": {
+        "title": "Services",
+        "viewAll": "View All",
+        "items": [
+          {
+            "title": "Trade Name Check",
+            "entity": "Department of Economic Development"
+          },
+          {
+            "title": "Business Insurance",
+            "entity": "Shory Insurance Broker"
+          },
+          {
+            "title": "Investor Compass",
+            "entity": "Department of Economic Development"
+          },
+          {
+            "title": "Apply for a Trade Licence",
+            "entity": "Department of Economic Development"
+          }
+        ]
+      }
+    }
   }
 }
