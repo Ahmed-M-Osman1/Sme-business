@@ -3,6 +3,7 @@
 import {useRouter} from 'next/navigation';
 import {cn} from '@shory/ui';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 
 interface ProgressIndicatorProps {
   currentStep: number;
@@ -17,14 +18,15 @@ export function ProgressIndicator({
 }: ProgressIndicatorProps) {
   const {t} = useI18n();
   const router = useRouter();
+  const brand = useBrand();
 
   const STEPS = [
-    {label: t.progress.chooseMethod, path: '/quote/start'},
-    {label: t.progress.business, path: '/quote/business-type'},
+    {label: t.progress.chooseMethod, path: `${brand.basePath}/quote/start`},
+    {label: t.progress.business, path: `${brand.basePath}/quote/business-type`},
     {label: t.progress.coverage, path: null},
-    {label: t.progress.quotes, path: '/quote/results'},
-    {label: t.progress.company, path: '/quote/company-details'},
-    {label: t.progress.checkout, path: '/quote/checkout'},
+    {label: t.progress.quotes, path: `${brand.basePath}/quote/results`},
+    {label: t.progress.company, path: `${brand.basePath}/quote/company-details`},
+    {label: t.progress.checkout, path: `${brand.basePath}/quote/checkout`},
   ];
 
   const total = totalSteps ?? STEPS.length;

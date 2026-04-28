@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {Button} from '@shory/ui';
 import {BusinessBundleIcon} from '@/components/icons/insurance-icons';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 
 type ProductCard = {
   title: string;
@@ -53,6 +54,7 @@ function ProductCardItem({product}: {product: ProductCard}) {
 
 export function Hero() {
   const {t, locale} = useI18n();
+  const brand = useBrand();
   const [activeTab, setActiveTab] = useState<'personal' | 'business'>(
     'business',
   );
@@ -92,7 +94,7 @@ export function Hero() {
     {
       title: t.landing.heroCards.smeBusinessInsurance,
       image: 'sme-icon',
-      href: '/quote/start',
+      href: `${brand.basePath}/quote/start`,
       active: true,
     },
     {
@@ -105,54 +107,60 @@ export function Hero() {
   ];
 
   const products =
-    activeTab === 'personal' ? personalProducts : businessProducts;
+    brand.id === 'tamm'
+      ? businessProducts
+      : activeTab === 'personal'
+        ? personalProducts
+        : businessProducts;
 
   return (
     <section className="pb-8 pt-12 text-center">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <p className="mb-3 text-sm font-semibold text-gray-500">
-          {t.landing.heroSubtitle}
+          {brand.id === 'tamm' ? 'Get your business covered in minutes' : t.landing.heroSubtitle}
         </p>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl whitespace-pre-line">
-          {t.landing.heroTitle}
+          {brand.id === 'tamm' ? brand.tagline : t.landing.heroTitle}
         </h1>
 
-        {/* Tab Toggle */}
-        <div
-          className="relative mt-8 inline-flex rounded-full border border-gray-200 bg-gray-50 p-1"
-          key={locale}>
+        {/* Tab Toggle — Shory only (TAMM shows business products only) */}
+        {brand.id === 'shory' && (
           <div
-            className="absolute top-1 bottom-1 rounded-full bg-gray-900 transition-all duration-300 ease-in-out"
-            style={{
-              width: 'calc(50% - 4px)',
-              insetInlineStart:
-                activeTab === 'personal' ? '4px' : 'calc(50%)',
-            }}
-          />
-          <button
-            onClick={() => setActiveTab('personal')}
-            className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'personal'
-                ? 'text-white'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}>
-            {t.landing.tabPersonal}
-          </button>
-          <button
-            onClick={() => setActiveTab('business')}
-            className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'business'
-                ? 'text-white'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}>
-            {t.landing.tabBusiness}
-          </button>
-        </div>
+            className="relative mt-8 inline-flex rounded-full border border-gray-200 bg-gray-50 p-1"
+            key={locale}>
+            <div
+              className="absolute top-1 bottom-1 rounded-full bg-gray-900 transition-all duration-300 ease-in-out"
+              style={{
+                width: 'calc(50% - 4px)',
+                insetInlineStart:
+                  activeTab === 'personal' ? '4px' : 'calc(50%)',
+              }}
+            />
+            <button
+              onClick={() => setActiveTab('personal')}
+              className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
+                activeTab === 'personal'
+                  ? 'text-white'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}>
+              {t.landing.tabPersonal}
+            </button>
+            <button
+              onClick={() => setActiveTab('business')}
+              className={`relative z-10 rounded-full px-8 py-2.5 text-sm font-medium transition-colors duration-200 ${
+                activeTab === 'business'
+                  ? 'text-white'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}>
+              {t.landing.tabBusiness}
+            </button>
+          </div>
+        )}
 
         {/* Product Cards */}
         <div
           className={`mt-10 grid gap-4 ${
-            activeTab === 'personal'
+            brand.id === 'shory' && activeTab === 'personal'
               ? 'grid-cols-2 lg:grid-cols-4'
               : 'mx-auto grid-cols-1 sm:grid-cols-2 max-w-lg'
           }`}>

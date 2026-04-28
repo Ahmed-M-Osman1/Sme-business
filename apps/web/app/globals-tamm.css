@@ -1,0 +1,76 @@
+/*
+ * TAMM brand overrides
+ * Source: Figma "❇️ Graphics Library" (file 1m6pEkPeGBcPMh483kC5vC)
+ * Scoped via [data-brand="tamm"] so they only apply when the TAMM brand is active.
+ */
+
+[data-brand="tamm"] {
+  /* Primary — Abu Dhabi Gov blue */
+  --color-primary: #005C9E;
+  --color-primary-hover: #004B82;
+  --color-primary-light: #E8F1F8;
+  --color-primary-mid: #B3CFDF;
+
+  /* Navy — dark business backgrounds (from Figma Spaces Backgrounds) */
+  --color-navy-deep: #020D22;
+  --color-navy-mid: #031D4B;
+  --color-navy-light: #2B4483;
+  --color-navy-blue: #4666A5;
+
+  /* TAMM teal accent (from Figma brand identity: #0EECDA) */
+  --color-tamm-teal: #0EECDA;
+  --color-tamm-teal-dim: rgba(14, 236, 218, 0.15);
+
+  /* Neutral */
+  --color-background: #F4F6F8;
+  --color-surface: #FFFFFF;
+  --color-border: #DEE2E6;
+  --color-text: #12121B;
+  --color-text-muted: #64748B;
+  --color-text-light: rgba(18, 18, 27, 0.60);
+
+  /* Accent */
+  --color-success: #1D7A4E;
+  --color-success-light: #E8F7F0;
+  --color-warning: #C2790E;
+  --color-error: #C0272D;
+
+  /* Nav — dark header matching Figma #12121B */
+  --color-nav-bg: #12121B;
+  --color-nav-text: #FFFFFF;
+
+  /* Fonts — Circular Std equivalent */
+  --font-sans: var(--font-source-sans);
+}
+
+[data-brand="tamm"] body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-source-sans), var(--font-ping-arlt), -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html[data-brand="tamm"][dir='rtl'] body {
+  font-family: var(--font-ping-arlt), var(--font-source-sans), -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* TAMM geometric Arabic pattern (used in banners & hero overlays) */
+[data-brand="tamm"] .tamm-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M30 0L60 30L30 60L0 30z'/%3E%3Cpath d='M30 10L50 30L30 50L10 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* TAMM teal glow — used on highlighted CTA elements */
+[data-brand="tamm"] .tamm-teal-glow {
+  box-shadow: 0 0 0 1px rgba(14, 236, 218, 0.3), 0 4px 24px rgba(14, 236, 218, 0.15);
+}
+
+/* Business gradient — dark navy (from Figma Spaces/Business Dark) */
+[data-brand="tamm"] .tamm-bg-business-dark {
+  background: linear-gradient(135deg, #020D22 0%, #031D4B 100%);
+}
+
+/* Business gradient — light blue (from Figma Spaces/Business Light) */
+[data-brand="tamm"] .tamm-bg-business-light {
+  background: linear-gradient(135deg, #4666A5 0%, #2B4483 100%);
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useSearchParams, useRouter} from 'next/navigation';
 import {useSession} from 'next-auth/react';
 import {Button, Card, CardContent} from '@shory/ui';
@@ -18,6 +18,7 @@ import {useI18n} from '@/lib/i18n';
 import businessTypes from '@/config/business-types.json';
 import productsConfig from '@/config/products.json';
 import insurers from '@/config/insurers.json';
+import {useBrand} from '@/lib/brand';
 import type {ContactForm} from '@/types/quote';
 
 type ProductId = keyof typeof productsConfig;
@@ -36,6 +37,7 @@ export function Checkout() {
   const {data: session} = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const brand = useBrand();
 
   const typeId = searchParams.get('type') ?? 'general-trading';
   const insurerId = searchParams.get('insurer') ?? 'salama';
@@ -50,7 +52,7 @@ export function Checkout() {
   const businessName = searchParams.get('businessName') ?? '';
   const companyVerified =
     searchParams.get('companyVerified') === 'true';
-  const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
   const employeeBand = searchParams.get('employees') ?? '2-5';
 
   const businessType =
@@ -95,6 +97,23 @@ export function Checkout() {
   const [finwallAgreed, setFinwallAgreed] = useState(false);
   const [cardForm, setCardForm] = useState({num: '', exp: '', cvv: '', name: ''});
   const monthlyAmount = Math.round(total * 1.08 / 12);
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem('uaepass-data');
+    if (raw) {
+      try {
+        const uaePass = JSON.parse(raw) as {
+          ownerName: string;
+          emiratesId: string;
+        };
+        if (uaePass.ownerName) {
+          setForm((prev) => ({...prev, fullName: prev.fullName || uaePass.ownerName}));
+        }
+      } catch {
+        // ignore invalid data
+      }
+    }
+  }, []);
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -154,7 +173,7 @@ export function Checkout() {
       if (payMethod === 'finwall') params.set('payRef', `FW-${Math.random().toString(36).slice(2, 10).toUpperCase()}`);
       if (payMethod === 'bank_transfer') params.set('payRef', `SHRY-${Date.now().toString(36).toUpperCase()}`);
       window.scrollTo({top: 0, behavior: 'smooth'});
-      router.push(`/quote/confirmation?${params.toString()}`);
+      router.push(`${brand.basePath}/quote/confirmation?${params.toString()}`);
     }, PAYMENT_PROCESSING_MS);
   }
 
@@ -200,11 +219,13 @@ export function Checkout() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator
-        currentStep={6}
-        totalSteps={6}
-        label={t.progress.checkout}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={6}
+          totalSteps={6}
+          label={t.progress.checkout}
+        />
+      )}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">

@@ -3,8 +3,7 @@
 import {useState, useCallback, useRef, useEffect} from 'react';
 import type {OcrField} from '@/lib/mock-ocr';
 import {useI18n} from '@/lib/i18n';
-
-const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
+import {useBrand} from '@/lib/brand';
 
 export const ACTIVITIES = [
   'Technology',
@@ -63,7 +62,8 @@ export function isValidDate(value: string): boolean {
   return true;
 }
 
-export function isUnreadableValue(value: string): boolean {
+export function isUnreadableValue(value: string | undefined | null): boolean {
+  if (!value) return true;
   const normalized = value.trim().toLowerCase();
   return (
     normalized.length === 0 ||
@@ -83,6 +83,7 @@ interface EditableFieldProps {
 
 export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldProps) {
   const {t} = useI18n();
+  const brand = useBrand();
   const needsEdit = field.confidence !== 'high';
   const [editing, setEditing] = useState(needsEdit);
   const [value, setValue] = useState(field.value);
@@ -92,7 +93,14 @@ export function EditableField({field, label, fieldKey, onUpdate}: EditableFieldP
   const isEmirate = fieldKey === 'emirate';
   const isActivity = fieldKey === 'activity';
   const isDropdown = isEmirate || isActivity;
-  const dropdownOptions = isEmirate ? EMIRATES : isActivity ? ACTIVITIES : [];
+  const emirates = (() => {
+    const locations = brand.locations.map((l) => l.value);
+    for (const ia of brand.issuingAuthorities) {
+      if (!locations.includes(ia)) locations.push(ia);
+    }
+    return locations;
+  })();
+  const dropdownOptions = isEmirate ? emirates : isActivity ? ACTIVITIES : [];
   const hasUnreadableValue = isUnreadableValue(value);
   const hasInvalidDate = isDate && value.length >= 10 && !isValidDate(value);
 

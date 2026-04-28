@@ -6,6 +6,7 @@ import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {BusinessTypeDetail} from '@/components/quote/business-type-detail';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 import {api} from '@/lib/api-client';
 import {BUSINESS_TYPE_HELP} from '@/config/business-type-help';
 
@@ -24,6 +25,7 @@ const FEATURED_IDS = [
 
 export default function BusinessTypePage() {
   const {t} = useI18n();
+  const brand = useBrand();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -120,11 +122,13 @@ export default function BusinessTypePage() {
   return (
     <div className="flex flex-col gap-6">
       <div ref={topRef} />
-      <ProgressIndicator
-        currentStep={2}
-        totalSteps={6}
-        label={t.businessType.title}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={2}
+          totalSteps={6}
+          label={t.businessType.title}
+        />
+      )}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -260,7 +264,7 @@ export default function BusinessTypePage() {
 
         {/* Not listed fallback */}
         <Link
-          href="/quote/manual"
+          href={`${brand.basePath}/quote/manual`}
           className="block w-full text-center py-3 px-4 rounded-lg border border-border hover:border-primary/40 transition-colors bg-white shadow-sm flex items-center justify-center gap-2">
           <div className="text-2xl shrink-0">➕</div>
           <p className="text-sm font-medium text-text">

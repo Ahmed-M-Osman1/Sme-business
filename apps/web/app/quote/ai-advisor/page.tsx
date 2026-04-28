@@ -8,6 +8,7 @@ import {BusinessTypeTags} from '@/components/quote/business-type-tags';
 import {useI18n} from '@/lib/i18n';
 import {findScriptedResponse} from '@/lib/ai-demo-responses';
 import {api} from '@/lib/api-client';
+import {useBrand} from '@/lib/brand';
 import quoteOptions from '@/config/quote-options.json';
 import type {ChatMessage, ConvoState, ChipOption} from '@/types/quote';
 
@@ -64,9 +65,10 @@ export default function AiAdvisorPage() {
     label: (t.options.revenueBands as Record<string, string>)[band.value] ?? band.label,
     value: band.value,
   }));
-  const emirateChips = quoteOptions.emirates.map((emirate) => ({
-    label: (t.options.emirates as Record<string, string>)[emirate] ?? emirate,
-    value: emirate,
+  const brand = useBrand();
+  const locationChips = brand.locations.map((loc) => ({
+    label: (t.options.emirates as Record<string, string>)[loc.value] ?? loc.label,
+    value: loc.value,
   }));
 
   useEffect(() => {
@@ -127,7 +129,7 @@ export default function AiAdvisorPage() {
 
   function findEmirate(raw: string) {
     const normalized = raw.toLowerCase().trim();
-    return emirateChips.find((chip) => normalized === chip.label.toLowerCase() || normalized.includes(chip.label.toLowerCase()));
+    return locationChips.find((chip) => normalized === chip.label.toLowerCase() || normalized.includes(chip.label.toLowerCase()));
   }
 
   function buildResultsUrl(state: ConvoState): string {
@@ -138,7 +140,7 @@ export default function AiAdvisorPage() {
       emirate: state.emirate,
     });
     if (state.revenue) params.set('revenue', state.revenue);
-    return `/quote/results?${params.toString()}`;
+    return `${brand.basePath}/quote/results?${params.toString()}`;
   }
 
   async function advanceConvo(nextState: ConvoState) {
@@ -164,14 +166,14 @@ export default function AiAdvisorPage() {
       addChatMessages({
         role: 'ai',
         content: t.ai.askEmirate,
-        chips: emirateChips,
+        chips: locationChips,
         chipKey: 'emirate',
       });
     } else if (nextState.step === 'done') {
       const url = buildResultsUrl(nextState);
       addChatMessages({
         role: 'ai',
-        content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${(t.options.employeeBands as Record<string, string>)[nextState.employees] ?? nextState.employees}\n• **${t.ai.summaryRevenue}:** ${(t.options.revenueBands as Record<string, string>)[nextState.revenue] ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${(t.options.emirates as Record<string, string>)[nextState.emirate] ?? nextState.emirate}\n\n${t.ai.summaryReady}`,
+        content: `${t.ai.summaryIntro}\n\n• **${t.ai.summaryBusiness}:** ${nextState.businessLabel}\n• **${t.ai.summaryTeam}:** ${(t.options.employeeBands as Record<string, string>)[nextState.employees] ?? nextState.employees}\n• **${t.ai.summaryRevenue}:** ${(t.options.revenueBands as Record<string, string>)[nextState.revenue] ?? nextState.revenue}\n• **${t.ai.summaryLocation}:** ${(t.options.emirates as Record<string, string>)[nextState.emirate] ?? brand.locations.find((l) => l.value === nextState.emirate)?.label ?? nextState.emirate}\n\n${t.ai.summaryReady}`,
         cta: {label: t.ai.seeMyQuotes, href: url},
       });
     }
@@ -360,7 +362,7 @@ export default function AiAdvisorPage() {
               {t.ai.backToStart}
             </button>
           </div>
-          <ProgressIndicator currentStep={2} totalSteps={6} label={t.ai.title} />
+          {brand.id !== 'tamm' && <ProgressIndicator currentStep={2} totalSteps={6} label={t.ai.title} />}
         </div>
       </div>
 
@@ -382,14 +384,14 @@ export default function AiAdvisorPage() {
           {apiFailed && (
             <div className="px-4 pt-3 pb-1 flex flex-col sm:flex-row gap-2">
               <Button
-                onClick={() => router.push('/quote/business-type')}
+                onClick={() => router.push(`${brand.basePath}/quote/business-type`)}
                 className="flex-1 rounded-xl bg-primary text-white py-3 font-semibold hover:bg-primary/90 transition-colors"
               >
                 {t.ai.quickSelect}
               </Button>
               <Button
                 variant="outline"
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 rounded-xl border-2 border-primary text-primary py-3 font-semibold hover:bg-primary/5 transition-colors"
               >
                 {t.ai.manualEntry}

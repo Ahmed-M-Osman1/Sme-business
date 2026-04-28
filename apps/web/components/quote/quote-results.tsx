@@ -8,14 +8,18 @@ import {PRODUCT_ICONS} from '@/components/icons/insurance-icons';
 import {BundleCard} from '@/components/quote/bundle-card';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {QuoteCard} from '@/components/quote/quote-card';
+import {TammQuoteCard} from '@/components/quote/tamm-quote-card';
+import {TammFilterBar} from '@/components/quote/tamm-filter-bar';
+import {TammCompareView, type CompareQuote} from '@/components/quote/tamm-compare-view';
+import {TammBundleCard} from '@/components/quote/tamm-bundle-card';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
+import {useBrand, type BrandConfig} from '@/lib/brand';
 import {
-  calculateMonthlyPrice,
   calculateProductPrice,
-  calculateQuarterlyPrice,
   calculateTotalPremium,
   formatPriceWithCurrency,
+  getLocationMultiplier,
   getSizeFactor,
 } from '@/lib/pricing';
 import {evaluateRecommendations} from '@/lib/recommendation-engine';
@@ -30,14 +34,14 @@ import type {
 const NAVIGATION_DELAY_MS = 800;
 
 /** Peer data keyed by business type ID for guaranteed matching. */
-const PEER_DATA: Record<
+function getPeerData(brand: BrandConfig): Record<
   string,
   {
     insight: string;
     riskStat: string;
     extras: {name: string; pct: number; reason: string}[];
   }
-> = {
+> { return {
   'cafe-restaurant': {
     insight:
       'Kitchen fires and slip injuries are the top two claim drivers for UAE F&B businesses.',
@@ -53,8 +57,7 @@ const PEER_DATA: Record<
       {
         name: 'Food Contamination',
         pct: 67,
-        reason:
-          'Required by DHA/food safety regulators in most emirates',
+        reason: `Required by ${brand.legalReferences.healthAuthority}/food safety regulators`,
       },
       {
         name: 'Cyber Liability',
@@ -271,7 +274,7 @@ const PEER_DATA: Record<
       },
     ],
   },
-};
+}; }
 
 /** Fixed annual price per add-on extra (AED). */
 const EXTRA_PRICES: Record<string, number> = {
@@ -299,7 +302,10 @@ export function QuoteResults() {
   const typeId = searchParams.get('type') ?? 'general-trading';
   const source = searchParams.get('source') ?? 'pre-configured';
   const employeeBand = searchParams.get('employees') ?? '2-5';
-  const emirate = searchParams.get('emirate') ?? 'Dubai';
+  const brand = useBrand();
+  const isTamm = brand.id === 'tamm';
+  const emirate = searchParams.get('emirate') ?? brand.defaultLocation;
+  const locationMultiplier = getLocationMultiplier(emirate, brand.locationMultipliers);
   const revenue = searchParams.get('revenue') ?? '';
   const coverageArea = searchParams.get('coverageArea') ?? '';
 
@@ -319,7 +325,11 @@ export function QuoteResults() {
     Record<string, string>
   >({});
   const [showFilters, setShowFilters] = useState(false);
+  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const [showCompareSidebar, setShowCompareSidebar] = useState(false);
+  const [showCompareView, setShowCompareView] = useState(false);
   const [sortBy, setSortBy] = useState<'price' | 'rating'>('price');
+  const [sortOrder, setSortOrder] = useState<'low-high' | 'high-low'>('low-high');
   const [shariahOnly, setShariahOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -438,14 +448,11 @@ export function QuoteResults() {
     monthly
       ? `${formatMoney(Math.round((annualAmount * 1.08) / 12))}${t.common.perMonth}`
       : `${formatMoney(annualAmount)}/${locale === 'ar' ? 'سنوياً' : 'yr'}`;
-  const formatMonthlyTotal = (amount: number) =>
-    `${formatMoney(calculateMonthlyPrice(amount))}${t.common.perMonth}`;
-
   const allQuotes = useMemo<EnrichedInsurerQuote[]>(() => {
     if (!businessType) return [];
 
     return insurers.map((insurer) => {
-      const calculatedTotal = calculateTotalPremium(
+      const basePremium = calculateTotalPremium(
         {
           productIds: Array.from(activeProducts),
           riskFactor: businessType.riskFactor,
@@ -455,6 +462,7 @@ export function QuoteResults() {
         },
         productsMap,
       );
+      const calculatedTotal = Math.round(basePremium * locationMultiplier);
 
       return {
         ...insurer,
@@ -467,6 +475,7 @@ export function QuoteResults() {
     businessType,
     coverageLimits,
     insurers,
+    locationMultiplier,
     productsMap,
     selectedBundle,
     sizeFactor,
@@ -496,11 +505,12 @@ export function QuoteResults() {
         return right.rating - left.rating;
       }
 
-      return left.total - right.total;
+      const direction = isTamm && sortOrder === 'high-low' ? -1 : 1;
+      return (left.total - right.total) * direction;
     });
 
     return filtered;
-  }, [eligibleQuotes, maxPrice, shariahOnly, sortBy]);
+  }, [eligibleQuotes, isTamm, maxPrice, shariahOnly, sortBy, sortOrder]);
 
   useEffect(() => {
     if (
@@ -606,13 +616,14 @@ export function QuoteResults() {
   const mandatoryProducts = useMemo(() => {
     const mandatory = new Set<string>();
     if (employeeBand !== '1') mandatory.add('workers-comp');
-    if (emirate === 'Dubai' || emirate === 'Abu Dhabi') {
-      // Health insurance mandatory in DXB/AUH if product exists
-      if (availableProductIds.includes('health'))
-        mandatory.add('health');
+    const healthLocs = brand.healthInsuranceMandatoryLocations;
+    const healthMandatory =
+      healthLocs.includes('*') || healthLocs.includes(emirate);
+    if (healthMandatory && availableProductIds.includes('health')) {
+      mandatory.add('health');
     }
     return mandatory;
-  }, [employeeBand, emirate, availableProductIds]);
+  }, [employeeBand, emirate, availableProductIds, brand]);
 
   function toggleProduct(productId: string) {
     if (mandatoryProducts.has(productId)) return;
@@ -646,6 +657,43 @@ export function QuoteResults() {
       current === insurerId ? null : insurerId,
     );
   }
+
+  function toggleCompare(insurerId: string) {
+    setCompareIds((current) => {
+      const next = new Set(current);
+      if (next.has(insurerId)) {
+        next.delete(insurerId);
+      } else if (next.size < 4) {
+        next.add(insurerId);
+      }
+      return next;
+    });
+  }
+
+  const compareQuotes: CompareQuote[] = useMemo(() => {
+    return Array.from(compareIds).map((id) => {
+      const insurer = insurerQuotes.find((q) => q.id === id);
+      if (!insurer) return null;
+      const lines = activeProductIds.map((pid) => {
+        const product = productsMap[pid];
+        const limit = coverageLimits[pid] ?? '1M';
+        return {
+          name: (t.products as Record<string, {name: string; shortName: string}>)[pid]?.name || product?.name || pid,
+          limit: `AED ${limit === '1M' ? '1,000,000' : limit === '2M' ? '2,000,000' : '5,000,000'}`,
+          mandatory: mandatoryProducts.has(pid),
+        };
+      });
+      return {
+        id: insurer.id,
+        name: insurer.name,
+        logo: insurer.logo,
+        rating: insurer.rating,
+        shariahCompliant: insurer.shariahCompliant,
+        total: insurer.total + extrasTotal,
+        productLines: lines,
+      };
+    }).filter(Boolean) as CompareQuote[];
+  }, [compareIds, insurerQuotes, activeProductIds, productsMap, coverageLimits, t.products, mandatoryProducts, extrasTotal]);
 
   function handleProceed() {
     if (!selectedQuote) return;
@@ -685,9 +733,9 @@ export function QuoteResults() {
         ? (() => {
             params.set('companyVerified', 'true');
             params.set('companySource', 'ocr');
-            return `/quote/checkout?${params.toString()}`;
+            return `${brand.basePath}/quote/checkout?${params.toString()}`;
           })()
-        : `/quote/company-details?${params.toString()}`;
+        : `${brand.basePath}/quote/company-details?${params.toString()}`;
 
     setTimeout(() => {
       router.push(destination);
@@ -722,14 +770,430 @@ export function QuoteResults() {
     );
   }
 
+  if (isTamm) {
+    if (showCompareView && compareQuotes.length >= 2) {
+      return (
+        <TammCompareView
+          quotes={compareQuotes}
+          monthly={monthly}
+          coverageType={coverageType}
+          onSelect={(insurerId, total) => handleNavigate(insurerId, total)}
+          onBack={() => setShowCompareView(false)}
+        />
+      );
+    }
+
+    const lowestPrice = insurerQuotes.length > 0 ? Math.min(...insurerQuotes.map((q) => q.total)) : 0;
+
+    return (
+      <div className="pb-12 relative">
+
+        {/* Title + description */}
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-[#12121B]">{t.tamm.results.title}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-[#475569]">{t.tamm.results.description}</p>
+        </div>
+
+        {/* Business summary card */}
+        <div className="mb-5 rounded-xl bg-white p-4" style={{border: '1px solid #E2E8F0'}}>
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
+              style={{background: '#F1F5F9'}}>
+              {businessType?.icon ?? '🏢'}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-bold text-[#12121B]">
+                {(t.businessType as Record<string, string>)[businessType?.id ?? ''] || businessType?.title || 'Your Business'}
+              </p>
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[#94A3B8]">
+                <span>{(t.options.employeeBands as Record<string, string>)[employeeBand] || employeeBand} {t.tamm.results.employees}</span>
+                <span>·</span>
+                <span>{(t.options.emirates as Record<string, string>)[emirate] || emirate}</span>
+                {coverageType && (
+                  <>
+                    <span>·</span>
+                    <span>{coverageType}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mt-3 flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-70"
+            style={{color: '#169F9F'}}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M8.5 2L4.5 6L8.5 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {t.tamm.results.editDetails}
+          </button>
+        </div>
+
+        {/* Annual/Monthly toggle + count */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-0.5 rounded-lg p-0.5" style={{background: '#F1F5F9'}}>
+            <button
+              onClick={() => setMonthly(false)}
+              className="rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
+              style={{
+                background: !monthly ? 'white' : 'transparent',
+                color: !monthly ? '#12121B' : '#94A3B8',
+                boxShadow: !monthly ? '0 1px 3px rgba(0,0,0,0.08)' : undefined,
+              }}>
+              {t.tamm.results.annual}
+            </button>
+            <button
+              onClick={() => setMonthly(true)}
+              className="rounded-md px-3 py-1.5 text-xs font-semibold transition-all"
+              style={{
+                background: monthly ? 'white' : 'transparent',
+                color: monthly ? '#12121B' : '#94A3B8',
+                boxShadow: monthly ? '0 1px 3px rgba(0,0,0,0.08)' : undefined,
+              }}>
+              {t.tamm.results.monthly}
+            </button>
+          </div>
+          <p className="text-xs text-[#94A3B8]">
+            {activeTab === 'individual'
+              ? `${insurerQuotes.length} ${t.tamm.results.quotesAvailable}`
+              : `${bundles.length} ${t.tamm.results.bundleDeals}`}
+          </p>
+        </div>
+
+        {/* Filter bar */}
+        <TammFilterBar
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
+          activeTab={activeTab === 'individual' ? t.tamm.filterBar.individualQuotes : t.tamm.filterBar.bundleDeals}
+          onTabChange={(tab) => {
+            if (tab === t.tamm.filterBar.individualQuotes) setIndividualTab();
+            else setBundleTab();
+          }}
+          onFilterClick={() => setShowFilters(true)}
+          shariahOnly={shariahOnly}
+          onShariahChange={setShariahOnly}
+          compareCount={compareIds.size}
+          onCompareClick={() => setShowCompareSidebar(true)}
+        />
+
+        {/* Content: 3-col quote grid OR bundle grid */}
+        {activeTab === 'individual' ? (
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {insurerQuotes.length === 0 ? (
+              <div className="col-span-3 py-12 text-center">
+                <p className="text-sm text-[#94A3B8]">{t.results.noQuotes}</p>
+                <button
+                  onClick={() => { setShariahOnly(false); setMaxPrice(null); }}
+                  className="mt-2 text-sm font-medium"
+                  style={{color: '#169F9F'}}>
+                  {t.results.clearFilters}
+                </button>
+              </div>
+            ) : (
+              insurerQuotes.map((insurer, idx) => {
+                const isBest = insurer.total === lowestPrice;
+                const lines = activeProductIds
+                  .map((pid) => {
+                    const product = productsMap[pid];
+                    if (!product) return null;
+                    const limit = coverageLimits[pid] ?? '1M';
+                    const price = Math.round(
+                      calculateProductPrice(pid, businessType?.riskFactor ?? 1, sizeFactor, limit, productsMap) * insurer.priceMultiplier,
+                    );
+                    const productT = (t.products as Record<string, {name: string; shortName: string}>)[pid];
+                    return {
+                      name: productT?.name || product.name,
+                      icon: product.icon,
+                      limit: `AED ${limit === '1M' ? '1,000,000' : limit === '2M' ? '2,000,000' : '5,000,000'}`,
+                      price,
+                      mandatory: mandatoryProducts.has(pid),
+                    };
+                  })
+                  .filter(Boolean) as {name: string; icon: string; limit: string; price: number; mandatory: boolean}[];
+                const extraLines = Array.from(addedExtras).map((extraName) => ({
+                  name: `+ ${extraName}`,
+                  icon: '🛡️',
+                  limit: 'Add-on',
+                  price: EXTRA_PRICES[extraName] ?? 300,
+                  mandatory: false,
+                }));
+                const cardTotal = insurer.total + extrasTotal;
+                return (
+                  <TammQuoteCard
+                    key={insurer.id}
+                    insurer={{
+                      id: insurer.id,
+                      name: insurer.name,
+                      logo: insurer.logo,
+                      rating: insurer.rating,
+                      shariahCompliant: insurer.shariahCompliant,
+                      total: cardTotal,
+                    }}
+                    coverageType={coverageType}
+                    benefits={benefits}
+                    productLines={[...lines, ...extraLines]}
+                    isBestPrice={isBest}
+                    isRecommended={idx === 0}
+                    monthly={monthly}
+                    onSelect={() => handleNavigate(insurer.id, cardTotal)}
+                  />
+                );
+              })
+            )}
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {bundles.map((bundle) => {
+              const eligibleInsurers = insurers.filter((ins) => bundle.eligibleInsurerIds.includes(ins.id));
+              const bundlePrices = eligibleInsurers.map((ins) =>
+                Math.round(
+                  calculateTotalPremium(
+                    {productIds: bundle.productIds, riskFactor: businessType?.riskFactor ?? 1, sizeFactor, coverageLimits, insurerMultiplier: ins.priceMultiplier},
+                    productsMap,
+                  ) * locationMultiplier,
+                ),
+              );
+              const lowestBundlePrice = bundlePrices.length > 0 ? Math.min(...bundlePrices) : bundle.annualPrice;
+              const discountRate = bundle.benchmarkAnnualPrice > 0 ? 1 - bundle.annualPrice / bundle.benchmarkAnnualPrice : 0.1;
+              const discountedPrice = Math.round(lowestBundlePrice * (1 - discountRate));
+              return (
+                <TammBundleCard
+                  key={bundle.id}
+                  title={bundleCopy[bundle.copyKey].title}
+                  description={bundleCopy[bundle.copyKey].description}
+                  annualPrice={discountedPrice}
+                  savings={lowestBundlePrice - discountedPrice}
+                  chips={bundle.productIds.map((pid) => ({
+                    id: pid,
+                    shortName: productsMap[pid]?.shortName ?? pid,
+                    icon: productsMap[pid]?.icon ?? '•',
+                  }))}
+                  ctaLabel={bundleCopy[bundle.copyKey].cta}
+                  badgeLabel={t.results.mostPopular}
+                  featured={bundle.featured}
+                  monthly={monthly}
+                  onSelect={() => {
+                    handleBundleSelect(bundle);
+                    setActiveTab('individual');
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Filter sidebar */}
+        {showFilters && (
+          <>
+            <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowFilters(false)} />
+            <aside
+              className="fixed inset-y-0 inset-s-0 z-50 flex w-72 flex-col bg-white shadow-xl"
+              style={{borderRight: '1px solid #E2E8F0'}}>
+              <div className="flex items-center justify-between px-5 py-4" style={{borderBottom: '1px solid #E2E8F0'}}>
+                <h2 className="text-sm font-semibold text-[#12121B]">{t.results.filters}</h2>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="rounded-lg p-1.5 text-[#94A3B8] transition-colors hover:bg-[#F1F5F9] hover:text-[#12121B]">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M11 3L3 11M3 3L11 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+                <div>
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">{t.tamm.results.compliance}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[#12121B]">{t.results.shariahOnly}</p>
+                      <p className="mt-0.5 text-xs text-[#94A3B8]">{t.results.shariahDesc}</p>
+                    </div>
+                    <button
+                      onClick={() => setShariahOnly((c) => !c)}
+                      className="ms-3 flex h-6 w-10 shrink-0 rounded-full transition-colors duration-200"
+                      style={{background: shariahOnly ? '#169F9F' : '#E2E8F0'}}>
+                      <span
+                        className="block h-4 w-4 self-center rounded-full bg-white shadow transition-transform duration-200"
+                        style={{transform: shariahOnly ? 'translateX(20px)' : 'translateX(4px)'}}
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">{t.results.maxPrice}</p>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs text-[#475569]">{t.tamm.results.upTo}</span>
+                    <span className="text-xs font-semibold text-[#12121B]">
+                      {maxPrice === null ? t.results.any : formatMoney(maxPrice)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={priceRange.min}
+                    max={priceRange.max}
+                    step={100}
+                    value={maxPrice ?? priceRange.max}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setMaxPrice(v >= priceRange.max ? null : v);
+                    }}
+                    className="w-full cursor-pointer appearance-none rounded-full"
+                    style={{accentColor: '#169F9F'}}
+                  />
+                  <div className="mt-1 flex justify-between text-[10px] text-[#94A3B8]">
+                    <span>{formatMoney(priceRange.min)}</span>
+                    <span>{formatMoney(priceRange.max)}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2 px-5 py-4" style={{borderTop: '1px solid #E2E8F0'}}>
+                <button
+                  onClick={() => { setShariahOnly(false); setMaxPrice(null); }}
+                  className="flex-1 rounded-lg py-2 text-sm font-medium"
+                  style={{border: '1px solid #E2E8F0', color: '#475569'}}>
+                  {t.common.clearAll}
+                </button>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="flex-1 rounded-lg py-2 text-sm font-semibold text-white"
+                  style={{background: '#169F9F'}}>
+                  {t.tamm.results.apply}
+                </button>
+              </div>
+            </aside>
+          </>
+        )}
+
+        {/* Compare selection sidebar — shows ALL quotes, user selects from here */}
+        {showCompareSidebar && (
+          <>
+            <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowCompareSidebar(false)} />
+            <aside
+              className="fixed inset-y-0 inset-e-0 z-50 flex w-80 flex-col bg-white shadow-xl"
+              style={{borderLeft: '1px solid #E2E8F0'}}>
+              <div className="flex items-center justify-between px-5 py-4" style={{borderBottom: '1px solid #E2E8F0'}}>
+                <div>
+                  <h2 className="text-sm font-semibold text-[#12121B]">{t.tamm.compare.title}</h2>
+                  <p className="mt-0.5 text-xs text-[#94A3B8]">
+                    {compareIds.size} {t.tamm.compare.outOf} {t.tamm.compare.max} {t.tamm.compare.quotesSelected}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowCompareSidebar(false)}
+                  className="rounded-lg p-1.5 text-[#94A3B8] transition-colors hover:bg-[#F1F5F9] hover:text-[#12121B]">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M11 3L3 11M3 3L11 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <p className="px-5 pt-3 pb-1 text-xs text-[#94A3B8]">{t.tamm.compare.selectHint}</p>
+
+              <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2">
+                {insurerQuotes.map((insurer) => {
+                  const isSelected = compareIds.has(insurer.id);
+                  const isDisabled = !isSelected && compareIds.size >= 4;
+                  const cardTotal = insurer.total + extrasTotal;
+                  const initials = insurer.name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
+                  return (
+                    <button
+                      key={insurer.id}
+                      type="button"
+                      onClick={() => !isDisabled && toggleCompare(insurer.id)}
+                      disabled={isDisabled}
+                      className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      style={{
+                        border: isSelected ? '1.5px solid #169F9F' : '1px solid #E2E8F0',
+                        background: isSelected ? '#F0FAFA' : 'white',
+                      }}>
+                      {/* Checkbox */}
+                      <span
+                        className="flex h-4 w-4 shrink-0 items-center justify-center rounded"
+                        style={{
+                          border: isSelected ? '1.5px solid #169F9F' : '1.5px solid #CBD5E0',
+                          background: isSelected ? '#169F9F' : 'white',
+                        }}>
+                        {isSelected && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                            <path d="M1.5 4L3.5 6L6.5 2" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </span>
+                      {/* Logo */}
+                      <div
+                        className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg"
+                        style={{border: '1px solid #E2E8F0', background: '#F8FAFB'}}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={insurer.logo} alt={insurer.name} className="h-full w-full object-contain"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            img.style.display = 'none';
+                            img.parentElement!.textContent = initials;
+                          }} />
+                      </div>
+                      {/* Info */}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-[#12121B] truncate">{insurer.name}</p>
+                        <p className="text-xs text-[#94A3B8]">
+                          {t.common.currency} {(monthly ? Math.round(cardTotal * 1.08 / 12) : cardTotal).toLocaleString()}
+                          {monthly ? ` / ${t.tamm.results.monthly.toLowerCase()}` : ` / ${t.tamm.results.annual.toLowerCase()}`}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-col gap-2 px-5 py-4" style={{borderTop: '1px solid #E2E8F0'}}>
+                {compareIds.size === 1 && (
+                  <p className="text-center text-[10px] text-[#94A3B8]">{t.tamm.compare.minTwoRequired}</p>
+                )}
+                <button
+                  onClick={() => {
+                    if (compareIds.size >= 2) {
+                      setShowCompareSidebar(false);
+                      setShowCompareView(true);
+                    }
+                  }}
+                  disabled={compareIds.size < 2}
+                  className="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{background: '#169F9F'}}>
+                  {t.tamm.compare.compareBtn}{compareIds.size >= 2 ? ` (${compareIds.size})` : ''}
+                </button>
+                <button
+                  onClick={() => { setCompareIds(new Set()); setShowCompareSidebar(false); }}
+                  className="w-full rounded-lg py-2 text-sm font-medium transition-opacity hover:opacity-70"
+                  style={{color: '#94A3B8'}}>
+                  {t.tamm.compare.clearAll}
+                </button>
+              </div>
+            </aside>
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="pb-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4">
-        <ProgressIndicator
+        {!isTamm && <ProgressIndicator
           currentStep={4}
           totalSteps={6}
           label={t.progress.quotes}
-        />
+        />}
+
+        {searchParams.get('uaepass') === 'true' && (
+          <div className="rounded-xl border border-green-200/20 bg-green-50 px-4 py-3 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-green-600 shrink-0">
+              <path d="M3 8.5L6.5 12L13 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-sm font-medium text-green-700">
+              {locale === 'ar' ? 'تم التعبئة من UAE PASS' : 'Pre-filled from UAE PASS'} &#x2713;
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="sticky top-0 z-30 border-y border-gray-200 bg-[#F7F8FC]/95 backdrop-blur">
@@ -882,7 +1346,7 @@ export function QuoteResults() {
                         }
                       />
                       <SummaryRow
-                        label={t.results.emirate}
+                        label={brand.locationLabel}
                         value={
                           (
                             t.options.emirates as Record<
@@ -1185,7 +1649,7 @@ export function QuoteResults() {
 
               {/* AI Insights panel */}
               {(() => {
-                const peer = PEER_DATA[typeId] ?? null;
+                const peer = getPeerData(brand)[typeId] ?? null;
                 const teaserExtra = peer?.extras[0];
 
                 if (!peer) return null;
@@ -1321,6 +1785,13 @@ export function QuoteResults() {
                     </button>
                   )}
 
+                  {isTamm && (
+                    <TammFilterBar
+                      sortOrder={sortOrder}
+                      onSortChange={setSortOrder}
+                    />
+                  )}
+
                   {insurerQuotes.length === 0 ? (
                     <Card className="rounded-[24px] border border-gray-200 bg-white">
                       <CardContent className="p-8 text-center">
@@ -1396,7 +1867,28 @@ export function QuoteResults() {
                       );
                       const allLines = [...lines, ...extraLines];
                       const cardTotal = insurer.total + extrasTotal;
-                      return (
+                      return isTamm ? (
+                        <TammQuoteCard
+                          key={insurer.id}
+                          insurer={{
+                            id: insurer.id,
+                            name: insurer.name,
+                            logo: insurer.logo,
+                            rating: insurer.rating,
+                            shariahCompliant: insurer.shariahCompliant,
+                            total: cardTotal,
+                          }}
+                          coverageType={coverageType}
+                          benefits={benefits}
+                          productLines={allLines}
+                          isBestPrice={isBest}
+                          isRecommended={idx === 0}
+                          monthly={monthly}
+                          onSelect={() =>
+                            handleNavigate(insurer.id, cardTotal)
+                          }
+                        />
+                      ) : (
                         <QuoteCard
                           key={insurer.id}
                           insurer={{...insurer, total: cardTotal}}
@@ -1432,15 +1924,17 @@ export function QuoteResults() {
                       bundle.eligibleInsurerIds.includes(ins.id),
                     );
                     const bundlePrices = eligibleInsurers.map((ins) =>
-                      calculateTotalPremium(
-                        {
-                          productIds: bundle.productIds,
-                          riskFactor: businessType?.riskFactor ?? 1,
-                          sizeFactor,
-                          coverageLimits,
-                          insurerMultiplier: ins.priceMultiplier,
-                        },
-                        productsMap,
+                      Math.round(
+                        calculateTotalPremium(
+                          {
+                            productIds: bundle.productIds,
+                            riskFactor: businessType?.riskFactor ?? 1,
+                            sizeFactor,
+                            coverageLimits,
+                            insurerMultiplier: ins.priceMultiplier,
+                          },
+                          productsMap,
+                        ) * locationMultiplier,
                       ),
                     );
                     const lowestBundlePrice =

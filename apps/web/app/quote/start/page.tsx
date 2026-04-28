@@ -1,65 +1,88 @@
 'use client';
 
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge} from '@shory/ui';
 import {ProgressIndicator} from '@/components/quote/progress-indicator';
 import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
+import {TammUaePassCard} from '@/components/quote/tamm-uaepass-card';
 // Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
-const FEATURED = {
-  id: 'ai-advisor',
-  icon: '🤖',
-  title: 'AI Advisor',
-  description:
-    'Describe your business in plain English — AI handles the rest',
-  badge: {
-    label: 'Recommended',
-    className: 'bg-blue-100 text-blue-700',
-  },
-  href: '/quote/ai-advisor',
-} as const;
-
-const OTHER_METHODS = [
-  {
-    id: 'pre-configured',
-    icon: '⚡',
-    title: 'Select a pre-configured business',
+function getFeatured(basePath: string) {
+  return {
+    id: 'ai-advisor',
+    icon: '🤖',
+    title: 'AI Advisor',
     description:
-      'Choose from 8 UAE business types — instant quote, no forms',
+      'Describe your business in plain English — AI handles the rest',
     badge: {
-      label: 'Fastest',
-      className: 'bg-primary/10 text-primary',
+      label: 'Recommended',
+      className: 'bg-blue-100 text-blue-700',
     },
-    href: '/quote/business-type',
-  },
-  {
-    id: 'upload',
-    icon: '📄',
-    title: 'Upload trade licence',
-    description:
-      'Claude Vision reads your document and pre-fills everything',
-    badge: null,
-    href: '/quote/upload',
-  },
-  {
-    id: 'manual',
-    icon: '✏️',
-    title: 'Fill in manually',
-    description: 'Step-by-step form with smart auto-fill',
-    badge: null,
-    href: '/quote/manual',
-  },
-] as const;
+    href: `${basePath}/quote/ai-advisor`,
+  } as const;
+}
+
+function getOtherMethods(basePath: string) {
+  return [
+    {
+      id: 'pre-configured',
+      icon: '⚡',
+      title: 'Select a pre-configured business',
+      description:
+        'Choose from 8 UAE business types — instant quote, no forms',
+      badge: {
+        label: 'Fastest',
+        className: 'bg-primary/10 text-primary',
+      },
+      href: `${basePath}/quote/business-type`,
+    },
+    {
+      id: 'upload',
+      icon: '📄',
+      title: 'Upload trade licence',
+      description:
+        'Claude Vision reads your document and pre-fills everything',
+      badge: null,
+      href: `${basePath}/quote/upload`,
+    },
+    {
+      id: 'manual',
+      icon: '✏️',
+      title: 'Fill in manually',
+      description: 'Step-by-step form with smart auto-fill',
+      badge: null,
+      href: `${basePath}/quote/manual`,
+    },
+  ] as const;
+}
 
 export default function QuoteStartPage() {
   const {t, locale} = useI18n();
+  const brand = useBrand();
+  const router = useRouter();
+  const FEATURED = getFeatured(brand.basePath);
+  const OTHER_METHODS = getOtherMethods(brand.basePath);
+
+  function handleUaePassLogin() {
+    const d = brand.uaePassMockData;
+    if (!d) return;
+    sessionStorage.setItem('uaepass-data', JSON.stringify(d));
+    router.push(
+      `${brand.basePath}/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
-      <ProgressIndicator
-        currentStep={1}
-        totalSteps={6}
-        label={t.progress.chooseMethod}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={1}
+          totalSteps={6}
+          label={t.progress.chooseMethod}
+        />
+      )}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">
@@ -69,9 +92,53 @@ export default function QuoteStartPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 w-full flex flex-col gap-4">
+        {/* UAE PASS pre-filled card — TAMM only, shown when authenticated */}
+        {brand.id === 'tamm' && <TammUaePassCard />}
+
+        {/* UAE PASS sign-in banner */}
+        {brand.uaePassEnabled && brand.id !== 'tamm' && (
+          <button onClick={handleUaePassLogin} className="w-full text-start">
+            <Card className="rounded-2xl border-2 border-green-300/30 bg-linear-to-br from-green-50 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
+              <CardContent className="flex items-center gap-4 p-5 sm:p-6">
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-green-600">
+                    <path d="M3.5 10.5L7.5 14.5L16.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-text text-lg">
+                    {locale === 'ar' ? 'تسجيل الدخول عبر UAE PASS' : 'Sign in with UAE PASS'}
+                  </span>
+                  <p className="text-sm text-text-muted mt-0.5">
+                    {locale === 'ar' ? 'تعبئة بيانات شركتك تلقائياً' : 'Auto-fill your business details instantly'}
+                  </p>
+                </div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="text-green-600 shrink-0">
+                  <path
+                    d={
+                      locale === 'ar'
+                        ? 'M12.5 4.167L6.667 10L12.5 15.833'
+                        : 'M7.5 4.167L13.333 10L7.5 15.833'
+                    }
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </CardContent>
+            </Card>
+          </button>
+        )}
+
         {/* Featured card — full width, prominent */}
         <Link href={FEATURED.href}>
-          <Card className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
+          <Card className="rounded-2xl border-2 border-primary bg-linear-to-br from-primary/5 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
             <CardContent className="flex items-center gap-4 p-5 sm:p-6">
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                 <LottieAnimation

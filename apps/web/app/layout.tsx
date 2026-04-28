@@ -1,12 +1,19 @@
 import type {Metadata} from 'next';
+import {headers} from 'next/headers';
 import localFont from 'next/font/local';
+import {Source_Sans_3} from 'next/font/google';
 import {Navbar} from '@/components/layout/navbar';
 import {Footer} from '@/components/layout/footer';
 import {ErrorBoundary} from '@/components/error-boundary';
 import {I18nProvider} from '@/lib/i18n';
 import {SessionProviderWrapper} from '@/components/layout/session-provider-wrapper';
-import './globals.css';
+import {getBrand, BrandProvider} from '@/lib/brand';
+import {shoryBrand} from '@/lib/brand/shory';
 
+import './globals.css';
+import './globals-tamm.css';
+
+/* ── Shory fonts ── */
 const blissPro = localFont({
   src: [
     {
@@ -34,6 +41,15 @@ const blissPro = localFont({
   display: 'swap',
 });
 
+/* ── TAMM font (Google Fonts) ── */
+const sourceSans = Source_Sans_3({
+  subsets: ['latin'],
+  weight: ['300', '400', '600', '700'],
+  variable: '--font-source-sans',
+  display: 'swap',
+});
+
+/* ── Arabic font (shared) ── */
 const pingArLt = localFont({
   src: [
     {
@@ -56,30 +72,42 @@ const pingArLt = localFont({
   display: 'swap',
 });
 
+const brand = getBrand();
+
 export const metadata: Metadata = {
-  title: 'Shory — Compare and Buy Insurance in the UAE',
-  description:
-    'Top insurers. Best prices. One app. Get instant insurance quotes from leading insurers.',
+  title: brand.metadata.title,
+  description: brand.metadata.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{children: React.ReactNode}>) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') ?? '';
+  const isTammRoute = pathname.startsWith('/tamm');
+
+  const fontVariables = isTammRoute
+    ? `${sourceSans.variable} ${pingArLt.variable}`
+    : `${blissPro.variable} ${pingArLt.variable}`;
+
   return (
     <html
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`h-full antialiased ${blissPro.variable} ${pingArLt.variable}`}
+      data-brand={isTammRoute ? 'tamm' : brand.id}
+      className={`h-full antialiased ${fontVariables}`}
     >
       <body className="min-h-full flex flex-col">
         <ErrorBoundary>
           <SessionProviderWrapper>
-            <I18nProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </I18nProvider>
+            <BrandProvider brand={shoryBrand}>
+              <I18nProvider>
+                {!isTammRoute && <Navbar />}
+                {children}
+                {!isTammRoute && <Footer />}
+              </I18nProvider>
+            </BrandProvider>
           </SessionProviderWrapper>
         </ErrorBoundary>
       </body>

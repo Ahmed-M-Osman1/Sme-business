@@ -13,6 +13,7 @@ import {
   isValidDate,
 } from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 import quoteOptions from '@/config/quote-options.json';
 import businessTypes from '@/config/business-types.json';
 
@@ -21,6 +22,7 @@ type Step = 'upload' | 'processing' | 'review' | 'details';
 export default function UploadPage() {
   const {t} = useI18n();
   const router = useRouter();
+  const brand = useBrand();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<Step>('upload');
@@ -150,7 +152,7 @@ export default function UploadPage() {
     const emirate =
       editedFields.emirate ||
       ocrResult.fields.emirate.value ||
-      'Dubai';
+      brand.defaultLocation;
     const companyName =
       editedFields.companyName ?? ocrResult.fields.companyName.value;
     const licenseNumber =
@@ -166,7 +168,7 @@ export default function UploadPage() {
       businessName: companyName,
       licenseNumber,
     });
-    router.push(`/quote/results?${params.toString()}`);
+    router.push(`${brand.basePath}/quote/results?${params.toString()}`);
   }
 
   const stageIcon =
@@ -178,11 +180,13 @@ export default function UploadPage() {
   if (step === 'processing') {
     return (
       <div className="flex flex-col gap-8">
-        <ProgressIndicator
-          currentStep={2}
-          totalSteps={6}
-          label={t.upload.uploadDocument}
-        />
+        {brand.id !== 'tamm' && (
+          <ProgressIndicator
+            currentStep={2}
+            totalSteps={6}
+            label={t.upload.uploadDocument}
+          />
+        )}
         <div className="flex-1 flex flex-col items-center justify-center gap-5 py-20">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl">
             {stageIcon}
@@ -204,11 +208,13 @@ export default function UploadPage() {
 
   return (
     <div className="flex flex-col gap-6 pb-12">
-      <ProgressIndicator
-        currentStep={2}
-        totalSteps={6}
-        label={t.upload.uploadDocument}
-      />
+      {brand.id !== 'tamm' && (
+        <ProgressIndicator
+          currentStep={2}
+          totalSteps={6}
+          label={t.upload.uploadDocument}
+        />
+      )}
 
       {/* Header */}
       <div className="max-w-3xl mx-auto px-4 w-full">
@@ -341,7 +347,7 @@ export default function UploadPage() {
             {/* Alt paths */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
-                onClick={() => router.push('/quote/ai-advisor')}
+                onClick={() => router.push(`${brand.basePath}/quote/ai-advisor`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 <LottieAnimation
                   path="/lottie/aiChat.lottie"
@@ -350,7 +356,7 @@ export default function UploadPage() {
                 {t.upload.tryAi}
               </button>
               <button
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 ✏️ {t.upload.enterManually}
               </button>
@@ -523,7 +529,7 @@ export default function UploadPage() {
                 {t.upload.reUpload}
               </button>
               <button
-                onClick={() => router.push('/quote/manual')}
+                onClick={() => router.push(`${brand.basePath}/quote/manual`)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary/40 transition-all duration-200">
                 <svg
                   width="16"

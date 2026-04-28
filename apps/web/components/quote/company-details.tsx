@@ -8,10 +8,9 @@ import {mockOcrExtract} from '@/lib/mock-ocr';
 import type {OcrResult} from '@/lib/mock-ocr';
 import {DragDropZone, EditableField, formatDateInput, ACTIVITIES, isUnreadableValue, isValidDate} from '@/components/quote/company-details-fields';
 import {useI18n} from '@/lib/i18n';
+import {useBrand} from '@/lib/brand';
 
 type Mode = 'choice' | 'uploading' | 'manual' | 'confirmed';
-
-const EMIRATES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ', 'DIFC', 'ADGM'];
 const STORAGE_KEY = 'shory-company-details-draft';
 
 /** Simulated government API verification delay. */
@@ -61,6 +60,13 @@ export function CompanyDetails() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
+  const brand = useBrand();
+  const LOCATIONS = [
+    ...brand.locations.map((loc) => loc.value),
+    ...brand.issuingAuthorities.filter(
+      (ia) => !brand.locations.some((loc) => loc.value === ia),
+    ),
+  ];
 
   const hasLicenseNumber = !!searchParams.get('licenseNumber');
   const prefilled = searchParams.get('prefilled') === 'true';
@@ -78,7 +84,7 @@ export function CompanyDetails() {
     companyName: draft?.form.companyName ?? (searchParams.get('businessName') || ''),
     licenseNumber: draft?.form.licenseNumber ?? (searchParams.get('licenseNumber') || ''),
     activity: draft?.form.activity ?? (searchParams.get('activity') || ''),
-    emirate: draft?.form.emirate ?? (searchParams.get('emirate') || 'Dubai'),
+    emirate: draft?.form.emirate ?? (searchParams.get('emirate') || brand.defaultLocation),
     expiryDate: draft?.form.expiryDate ?? '',
   });
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -86,7 +92,7 @@ export function CompanyDetails() {
     {key: 'companyName', label: t.companyDetails.companyName},
     {key: 'licenseNumber', label: t.companyDetails.licenseNumber},
     {key: 'activity', label: t.companyDetails.businessActivity},
-    {key: 'emirate', label: t.confirmation.emirate},
+    {key: 'emirate', label: brand.locationLabel},
     {key: 'expiryDate', label: t.companyDetails.expiryDate},
   ];
 
@@ -98,7 +104,7 @@ export function CompanyDetails() {
           companyName: {value: searchParams.get('businessName') || searchParams.get('activity') || '', confidence: 'high' as const},
           licenseNumber: {value: searchParams.get('licenseNumber') || '', confidence: 'high' as const},
           activity: {value: searchParams.get('activity') || '', confidence: 'high' as const},
-          emirate: {value: searchParams.get('emirate') || 'Dubai', confidence: 'high' as const},
+          emirate: {value: searchParams.get('emirate') || brand.defaultLocation, confidence: 'high' as const},
           expiryDate: {value: searchParams.get('expiry') || '', confidence: 'high' as const},
         },
         warnings: [],
@@ -109,7 +115,7 @@ export function CompanyDetails() {
   const hasInvalidActiveFields = !!activeResult && Object.entries(activeResult.fields).some(([key, field]) => {
     const value = editedFields[key] ?? field.value;
     if (key === 'expiryDate') {
-      return value.length > 0 && !isValidDate(value);
+      return !!value && value.length > 0 && !isValidDate(value);
     }
     return isUnreadableValue(value);
   });
@@ -118,6 +124,54 @@ export function CompanyDetails() {
     : '';
   const requiresExpiryAcknowledgement = isExpiredDate(activeExpiryDate);
   const canProceed = !!activeResult && !hasInvalidActiveFields && !requiresExpiryAcknowledgement;
+
+  useEffect(() => {
+    // Multi-company flow stores selected company in a separate key; single-company uses uaepass-data directly
+    const raw = sessionStorage.getItem('uaepass-selected-company') || sessionStorage.getItem('uaepass-data');
+    if (raw) {
+      try {
+        const uaePass = JSON.parse(raw) as {
+          name?: string;
+          businessName?: string;
+          licenceNumber?: string;
+          activity?: string;
+          location?: string;
+          employees?: string;
+          revenue?: string;
+          companies?: unknown[];
+        };
+        // If this is the top-level multi-company object (no specific company selected yet), skip
+        if (uaePass.companies && uaePass.companies.length > 0 && !sessionStorage.getItem('uaepass-selected-company')) return;
+        const companyName = uaePass.businessName ?? uaePass.name ?? '';
+        const licenseNumber = uaePass.licenceNumber ?? '';
+        const activity = uaePass.activity ?? '';
+        const emirate = uaePass.location ?? brand.defaultLocation;
+        setOcrResult({
+          success: true,
+          scenario: 'prefilled',
+          fields: {
+            companyName: {value: companyName, confidence: 'high'},
+            licenseNumber: {value: licenseNumber, confidence: 'high'},
+            activity: {value: activity, confidence: 'high'},
+            emirate: {value: emirate, confidence: 'high'},
+            expiryDate: {value: '15/12/2027', confidence: 'high'},
+          },
+          warnings: [],
+        });
+        setEditedFields({});
+        setForm({
+          companyName,
+          licenseNumber,
+          activity,
+          emirate,
+          expiryDate: '15/12/2027',
+        });
+        setMode('confirmed');
+      } catch {
+        // ignore invalid data
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (hasTradeLicense) {
@@ -214,7 +268,7 @@ export function CompanyDetails() {
     }
     clearDraft();
     window.scrollTo({top: 0, behavior: 'smooth'});
-    router.push(`/quote/checkout?${existing.toString()}`);
+    router.push(`${brand.basePath}/quote/checkout?${existing.toString()}`);
   };
 
   const stageIcon = progress.pct < 30 ? '\u{1F4E4}' : progress.pct < 60 ? '\u{1F50D}' : '\u2728';
@@ -239,7 +293,7 @@ export function CompanyDetails() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ProgressIndicator currentStep={5} totalSteps={6} label={t.progress.company} />
+      {brand.id !== 'tamm' && <ProgressIndicator currentStep={5} totalSteps={6} label={t.progress.company} />}
 
       <div className="max-w-3xl mx-auto px-4 w-full">
         <h1 className="text-2xl sm:text-3xl font-bold text-text">{t.companyDetails.title}</h1>
@@ -459,13 +513,13 @@ export function CompanyDetails() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">{t.confirmation.emirate}</label>
+                <label className="block text-sm font-medium text-text mb-1.5">{brand.locationLabel}</label>
                 <select
                   value={form.emirate}
                   onChange={(e) => setF('emirate', e.target.value)}
                   className="w-full rounded-lg border border-border px-4 py-3 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary appearance-none transition-all duration-200"
                 >
-                  {EMIRATES.map((e) => (
+                  {LOCATIONS.map((e) => (
                     <option key={e} value={e}>
                       {(t.options.emirates as Record<string, string>)[e] ?? e}
                     </option>

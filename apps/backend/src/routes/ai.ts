@@ -1,24 +1,29 @@
 import {Hono} from 'hono';
 import {db, quotes, aiRecommendations, aiFallbackLog} from '@shory/db';
-import {aiRecommendRequestSchema} from '@shory/shared';
+import {aiRecommendRequestSchema as baseAiRecommendRequestSchema} from '@shory/shared';
 import {eq} from 'drizzle-orm';
 import {errorResponse, handleZodError} from '../middleware/error-handler.js';
 import {getRecommendations, classifyBusiness} from '../ai/advisor.js';
 import {ZodError} from 'zod';
 import {z} from 'zod';
 
+const aiRecommendRequestSchema = baseAiRecommendRequestSchema.extend({
+  brand: z.enum(['shory', 'tamm']).optional().default('shory'),
+});
+
 export const aiRouter = new Hono();
 
 const classifySchema = z.object({
   text: z.string().min(1, 'Text is required'),
+  brand: z.enum(['shory', 'tamm']).optional().default('shory'),
 });
 
 aiRouter.post('/classify', async (c) => {
   try {
     const body = await c.req.json();
-    const {text} = classifySchema.parse(body);
+    const {text, brand} = classifySchema.parse(body);
 
-    const result = await classifyBusiness(text);
+    const result = await classifyBusiness(text, brand);
 
     // Log fallbacks to ai_fallback_log
     if (result.fallback) {
@@ -49,7 +54,7 @@ aiRouter.post('/classify', async (c) => {
 aiRouter.post('/recommend', async (c) => {
   try {
     const body = await c.req.json();
-    const {quoteId} = aiRecommendRequestSchema.parse(body);
+    const {quoteId, brand} = aiRecommendRequestSchema.parse(body);
 
     const [quote] = await db.select().from(quotes).where(eq(quotes.id, quoteId));
     if (!quote) return errorResponse(c, 'QUOTE_NOT_FOUND', `Quote ${quoteId} not found`, 404);
@@ -60,6 +65,7 @@ aiRouter.post('/recommend', async (c) => {
       employeesCount: quote.employeesCount,
       emirate: quote.emirate,
       coverageType: quote.coverageType,
+      brand,
     };
 
     const {recommendations, modelUsed, confidence} = await getRecommendations(inputContext);
