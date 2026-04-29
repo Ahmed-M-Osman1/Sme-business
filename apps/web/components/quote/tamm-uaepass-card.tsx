@@ -13,6 +13,7 @@ interface Company {
   employees: string;
   revenue: string;
   location: string;
+  licenceExpiry?: string;
 }
 
 interface UaePassData {
@@ -85,9 +86,17 @@ function SingleCompanyCard({data}: {data: UaePassData}) {
   const c = t.tamm.uaePassCard;
 
   function handleGetQuotes() {
-    router.push(
-      `/tamm/quote/results?uaepass=true&businessType=${data.businessType}&employees=${data.employees}&revenue=${data.revenue}&emirate=${encodeURIComponent(data.location ?? '')}`,
-    );
+    const params = new URLSearchParams({
+      uaepass: 'true',
+      businessType: data.businessType ?? '',
+      employees: data.employees ?? '',
+      revenue: data.revenue ?? '',
+      emirate: data.location ?? '',
+    });
+    if (data.businessName) params.set('businessName', data.businessName);
+    if (data.licenceNumber) params.set('licenseNumber', data.licenceNumber);
+    if (data.activity) params.set('activity', data.activity);
+    router.push(`/tamm/quote/results?${params.toString()}`);
   }
 
   return (
@@ -146,9 +155,18 @@ function MultiCompanyCard({data}: {data: UaePassData & {companies: Company[]}}) 
   function handleGetQuotes(company: Company) {
     // Store selected company separately — keep uaepass-data intact so back navigation still shows both companies
     sessionStorage.setItem('uaepass-selected-company', JSON.stringify(company));
-    router.push(
-      `/tamm/quote/results?uaepass=true&businessType=${company.businessType}&employees=${company.employees}&revenue=${company.revenue}&emirate=${encodeURIComponent(company.location)}`,
-    );
+    const params = new URLSearchParams({
+      uaepass: 'true',
+      businessType: company.businessType,
+      employees: company.employees,
+      revenue: company.revenue,
+      emirate: company.location,
+      businessName: company.businessName,
+      licenseNumber: company.licenceNumber,
+      activity: company.activity,
+    });
+    if (company.licenceExpiry) params.set('licenceExpiry', company.licenceExpiry);
+    router.push(`/tamm/quote/results?${params.toString()}`);
   }
 
   return (
