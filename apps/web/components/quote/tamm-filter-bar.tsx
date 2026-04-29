@@ -55,10 +55,6 @@ export function TammFilterBar({
   const TABS = [fb.individualQuotes, fb.bundleDeals];
   const currentTab = activeTab ?? TABS[0];
 
-  const toggleSort = () => {
-    onSortChange(sortOrder === 'low-high' ? 'high-low' : 'low-high');
-  };
-
   return (
     <div className="space-y-3">
       {/* Coverage type tabs */}
@@ -130,19 +126,25 @@ export function TammFilterBar({
         </div>
 
         <div className="flex items-center gap-2 ms-auto">
-          {/* Sort button */}
-          <button
-            type="button"
-            onClick={toggleSort}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all"
-            style={{
-              border: '1px solid #E2E8F0',
-              color: '#475569',
-              background: 'white',
-            }}>
-            {fb.sortByPrice} ({sortOrder === 'low-high' ? fb.lowHigh : fb.highLow})
-            <ChevronDown />
-          </button>
+          {/* Sort dropdown */}
+          <div className="relative inline-flex items-center">
+            <select
+              value={sortOrder}
+              onChange={(e) => onSortChange(e.target.value as 'low-high' | 'high-low')}
+              className="appearance-none rounded-full ps-3 pe-8 py-1.5 text-xs font-medium transition-all cursor-pointer outline-none focus:border-[#169F9F]"
+              style={{
+                border: '1px solid #E2E8F0',
+                color: '#475569',
+                background: 'white',
+              }}
+              aria-label={fb.sortByPrice}>
+              <option value="low-high">{fb.sortByPrice}: {fb.lowHigh}</option>
+              <option value="high-low">{fb.sortByPrice}: {fb.highLow}</option>
+            </select>
+            <span className="pointer-events-none absolute inset-e-2.5 text-[#475569]">
+              <ChevronDown />
+            </span>
+          </div>
 
           {/* Compare Quotes */}
           <button

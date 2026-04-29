@@ -54,10 +54,16 @@ export function TammQuoteCard({
   const [showAllBenefits, setShowAllBenefits] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
-  const includedBenefits = benefits.filter((b) => b.included);
-  const visibleBenefits = showAllBenefits
-    ? includedBenefits
-    : includedBenefits.slice(0, DEFAULT_VISIBLE_BENEFITS);
+  const hasProductLines = !!productLines && productLines.length > 0;
+  const productLineNames = new Set(productLines?.map((line) => line.name) ?? []);
+  const includedBenefits = benefits
+    .filter((b) => b.included)
+    .filter((b) => !productLineNames.has(b.name));
+  const visibleBenefits = hasProductLines
+    ? []
+    : showAllBenefits
+      ? includedBenefits
+      : includedBenefits.slice(0, DEFAULT_VISIBLE_BENEFITS);
 
   const initials = insurer.name
     .split(/\s+/)
@@ -147,7 +153,11 @@ export function TammQuoteCard({
                 <TealDot />
                 <span className="text-[#475569] flex-1 leading-tight">{line.name}</span>
                 {line.mandatory && (
-                  <span className="text-[#169F9F] font-medium shrink-0">{qc.required}</span>
+                  <span
+                    className="text-[#169F9F] font-medium shrink-0"
+                    title={qc.requiredTooltip}>
+                    {qc.required}
+                  </span>
                 )}
               </div>
             ))}
@@ -167,7 +177,7 @@ export function TammQuoteCard({
         )}
 
         {/* View all benefits */}
-        {includedBenefits.length > DEFAULT_VISIBLE_BENEFITS && (
+        {!hasProductLines && includedBenefits.length > DEFAULT_VISIBLE_BENEFITS && (
           <button
             type="button"
             onClick={() => setShowAllBenefits((p) => !p)}

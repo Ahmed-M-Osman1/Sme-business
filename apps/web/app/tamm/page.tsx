@@ -6,6 +6,8 @@ import {useRouter} from 'next/navigation';
 import {Button} from '@shory/ui';
 import {useBrand} from '@/lib/brand';
 import {useI18n} from '@/lib/i18n';
+import {TammUserMenu} from '@/components/tamm/tamm-user-menu';
+import {TammFooter} from '@/components/tamm/tamm-footer';
 
 function ChevronRight({className}: {className?: string}) {
   return (
@@ -89,29 +91,20 @@ export default function TammEntryPage() {
 
   if (brand.id !== 'tamm') return null;
 
-  function handleUaePassQuote() {
-    const d = brand.uaePassMockData;
-    if (!d) return;
-    sessionStorage.setItem('uaepass-data', JSON.stringify(d));
-    router.push(
-      `${brand.basePath}/quote/results?uaepass=true&businessType=${d.businessType}&employees=${d.employees}&revenue=${d.revenue}&emirate=${encodeURIComponent(d.location)}`,
-    );
-  }
-
   const guides = landing.guides as {title: string; description: string}[];
   const newsItems = landing.news.items as {date: string; title: string}[];
   const serviceItems = landing.services.items as {title: string; entity: string}[];
   const serviceIcons = [
     'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
+    'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
     '/images/tamm-logo.svg',
     'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/compass-money-coins.png',
-    'https://static.tamm.abudhabi/cms-media/Project/TAMM/TAMM-v2/Mobile-Service-Icons/trade-license.png',
   ];
-  const serviceHrefs = ['#', '/tamm/quote/service', '#', '#'];
-  const serviceHighlighted = [false, true, false, false];
+  const serviceHrefs = ['/tamm/quote/login?intent=licence', '#', '/tamm/quote/service', '#'];
+  const serviceFeatured = [true, false, false, false];
 
   return (
-    <div className="min-h-screen" style={{background: 'linear-gradient(0deg, #FFFFFF 45%, #BBC3ED 100%)'}}>
+    <div className="min-h-screen flex flex-col" style={{background: 'linear-gradient(0deg, #FFFFFF 45%, #BBC3ED 100%)'}}>
       {/* ── TAMM Header ── */}
       <header className="bg-[#12121B] text-white">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
@@ -143,9 +136,9 @@ export default function TammEntryPage() {
             <button className="p-2 text-white/80 hover:text-white" aria-label="Theme">
               <ThemeIcon className="w-5 h-5" />
             </button>
-            <Button size="sm" className="rounded-md text-xs px-4 bg-primary text-white ms-1">
-              {landing.nav.signIn}
-            </Button>
+            <div className="ms-1">
+              <TammUserMenu variant="dark" />
+            </div>
           </div>
         </nav>
       </header>
@@ -222,12 +215,6 @@ export default function TammEntryPage() {
                   {landing.cta.startJourney}
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                className="rounded-full px-6 py-2.5 border-white/40 text-white font-semibold text-sm hover:bg-white/10"
-                onClick={handleUaePassQuote}>
-                {landing.cta.quickQuote}
-              </Button>
             </div>
           </div>
           <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
@@ -271,16 +258,24 @@ export default function TammEntryPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {serviceItems.map((service, i) => {
+            const featured = serviceFeatured[i];
             const inner = (
               <div
-                className={`bg-white rounded-xl border p-5 flex flex-col items-center text-center gap-3 h-full transition-all ${
-                  serviceHighlighted[i]
-                    ? 'border-primary/30 ring-1 ring-primary/10 hover:shadow-md'
-                    : 'border-[#DEE2E6] hover:shadow-sm'
+                className={`relative rounded-xl border p-5 flex flex-col items-center text-center gap-3 h-full transition-all ${
+                  featured
+                    ? 'bg-linear-to-br from-[#F0FDF9] to-[#E6F9F5] border-2 border-[#009688] hover:shadow-lg'
+                    : 'bg-white border-[#DEE2E6] hover:shadow-sm'
                 }`}>
+                {featured && (
+                  <span className="absolute -top-px left-1/2 -translate-x-1/2 bg-[#009688] text-white text-[9px] font-extrabold tracking-wider px-3 py-0.5 rounded-b-md">
+                    {landing.services.startHere}
+                  </span>
+                )}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={serviceIcons[i]} alt="" className="w-16 h-16 rounded-md object-contain" />
-                <h3 className="text-sm font-bold text-[#12121B]">{service.title}</h3>
+                <h3 className={`text-sm font-bold ${featured ? 'text-[#009688]' : 'text-[#12121B]'}`}>
+                  {service.title}
+                </h3>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-text-muted">
                   {service.entity}
                 </span>
@@ -294,6 +289,8 @@ export default function TammEntryPage() {
           })}
         </div>
       </div>
+
+      <TammFooter />
     </div>
   );
 }

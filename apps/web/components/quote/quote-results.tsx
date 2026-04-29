@@ -12,6 +12,7 @@ import {TammQuoteCard} from '@/components/quote/tamm-quote-card';
 import {TammFilterBar} from '@/components/quote/tamm-filter-bar';
 import {TammCompareView, type CompareQuote} from '@/components/quote/tamm-compare-view';
 import {TammBundleCard} from '@/components/quote/tamm-bundle-card';
+import {TammEditDetailsModal, type EditDetailsValues} from '@/components/quote/tamm-edit-details-modal';
 import {api} from '@/lib/api-client';
 import {useI18n} from '@/lib/i18n';
 import {useBrand, type BrandConfig} from '@/lib/brand';
@@ -347,6 +348,10 @@ export function QuoteResults() {
   const [addedExtras, setAddedExtras] = useState<Set<string>>(
     new Set(),
   );
+  const [perPage, setPerPage] = useState<6 | 9 | 12>(6);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
+  const [refreshingQuotes, setRefreshingQuotes] = useState(false);
   const extrasTotal = useMemo(
     () =>
       Array.from(addedExtras).reduce(
@@ -711,6 +716,7 @@ export function QuoteResults() {
       source,
       employees: employeeBand,
       emirate,
+      billing: monthly ? 'monthly' : 'annual',
     });
 
     if (addedExtras.size > 0) {
@@ -727,15 +733,27 @@ export function QuoteResults() {
     if (businessName) params.set('businessName', businessName);
     if (licenseNumber) params.set('licenseNumber', licenseNumber);
 
+    const activity = searchParams.get('activity');
+    const licenceExpiry = searchParams.get('licenceExpiry');
+    if (activity) params.set('activity', activity);
+    if (licenceExpiry) params.set('licenceExpiry', licenceExpiry);
+
     setShowTransition(true);
-    const destination =
-      licenseNumber && businessName
-        ? (() => {
-            params.set('companyVerified', 'true');
-            params.set('companySource', 'ocr');
-            return `${brand.basePath}/quote/checkout?${params.toString()}`;
-          })()
-        : `${brand.basePath}/quote/company-details?${params.toString()}`;
+    const destination = (() => {
+      if (isTamm) {
+        if (licenseNumber && businessName) {
+          params.set('companyVerified', 'true');
+          params.set('companySource', searchParams.get('uaepass') === 'true' ? 'uaepass' : 'ocr');
+        }
+        return `${brand.basePath}/quote/detail?${params.toString()}`;
+      }
+      if (licenseNumber && businessName) {
+        params.set('companyVerified', 'true');
+        params.set('companySource', 'ocr');
+        return `${brand.basePath}/quote/checkout?${params.toString()}`;
+      }
+      return `${brand.basePath}/quote/company-details?${params.toString()}`;
+    })();
 
     setTimeout(() => {
       router.push(destination);
@@ -744,6 +762,25 @@ export function QuoteResults() {
 
   function handleBack() {
     router.back();
+  }
+
+  function handleEditConfirm(next: EditDetailsValues) {
+    setEditOpen(false);
+    setRefreshingQuotes(true);
+    setCoverageLimits(next.limits);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('employees', next.employees);
+    params.set('revenue', next.revenue);
+    params.set('emirate', next.emirate);
+    router.replace(`?${params.toString()}`, {scroll: false});
+
+    setPageIndex(0);
+    setSelectedInsurerId(null);
+
+    setTimeout(() => {
+      setRefreshingQuotes(false);
+    }, 1500);
   }
 
   if (loading || !initialized) {
@@ -795,8 +832,24 @@ export function QuoteResults() {
         </div>
 
         {/* Business summary card */}
-        <div className="mb-5 rounded-xl bg-white p-4" style={{border: '1px solid #E2E8F0'}}>
-          <div className="flex items-center gap-3">
+        <div className="mb-5 rounded-xl bg-white p-4 relative" style={{border: '1px solid #E2E8F0'}}>
+          <button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            aria-label={t.tamm.results.editDetails}
+            title={t.tamm.results.editDetails}
+            className="absolute top-3 inset-e-3 inline-flex items-center justify-center w-9 h-9 rounded-lg text-[#169F9F] hover:bg-[#E8F7F7] transition-colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <path
+                d="M11.5 2.5l2 2-7 7H4.5v-2l7-7zM10.5 3.5l2 2"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <div className="flex items-center gap-3 pe-12">
             <div
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
               style={{background: '#F1F5F9'}}>
@@ -819,16 +872,6 @@ export function QuoteResults() {
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleBack}
-            className="mt-3 flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-70"
-            style={{color: '#169F9F'}}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M8.5 2L4.5 6L8.5 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            {t.tamm.results.editDetails}
-          </button>
         </div>
 
         {/* Annual/Monthly toggle + count */}
@@ -880,6 +923,7 @@ export function QuoteResults() {
 
         {/* Content: 3-col quote grid OR bundle grid */}
         {activeTab === 'individual' ? (
+          <>
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {insurerQuotes.length === 0 ? (
               <div className="col-span-3 py-12 text-center">
@@ -892,7 +936,7 @@ export function QuoteResults() {
                 </button>
               </div>
             ) : (
-              insurerQuotes.map((insurer, idx) => {
+              insurerQuotes.slice(pageIndex * perPage, (pageIndex + 1) * perPage).map((insurer, idx) => {
                 const isBest = insurer.total === lowestPrice;
                 const lines = activeProductIds
                   .map((pid) => {
@@ -943,6 +987,63 @@ export function QuoteResults() {
               })
             )}
           </div>
+
+          {/* Pagination */}
+          {insurerQuotes.length > 0 && (() => {
+            const totalPages = Math.max(1, Math.ceil(insurerQuotes.length / perPage));
+            const safePage = Math.min(pageIndex, totalPages - 1);
+            return (
+              <div className="mt-6 flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-[#E8ECF0]">
+                <label className="flex items-center gap-2 text-sm text-text">
+                  <span>{t.tamm.pagination.showPerPage}</span>
+                  <div className="relative">
+                    <select
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value) as 6 | 9 | 12);
+                        setPageIndex(0);
+                      }}
+                      className="appearance-none rounded-md border border-[#E2E8F0] bg-white ps-3 pe-7 py-1.5 text-sm font-semibold cursor-pointer outline-none focus:border-[#169F9F]"
+                      aria-label={t.tamm.pagination.showPerPage}>
+                      <option value={6}>6</option>
+                      <option value={9}>9</option>
+                      <option value={12}>12</option>
+                    </select>
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      aria-hidden
+                      className="pointer-events-none absolute inset-e-2 top-1/2 -translate-y-1/2 text-[#475569]">
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </label>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({length: totalPages}, (_, i) => i).map((p) => {
+                    const isActive = p === safePage;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPageIndex(p)}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`min-w-9 h-9 rounded-md text-sm font-semibold transition-colors ${
+                          isActive
+                            ? 'bg-[#F1F5F9] text-text'
+                            : 'text-text-muted hover:bg-[#F8FAFB]'
+                        }`}>
+                        {p + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+          </>
         ) : (
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {bundles.map((bundle) => {
@@ -1170,6 +1271,47 @@ export function QuoteResults() {
               </div>
             </aside>
           </>
+        )}
+
+        <TammEditDetailsModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onConfirm={handleEditConfirm}
+          businessTypeLabel={
+            (t.businessType as Record<string, string>)[businessType?.id ?? ''] ||
+            businessType?.title ||
+            ''
+          }
+          businessName={searchParams.get('businessName') ?? undefined}
+          initialEmployees={employeeBand}
+          initialRevenue={revenue}
+          initialEmirate={emirate}
+          activeProducts={activeProductIds.map((pid) => ({
+            id: pid,
+            name:
+              (t.products as Record<string, {name: string; shortName: string}>)[pid]?.name ||
+              productsMap[pid]?.name ||
+              pid,
+            mandatory: mandatoryProducts.has(pid),
+          }))}
+          initialLimits={coverageLimits}
+          emirateOptions={brand.locations.map((l) => ({
+            label:
+              (t.options.emirates as Record<string, string>)[l.value] ?? l.label,
+            value: l.value,
+          }))}
+        />
+
+        {refreshingQuotes && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="fixed inset-0 z-40 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent border-[#169F9F]" />
+            <p className="text-sm font-semibold text-text">
+              {t.tamm.results.refreshingQuotes}
+            </p>
+          </div>
         )}
       </div>
     );

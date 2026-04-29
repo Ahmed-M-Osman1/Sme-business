@@ -1,5 +1,6 @@
 'use client';
 
+import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, Badge} from '@shory/ui';
@@ -8,7 +9,11 @@ import {LottieAnimation} from '@/components/ui/lottie-animation';
 import {useI18n} from '@/lib/i18n';
 import {useBrand} from '@/lib/brand';
 import {TammUaePassCard} from '@/components/quote/tamm-uaepass-card';
-// Note: This page is intentionally kept simple and static to ensure it loads instantly without any authentication or data fetching. The individual method pages will handle all the logic and checks.
+
+// Note: This page is intentionally kept simple and static to ensure it loads
+// instantly without any authentication or data fetching. The individual method
+// pages handle all the logic and checks.
+
 function getFeatured(basePath: string) {
   return {
     id: 'ai-advisor',
@@ -65,6 +70,20 @@ export default function QuoteStartPage() {
   const FEATURED = getFeatured(brand.basePath);
   const OTHER_METHODS = getOtherMethods(brand.basePath);
 
+  // For TAMM, hide the "or choose another way" alternatives once we have a
+  // UAE PASS pre-fill — the user already has their business identified.
+  const [hasUaePassPrefill, setHasUaePassPrefill] = useState(false);
+  useEffect(() => {
+    if (brand.id !== 'tamm') return;
+    const check = () => {
+      setHasUaePassPrefill(!!sessionStorage.getItem('uaepass-data'));
+    };
+    check();
+    window.addEventListener('uaepass-session-change', check);
+    return () => window.removeEventListener('uaepass-session-change', check);
+  }, [brand.id]);
+  const hideOtherMethods = brand.id === 'tamm' && hasUaePassPrefill;
+
   function handleUaePassLogin() {
     const d = brand.uaePassMockData;
     if (!d) return;
@@ -95,7 +114,7 @@ export default function QuoteStartPage() {
         {/* UAE PASS pre-filled card — TAMM only, shown when authenticated */}
         {brand.id === 'tamm' && <TammUaePassCard />}
 
-        {/* UAE PASS sign-in banner */}
+        {/* UAE PASS sign-in banner — non-TAMM brands that opt in */}
         {brand.uaePassEnabled && brand.id !== 'tamm' && (
           <button onClick={handleUaePassLogin} className="w-full text-start">
             <Card className="rounded-2xl border-2 border-green-300/30 bg-linear-to-br from-green-50 to-white hover:shadow-lg transition-all duration-200 cursor-pointer">
@@ -182,53 +201,57 @@ export default function QuoteStartPage() {
           </Card>
         </Link>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-text-muted">
-            {t.start.orChooseAnother}
-          </span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+        {/* Divider — hidden when TAMM user already has UAE PASS pre-fill */}
+        {!hideOtherMethods && (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-text-muted">
+              {t.start.orChooseAnother}
+            </span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+        )}
 
         {/* Other methods — 3-column grid on desktop, single column on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {OTHER_METHODS.map((method) => (
-            <Link key={method.id} href={method.href}>
-              <Card className="rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer h-full">
-                <CardContent className="flex flex-col gap-3 p-4 relative">
-                  {method.badge && (
-                    <div className="absolute -top-2.5 inset-s-3">
-                      <span
-                        className={`text-[10px] px-3 py-0.5 rounded-full font-bold shadow-sm ${method.badge.className}`}>
-                        {t.start.fastest}
+        {!hideOtherMethods && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {OTHER_METHODS.map((method) => (
+              <Link key={method.id} href={method.href}>
+                <Card className="rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer h-full">
+                  <CardContent className="flex flex-col gap-3 p-4 relative">
+                    {method.badge && (
+                      <div className="absolute -top-2.5 inset-s-3">
+                        <span
+                          className={`text-[10px] px-3 py-0.5 rounded-full font-bold shadow-sm ${method.badge.className}`}>
+                          {t.start.fastest}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3 mt-1">
+                      <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-lg shrink-0">
+                        {method.icon}
+                      </div>
+                      <span className="font-semibold text-text text-sm sm:text-base leading-tight">
+                        {method.id === 'pre-configured'
+                          ? t.start.preConfigured
+                          : method.id === 'upload'
+                            ? t.start.uploadLicence
+                            : t.start.manual}
                       </span>
                     </div>
-                  )}
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-lg shrink-0">
-                      {method.icon}
-                    </div>
-                    <span className="font-semibold text-text text-sm sm:text-base leading-tight">
+                    <p className="text-[11px] sm:text-xs text-text-muted leading-relaxed">
                       {method.id === 'pre-configured'
-                        ? t.start.preConfigured
+                        ? t.start.preConfiguredDesc
                         : method.id === 'upload'
-                          ? t.start.uploadLicence
-                          : t.start.manual}
-                    </span>
-                  </div>
-                  <p className="text-[11px] sm:text-xs text-text-muted leading-relaxed">
-                    {method.id === 'pre-configured'
-                      ? t.start.preConfiguredDesc
-                      : method.id === 'upload'
-                        ? t.start.uploadLicenceDesc
-                        : t.start.manualDesc}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                          ? t.start.uploadLicenceDesc
+                          : t.start.manualDesc}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

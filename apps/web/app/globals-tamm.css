@@ -5,11 +5,15 @@
  */
 
 [data-brand="tamm"] {
-  /* Primary — Abu Dhabi Gov blue */
-  --color-primary: #005C9E;
-  --color-primary-hover: #004B82;
-  --color-primary-light: #E8F1F8;
-  --color-primary-mid: #B3CFDF;
+  /* Primary — TAMM teal (matches the rest of the TAMM app) */
+  --color-primary: #169F9F;
+  --color-primary-hover: #0E8B8B;
+  --color-primary-light: #E8F7F7;
+  --color-primary-mid: #99D6D6;
+
+  /* Abu Dhabi Gov navy — kept for contextual branding (banners/dark backgrounds) */
+  --color-adgov-blue: #005C9E;
+  --color-adgov-blue-hover: #004B82;
 
   /* Navy — dark business backgrounds (from Figma Spaces Backgrounds) */
   --color-navy-deep: #020D22;

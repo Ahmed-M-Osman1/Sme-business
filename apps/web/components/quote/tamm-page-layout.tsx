@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {TammStepper, TammStepperCompact} from './tamm-stepper';
+import {TammUserMenu} from '@/components/tamm/tamm-user-menu';
+import {TammFooter, TammActionRow, type TammActionRowProps} from '@/components/tamm/tamm-footer';
 import {useI18n} from '@/lib/i18n';
 
 interface TammPageLayoutProps {
   currentStep: number;
   children: React.ReactNode;
+  /** When provided, renders a Back / Exit Service / Next action row above the dark footer. */
+  action?: TammActionRowProps;
 }
 
 function SearchIcon() {
@@ -30,6 +34,7 @@ function ChevronRight({className}: {className?: string}) {
 export function TammPageLayout({
   currentStep,
   children,
+  action,
 }: TammPageLayoutProps) {
   const {t, toggleLocale} = useI18n();
   const tamm = t.tamm;
@@ -80,6 +85,7 @@ export function TammPageLayout({
               className="p-2 text-sm font-medium text-[#169F9F] hover:text-[#12121B] transition-colors">
               {tamm.nav.langToggle}
             </button>
+            <TammUserMenu variant="light" />
           </div>
         </nav>
       </header>
@@ -117,6 +123,9 @@ export function TammPageLayout({
         </div>
       </div>
 
+      {action ? <TammActionRow {...action} /> : null}
+
+      <TammFooter />
     </div>
   );
 }

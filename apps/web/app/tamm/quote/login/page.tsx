@@ -1,12 +1,15 @@
 'use client';
 
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import Image from 'next/image';
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {TammFooter} from '@/components/tamm/tamm-footer';
 
 const ACCOUNTS: Record<string, object> = {
   '784197239274828': {
     name: 'Ahmed Osman',
+    email: 'aosman@shory.com',
+    phone: '50 123 4567',
     businessName: 'Al Massry Consulting LLC',
     licenceNumber: 'CN-2025-98765',
     emiratesId: '784197239274828',
@@ -18,32 +21,44 @@ const ACCOUNTS: Record<string, object> = {
   },
   '784198971460518': {
     name: 'Ed Glenn',
+    email: 'eglenn@shory.com',
+    phone: '50 000 0000',
     emiratesId: '784198971460518',
     companies: [
       {
+        id: 'cafe',
         businessName: 'Al Rashidi Café & Grill',
         licenceNumber: 'CN-2024-44521',
         businessType: 'cafe-restaurant',
+        businessLabel: 'Café / Restaurant',
         activity: 'Food & Beverage',
         employees: '6-20',
         revenue: '500k-1m',
+        revenueLabel: 'AED 500K – 1M',
         location: 'Abu Dhabi City',
+        licenceExpiry: '2026-06-15',
       },
       {
+        id: 'tech',
         businessName: 'Al Rashidi Tech Hub',
         licenceNumber: 'CN-2024-78903',
         businessType: 'it-technology',
+        businessLabel: 'IT / Technology',
         activity: 'Technology',
         employees: '2-5',
         revenue: 'under-500k',
+        revenueLabel: 'Under AED 500K',
         location: 'Abu Dhabi City',
+        licenceExpiry: '2026-12-15',
       },
     ],
   },
 };
 
-export default function TammLoginPage() {
+function TammLoginInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const intent = searchParams.get('intent');
 
   const [identifier, setIdentifier] = useState('');
   const [remember, setRemember] = useState(true);
@@ -64,9 +79,11 @@ export default function TammLoginPage() {
 
     sessionStorage.setItem('uaepass-data', JSON.stringify(account));
     sessionStorage.setItem('tamm-authenticated', 'true');
+    window.dispatchEvent(new Event('uaepass-session-change'));
 
+    const next = intent === 'licence' ? '/tamm/licence/select' : '/tamm/quote/start';
     setTimeout(() => {
-      router.push('/tamm/quote/start');
+      router.push(next);
     }, 800);
   }
 
@@ -156,14 +173,6 @@ export default function TammLoginPage() {
             style={{background: '#E2E8F0'}}
           />
 
-          {/* Create account row */}
-          <p className="text-sm text-[#4a5568] text-center">
-            Don&apos;t have UAEPASS account?{' '}
-            <span className="text-[#00B2A9] cursor-not-allowed opacity-60">
-              Create new account
-            </span>
-          </p>
-
           {/* Recover account */}
           <span className="text-sm text-[#00B2A9] cursor-not-allowed opacity-60">
             Recover your account
@@ -202,6 +211,16 @@ export default function TammLoginPage() {
           Copyright © 2026 UAE PASS All rights reserved.
         </p>
       </footer>
+
+      <TammFooter />
     </div>
+  );
+}
+
+export default function TammLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <TammLoginInner />
+    </Suspense>
   );
 }

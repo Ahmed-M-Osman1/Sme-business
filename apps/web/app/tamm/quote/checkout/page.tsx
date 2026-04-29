@@ -2,7 +2,7 @@
 
 import {Suspense} from 'react';
 import {TammPageLayout} from '@/components/quote/tamm-page-layout';
-import ShoryPage from '@/app/quote/checkout/page';
+import {TammReviewPay} from '@/components/quote/tamm-review-pay';
 
 export default function TammCheckoutPage() {
   return (
@@ -10,11 +10,11 @@ export default function TammCheckoutPage() {
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#009688] border-t-transparent rounded-full animate-spin" />
           </div>
         }
       >
-        <ShoryPage />
+        <TammReviewPay />
       </Suspense>
     </TammPageLayout>
   );
